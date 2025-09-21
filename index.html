@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIW Application Survey - Professional Consulting</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>NIW Application Assistant</h1>
+                </div>
+                <p class="subtitle">Professional National Interest Waiver Application Survey</p>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="currentStep">1</span> of <span id="totalSteps">8</span> sections
+            </div>
+        </div>
+
+        <!-- Survey Form -->
+        <form id="surveyForm" class="survey-form">
+            <!-- Section 1: Personal Information -->
+            <div class="form-section active" data-section="1">
+                <div class="section-header">
+                    <h2><i class="fas fa-user"></i> Personal Information</h2>
+                    <p>Please provide your basic personal details and contact information.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="PERSONAL_EMAIL">Email Address</label>
+                        <input type="email" id="PERSONAL_EMAIL" name="PERSONAL_EMAIL">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_FULL_NAME">Full Legal Name</label>
+                        <input type="text" id="PERSONAL_FULL_NAME" name="PERSONAL_FULL_NAME">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_FIRST_NAME">First Name</label>
+                        <input type="text" id="PERSONAL_FIRST_NAME" name="PERSONAL_FIRST_NAME">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_LAST_NAME">Last Name (Surname)</label>
+                        <input type="text" id="PERSONAL_LAST_NAME" name="PERSONAL_LAST_NAME">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_COUNTRY_ORIGIN">Country of Origin</label>
+                        <input type="text" id="PERSONAL_COUNTRY_ORIGIN" name="PERSONAL_COUNTRY_ORIGIN">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="PERSONAL_ADDRESS_LINE1">Current Street Address</label>
+                        <input type="text" id="PERSONAL_ADDRESS_LINE1" name="PERSONAL_ADDRESS_LINE1">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_CITY">City</label>
+                        <input type="text" id="PERSONAL_CITY" name="PERSONAL_CITY">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_STATE">State (2-letter abbreviation)</label>
+                        <input type="text" id="PERSONAL_STATE" name="PERSONAL_STATE" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_ZIP">ZIP/Postal Code</label>
+                        <input type="text" id="PERSONAL_ZIP" name="PERSONAL_ZIP">
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_PHONE">Phone Number (no spaces or dashes)</label>
+                        <input type="tel" id="PERSONAL_PHONE" name="PERSONAL_PHONE">
+                    </div>
+                    <div class="form-group">
+                        <label for="TITLE">Professional Title</label>
+                        <select id="TITLE" name="TITLE">
+                            <option value="">Select Title</option>
+                            <option value="Dr.">Dr.</option>
+                            <option value="Mr.">Mr.</option>
+                            <option value="Ms.">Ms.</option>
+                            <option value="Mrs.">Mrs.</option>
+                            <option value="Prof.">Prof.</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="HE_SHE_THEY">Preferred Pronouns</label>
+                        <select id="HE_SHE_THEY" name="HE_SHE_THEY">
+                            <option value="">Select Pronouns</option>
+                            <option value="he">he</option>
+                            <option value="she">she</option>
+                            <option value="they">they</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="LETTER_DATE">Petition Letter Date</label>
+                        <input type="date" id="LETTER_DATE" name="LETTER_DATE">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: USCIS Information -->
+            <div class="form-section" data-section="2">
+                <div class="section-header">
+                    <h2><i class="fas fa-building"></i> USCIS Service Center Information</h2>
+                    <p>Please provide the USCIS service center address details.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="USCIS_ADDRESS_LINE1">USCIS Service Center Address Line 1</label>
+                        <input type="text" id="USCIS_ADDRESS_LINE1" name="USCIS_ADDRESS_LINE1">
+                    </div>
+                    <div class="form-group">
+                        <label for="USCIS_CITY">USCIS Service Center City</label>
+                        <input type="text" id="USCIS_CITY" name="USCIS_CITY">
+                    </div>
+                    <div class="form-group">
+                        <label for="USCIS_STATE">USCIS Service Center State (2-letter abbreviation)</label>
+                        <input type="text" id="USCIS_STATE" name="USCIS_STATE" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="USCIS_ZIP">USCIS Service Center ZIP Code</label>
+                        <input type="text" id="USCIS_ZIP" name="USCIS_ZIP">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Education -->
+            <div class="form-section" data-section="3">
+                <div class="section-header">
+                    <h2><i class="fas fa-graduation-cap"></i> Educational Background</h2>
+                    <p>Please provide details about your academic qualifications and university information.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="EDU_DEGREE_1">First Degree</label>
+                        <input type="text" id="EDU_DEGREE_1" name="EDU_DEGREE_1" placeholder="e.g., B.A., B.S.">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_MAJOR_1">Major for First Degree</label>
+                        <input type="text" id="EDU_MAJOR_1" name="EDU_MAJOR_1">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_UNIVERSITY_1">University for First Degree</label>
+                        <input type="text" id="EDU_UNIVERSITY_1" name="EDU_UNIVERSITY_1">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_GOVERNING_BODY">Governing Body (e.g., Ministry of Education)</label>
+                        <input type="text" id="EDU_GOVERNING_BODY" name="EDU_GOVERNING_BODY">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_RANKING_YEAR">University Ranking Year</label>
+                        <input type="number" id="EDU_RANKING_YEAR" name="EDU_RANKING_YEAR" min="2000" max="2025">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_RANK_GLOBAL">Global Ranking</label>
+                        <input type="number" id="EDU_RANK_GLOBAL" name="EDU_RANK_GLOBAL" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_RANK_NATIONAL">National Ranking</label>
+                        <input type="number" id="EDU_RANK_NATIONAL" name="EDU_RANK_NATIONAL" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_FIELD">Field Ranked In</label>
+                        <input type="text" id="EDU_FIELD" name="EDU_FIELD">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_RANKING_SOURCE">Ranking System</label>
+                        <select id="EDU_RANKING_SOURCE" name="EDU_RANKING_SOURCE">
+                            <option value="">Select Ranking System</option>
+                            <option value="QS">QS World University Rankings</option>
+                            <option value="Times Higher Education">Times Higher Education</option>
+                            <option value="ARWU">ARWU (Shanghai Rankings)</option>
+                            <option value="US News">US News & World Report</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_COUNTRY">Country of First University</label>
+                        <input type="text" id="EDU_COUNTRY" name="EDU_COUNTRY">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Additional Education -->
+            <div class="form-section" data-section="4">
+                <div class="section-header">
+                    <h2><i class="fas fa-university"></i> Additional Educational Qualifications</h2>
+                    <p>Please provide information about your second and third degrees, if applicable.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="EDU_DEGREE_2">Second Degree</label>
+                        <input type="text" id="EDU_DEGREE_2" name="EDU_DEGREE_2" placeholder="e.g., M.S., M.A.">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_MAJOR_2">Major for Second Degree</label>
+                        <input type="text" id="EDU_MAJOR_2" name="EDU_MAJOR_2">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_UNIVERSITY_2">University for Second Degree</label>
+                        <input type="text" id="EDU_UNIVERSITY_2" name="EDU_UNIVERSITY_2">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_TYPE_2">Institution Type</label>
+                        <input type="text" id="EDU_TYPE_2" name="EDU_TYPE_2" placeholder="e.g., comprehensive public research university">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_SUBFIELD_2">Subfield of Study</label>
+                        <input type="text" id="EDU_SUBFIELD_2" name="EDU_SUBFIELD_2">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_KEY_AREA_2">Key Areas Studied (comma-separated)</label>
+                        <textarea id="EDU_KEY_AREA_2" name="EDU_KEY_AREA_2" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_DEGREE_3">Third Degree</label>
+                        <input type="text" id="EDU_DEGREE_3" name="EDU_DEGREE_3" placeholder="e.g., Ph.D., M.D.">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_MAJOR_3">Major for Third Degree</label>
+                        <input type="text" id="EDU_MAJOR_3" name="EDU_MAJOR_3">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_UNIVERSITY_3">University for Third Degree</label>
+                        <input type="text" id="EDU_UNIVERSITY_3" name="EDU_UNIVERSITY_3">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_RANK_GLOBAL_3">Global Ranking (Third University)</label>
+                        <input type="number" id="EDU_RANK_GLOBAL_3" name="EDU_RANK_GLOBAL_3" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_RANK_NATIONAL_3">National Ranking (Third University)</label>
+                        <input type="number" id="EDU_RANK_NATIONAL_3" name="EDU_RANK_NATIONAL_3" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_COUNTRY_3">Country of Third University</label>
+                        <input type="text" id="EDU_COUNTRY_3" name="EDU_COUNTRY_3">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="PHD_RESEARCH_TOPIC">PhD Research Topic</label>
+                        <textarea id="PHD_RESEARCH_TOPIC" name="PHD_RESEARCH_TOPIC" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="RESEARCH_PROBLEM_AREA">Research Problems Addressed (comma-separated)</label>
+                        <textarea id="RESEARCH_PROBLEM_AREA" name="RESEARCH_PROBLEM_AREA" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Professional Information -->
+            <div class="form-section" data-section="5">
+                <div class="section-header">
+                    <h2><i class="fas fa-briefcase"></i> Professional Information</h2>
+                    <p>Please provide details about your current employment and research work.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="JOB_TITLE">Current Job Title</label>
+                        <input type="text" id="JOB_TITLE" name="JOB_TITLE">
+                    </div>
+                    <div class="form-group">
+                        <label for="CURRENT_COMPANY">Current Employer/Institution</label>
+                        <input type="text" id="CURRENT_COMPANY" name="CURRENT_COMPANY">
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_LOCATION">Employer Location (City, State/Country)</label>
+                        <input type="text" id="COMPANY_LOCATION" name="COMPANY_LOCATION">
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_YEAR">Year Founded</label>
+                        <input type="number" id="COMPANY_YEAR" name="COMPANY_YEAR" min="1800" max="2025">
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_INDUSTRY">Industry</label>
+                        <input type="text" id="COMPANY_INDUSTRY" name="COMPANY_INDUSTRY">
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_SOLUTIONS">Solutions/Services (comma-separated)</label>
+                        <textarea id="COMPANY_SOLUTIONS" name="COMPANY_SOLUTIONS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_EMPLOYEE_COUNT">Number of Employees</label>
+                        <input type="number" id="COMPANY_EMPLOYEE_COUNT" name="COMPANY_EMPLOYEE_COUNT" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_REVENUE">Annual Revenue</label>
+                        <input type="text" id="COMPANY_REVENUE" name="COMPANY_REVENUE" placeholder="e.g., $1M, $10M">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CURRENT_RESEARCH_AREA">Current Research Areas (comma-separated)</label>
+                        <textarea id="CURRENT_RESEARCH_AREA" name="CURRENT_RESEARCH_AREA" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CURRENT_INNOVATIONS">Current Innovations (comma-separated)</label>
+                        <textarea id="CURRENT_INNOVATIONS" name="CURRENT_INNOVATIONS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="APPLICATION_DOMAINS_US">US Application Domains (comma-separated)</label>
+                        <textarea id="APPLICATION_DOMAINS_US" name="APPLICATION_DOMAINS_US" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="NATIONAL_PRIORITY_AREAS">US National Priority Areas (comma-separated)</label>
+                        <textarea id="NATIONAL_PRIORITY_AREAS" name="NATIONAL_PRIORITY_AREAS" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: Research Expertise -->
+            <div class="form-section" data-section="6">
+                <div class="section-header">
+                    <h2><i class="fas fa-microscope"></i> Research Expertise & Focus</h2>
+                    <p>Please provide detailed information about your research expertise and focus areas.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="RESEARCH_FIELDS_CORE">Core Research Fields (comma-separated)</label>
+                        <textarea id="RESEARCH_FIELDS_CORE" name="RESEARCH_FIELDS_CORE" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="RESEARCH_FIELD_PRIMARY">Primary Research Field</label>
+                        <input type="text" id="RESEARCH_FIELD_PRIMARY" name="RESEARCH_FIELD_PRIMARY">
+                    </div>
+                    <div class="form-group">
+                        <label for="RESEARCH_FIELD_SECONDARY">Secondary Research Field</label>
+                        <input type="text" id="RESEARCH_FIELD_SECONDARY" name="RESEARCH_FIELD_SECONDARY">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="RESEARCH_THEMATIC_FOCUS">Thematic Research Focus (comma-separated)</label>
+                        <textarea id="RESEARCH_THEMATIC_FOCUS" name="RESEARCH_THEMATIC_FOCUS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="RESEARCH_OBJECTIVES">Research Objectives (comma-separated)</label>
+                        <textarea id="RESEARCH_OBJECTIVES" name="RESEARCH_OBJECTIVES" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="RESEARCH_FOCUS">Specific Research Focus (comma-separated)</label>
+                        <textarea id="RESEARCH_FOCUS" name="RESEARCH_FOCUS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="INTERDISCIPLINARY_AREAS">Interdisciplinary Areas (comma-separated)</label>
+                        <textarea id="INTERDISCIPLINARY_AREAS" name="INTERDISCIPLINARY_AREAS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="INTERDISCIPLINARY_EXPERTISE">Interdisciplinary Expertise (comma-separated)</label>
+                        <textarea id="INTERDISCIPLINARY_EXPERTISE" name="INTERDISCIPLINARY_EXPERTISE" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="METHODOLOGICAL_EXPERTISE">Methodological Expertise (comma-separated)</label>
+                        <textarea id="METHODOLOGICAL_EXPERTISE" name="METHODOLOGICAL_EXPERTISE" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="TECHNICAL_CHALLENGES">Technical Challenges Addressed (comma-separated)</label>
+                        <textarea id="TECHNICAL_CHALLENGES" name="TECHNICAL_CHALLENGES" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="PERFORMANCE_METRICS">Performance Metrics Used (comma-separated)</label>
+                        <textarea id="PERFORMANCE_METRICS" name="PERFORMANCE_METRICS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CHALLENGES_ADDRESSED">Challenges Addressed (comma-separated)</label>
+                        <textarea id="CHALLENGES_ADDRESSED" name="CHALLENGES_ADDRESSED" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="GLOBAL_CHALLENGES_ADDRESSED">Global Challenges Addressed (comma-separated)</label>
+                        <textarea id="GLOBAL_CHALLENGES_ADDRESSED" name="GLOBAL_CHALLENGES_ADDRESSED" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="INNOVATIVE_METHODS">Innovative Methods Developed (comma-separated)</label>
+                        <textarea id="INNOVATIVE_METHODS" name="INNOVATIVE_METHODS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="SPECIALIZED_EXPERTISE">Specialized Expertise (comma-separated)</label>
+                        <textarea id="SPECIALIZED_EXPERTISE" name="SPECIALIZED_EXPERTISE" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="YEARS_OF_EXPERIENCE">Years of Research Experience</label>
+                        <input type="number" id="YEARS_OF_EXPERIENCE" name="YEARS_OF_EXPERIENCE" min="0" max="50">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="NATIONAL_IMPORTANCE">Areas of National Importance (comma-separated)</label>
+                        <textarea id="NATIONAL_IMPORTANCE" name="NATIONAL_IMPORTANCE" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: Publications -->
+            <div class="form-section" data-section="7">
+                <div class="section-header">
+                    <h2><i class="fas fa-file-alt"></i> Publications & Research Output</h2>
+                    <p>Please provide detailed information about your publications and research output.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="PUBLICATIONS_TOTAL_COUNT">Total Number of Publications</label>
+                        <input type="number" id="PUBLICATIONS_TOTAL_COUNT" name="PUBLICATIONS_TOTAL_COUNT" min="0">
+                    </div>
+                </div>
+                    
+                    <!-- Publication 1 -->
+                    <div class="publication-section">
+                        <h3>Publication 1</h3>
+                        <div class="form-group">
+                            <label for="PUB1_TITLE">Title</label>
+                            <input type="text" id="PUB1_TITLE" name="PUB1_TITLE">
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB1_PROBLEM">Problem Addressed</label>
+                            <textarea id="PUB1_PROBLEM" name="PUB1_PROBLEM" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB1_METHOD">Method Used</label>
+                            <textarea id="PUB1_METHOD" name="PUB1_METHOD" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB1_CHALLENGE">Challenge Overcome</label>
+                            <textarea id="PUB1_CHALLENGE" name="PUB1_CHALLENGE" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB1_METRIC">Measurable Improvement</label>
+                            <textarea id="PUB1_METRIC" name="PUB1_METRIC" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB1_APPLICATION">Applications (comma-separated)</label>
+                            <textarea id="PUB1_APPLICATION" name="PUB1_APPLICATION" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB1_VENUE">Publication Venue</label>
+                            <input type="text" id="PUB1_VENUE" name="PUB1_VENUE">
+                        </div>
+                    </div>
+
+                    <!-- Publication 2 -->
+                    <div class="publication-section">
+                        <h3>Publication 2</h3>
+                        <div class="form-group">
+                            <label for="PUB2_TITLE">Title</label>
+                            <input type="text" id="PUB2_TITLE" name="PUB2_TITLE">
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB2_OBJECTIVE">Objective</label>
+                            <textarea id="PUB2_OBJECTIVE" name="PUB2_OBJECTIVE" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB2_METHOD">Method Used</label>
+                            <textarea id="PUB2_METHOD" name="PUB2_METHOD" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB2_PROBLEM">Problem Addressed</label>
+                            <textarea id="PUB2_PROBLEM" name="PUB2_PROBLEM" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB2_METRIC">Measurable Improvement</label>
+                            <textarea id="PUB2_METRIC" name="PUB2_METRIC" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB2_APPLICATION">Applications (comma-separated)</label>
+                            <textarea id="PUB2_APPLICATION" name="PUB2_APPLICATION" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB2_VENUE">Publication Venue</label>
+                            <input type="text" id="PUB2_VENUE" name="PUB2_VENUE">
+                        </div>
+                    </div>
+
+                    <!-- Publication 3 -->
+                    <div class="publication-section">
+                        <h3>Publication 3</h3>
+                        <div class="form-group">
+                            <label for="PUB3_TITLE">Title</label>
+                            <input type="text" id="PUB3_TITLE" name="PUB3_TITLE">
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB3_METHOD">Method Used</label>
+                            <textarea id="PUB3_METHOD" name="PUB3_METHOD" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB3_PROBLEM">Problem Addressed</label>
+                            <textarea id="PUB3_PROBLEM" name="PUB3_PROBLEM" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB3_CHALLENGE">Challenge Overcome</label>
+                            <textarea id="PUB3_CHALLENGE" name="PUB3_CHALLENGE" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB3_APPLICATION">Applications (comma-separated)</label>
+                            <textarea id="PUB3_APPLICATION" name="PUB3_APPLICATION" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB3_METRIC">Measurable Improvement</label>
+                            <textarea id="PUB3_METRIC" name="PUB3_METRIC" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB3_VENUE">Publication Venue</label>
+                            <input type="text" id="PUB3_VENUE" name="PUB3_VENUE">
+                        </div>
+                    </div>
+
+                    <!-- Publication 4 -->
+                    <div class="publication-section">
+                        <h3>Publication 4</h3>
+                        <div class="form-group">
+                            <label for="PUB4_TITLE">Title</label>
+                            <input type="text" id="PUB4_TITLE" name="PUB4_TITLE">
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB4_METHOD">Method Used</label>
+                            <textarea id="PUB4_METHOD" name="PUB4_METHOD" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB4_METRIC">Measurable Improvement</label>
+                            <textarea id="PUB4_METRIC" name="PUB4_METRIC" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Publication 5 -->
+                    <div class="publication-section">
+                        <h3>Publication 5</h3>
+                        <div class="form-group">
+                            <label for="PUB5_TITLE">Title</label>
+                            <input type="text" id="PUB5_TITLE" name="PUB5_TITLE">
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB5_METHOD">Method Used</label>
+                            <textarea id="PUB5_METHOD" name="PUB5_METHOD" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="PUB5_METRIC">Measurable Improvement</label>
+                            <textarea id="PUB5_METRIC" name="PUB5_METRIC" rows="3"></textarea>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- Section 8: Citations & Impact -->
+            <div class="form-section" data-section="8">
+                <div class="section-header">
+                    <h2><i class="fas fa-quote-left"></i> Citations & Research Impact</h2>
+                    <p>Please provide information about your research citations and impact.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="CITATIONS_TOTAL">Total Citations</label>
+                        <input type="number" id="CITATIONS_TOTAL" name="CITATIONS_TOTAL" min="0">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CITATION_GEOGRAPHY">Citation Geography (comma-separated)</label>
+                        <textarea id="CITATION_GEOGRAPHY" name="CITATION_GEOGRAPHY" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CITATION_INSTITUTIONS">Citing Institutions (comma-separated)</label>
+                        <textarea id="CITATION_INSTITUTIONS" name="CITATION_INSTITUTIONS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CITATION_PRESTIGE_INSTITUTIONS">Prestigious Citing Institutions (comma-separated)</label>
+                        <textarea id="CITATION_PRESTIGE_INSTITUTIONS" name="CITATION_PRESTIGE_INSTITUTIONS" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="CITATION_INDUSTRY_ADOPTION">Industry Adoption (comma-separated)</label>
+                        <textarea id="CITATION_INDUSTRY_ADOPTION" name="CITATION_INDUSTRY_ADOPTION" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="GOOGLE_SCHOLAR_LINK">Google Scholar Profile URL</label>
+                        <input type="url" id="GOOGLE_SCHOLAR_LINK" name="GOOGLE_SCHOLAR_LINK">
+                    </div>
+                </div>
+                
+                <!-- Citation 1 -->
+                <div class="publication-section">
+                    <h3>Citation 1</h3>
+                    <div class="form-group">
+                        <label for="CITE1_TITLE">Citing Paper Title</label>
+                        <input type="text" id="CITE1_TITLE" name="CITE1_TITLE">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_JOURNAL">Journal</label>
+                        <input type="text" id="CITE1_JOURNAL" name="CITE1_JOURNAL">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_INSTITUTION">Institutions</label>
+                        <input type="text" id="CITE1_INSTITUTION" name="CITE1_INSTITUTION">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_QUOTE">Quote</label>
+                        <textarea id="CITE1_QUOTE" name="CITE1_QUOTE" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Citation 2 -->
+                <div class="publication-section">
+                    <h3>Citation 2</h3>
+                    <div class="form-group">
+                        <label for="CITE2_TITLE">Citing Paper Title</label>
+                        <input type="text" id="CITE2_TITLE" name="CITE2_TITLE">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_JOURNAL">Journal</label>
+                        <input type="text" id="CITE2_JOURNAL" name="CITE2_JOURNAL">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_INSTITUTION">Institutions</label>
+                        <input type="text" id="CITE2_INSTITUTION" name="CITE2_INSTITUTION">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_QUOTE">Quote</label>
+                        <textarea id="CITE2_QUOTE" name="CITE2_QUOTE" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Citation 3 -->
+                <div class="publication-section">
+                    <h3>Citation 3</h3>
+                    <div class="form-group">
+                        <label for="CITE3_TITLE">Citing Paper Title</label>
+                        <input type="text" id="CITE3_TITLE" name="CITE3_TITLE">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_JOURNAL">Journal</label>
+                        <input type="text" id="CITE3_JOURNAL" name="CITE3_JOURNAL">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_INSTITUTION">Institutions</label>
+                        <input type="text" id="CITE3_INSTITUTION" name="CITE3_INSTITUTION">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_QUOTE">Quote</label>
+                        <textarea id="CITE3_QUOTE" name="CITE3_QUOTE" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Citation 4 -->
+                <div class="publication-section">
+                    <h3>Citation 4</h3>
+                    <div class="form-group">
+                        <label for="CITE4_TITLE">Citing Paper Title</label>
+                        <input type="text" id="CITE4_TITLE" name="CITE4_TITLE">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_JOURNAL">Journal</label>
+                        <input type="text" id="CITE4_JOURNAL" name="CITE4_JOURNAL">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_INSTITUTION">Institutions</label>
+                        <input type="text" id="CITE4_INSTITUTION" name="CITE4_INSTITUTION">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_QUOTE">Quote</label>
+                        <textarea id="CITE4_QUOTE" name="CITE4_QUOTE" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Citation 5 -->
+                <div class="publication-section">
+                    <h3>Citation 5</h3>
+                    <div class="form-group">
+                        <label for="CITE5_TITLE">Citing Paper Title</label>
+                        <input type="text" id="CITE5_TITLE" name="CITE5_TITLE">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_JOURNAL">Journal</label>
+                        <input type="text" id="CITE5_JOURNAL" name="CITE5_JOURNAL">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_INSTITUTION">Institutions</label>
+                        <input type="text" id="CITE5_INSTITUTION" name="CITE5_INSTITUTION">
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_QUOTE">Quote</label>
+                        <textarea id="CITE5_QUOTE" name="CITE5_QUOTE" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button type="button" id="nextBtn" class="btn btn-primary">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">
+                    <i class="fas fa-check"></i> Submit Application
+                </button>
+            </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <h2>Application Submitted Successfully!</h2>
+                <p>Thank you for completing the NIW application survey. Your information has been saved and will be processed by our team.</p>
+                <button class="btn btn-primary" onclick="location.reload()">Start New Application</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
