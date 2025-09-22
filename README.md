@@ -164,7 +164,7 @@ The Express.js API in `server.js` can be extended to:
 ### Common Issues
 
 1. **Port already in use**: Change the port in `app.py` (line 95)
-2. **Database errors**: Delete `niw_survey.db` to reset
+2. **Database errors**: Delete `niw_database.db` to reset
 3. **CORS issues**: Ensure Flask-CORS is installed
 4. **Form not submitting**: Check browser console for JavaScript errors
 

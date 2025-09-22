@@ -29,7 +29,7 @@
 │                   DATABASE (SQLite)                        │
 ├─────────────────────────────────────────────────────────────┤
 │  File-based Database                                       │
-│  ├── niw_survey.db (Main Database File)                   │
+│  ├── niw_database.db (Main Database File)                 │
 │  ├── survey_responses (Main Table)                        │
 │  └── response_fields (Individual Fields Table)            │
 └─────────────────────────────────────────────────────────────┘
@@ -89,7 +89,7 @@ niw_web/
 
 ## 🗄️ Database Structure
 
-### SQLite Database: `niw_survey.db`
+### SQLite Database: `niw_database.db`
 
 #### Table 1: `survey_responses`
 ```sql

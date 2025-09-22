@@ -19,7 +19,7 @@ This is a professional web application designed to help individuals complete the
 - **RESTful API**: Clean API design for data operations
 
 ### Database
-- **SQLite**: File-based database (no server required)
+- **SQLite**: File-based database (no server required). Database file: `niw_database.db`
 - **Two Tables**: 
   - `survey_responses`: Main data storage
   - `response_fields`: Individual field storage for easy querying
@@ -28,7 +28,7 @@ This is a professional web application designed to help individuals complete the
 
 ### 1. User Experience Flow
 ```
-User visits website → Fills multi-step form → Data auto-saves → Submits → Success page
+Landing (/) → Learn service & pricing → Create account (/account) → Simulated pay → Survey (/survey) → Submit → Success
 ```
 
 ### 2. Data Flow
@@ -37,8 +37,9 @@ Frontend Form → JavaScript Validation → API Call → Express Server → SQLi
 ```
 
 ### 3. Technical Flow
-1. **User opens** `http://localhost:3000`
-2. **Form loads** with 8 sections, 147 questions
+1. **User opens** `http://localhost:3000` (Landing)
+2. **Account**: user signs in with email, simulates payment
+3. **Survey**: 8 sections, 147+ questions
 3. **Auto-save** to localStorage every input change
 4. **Validation** happens in real-time
 5. **Submit** sends data to `/api/submit-survey`
@@ -105,7 +106,9 @@ response_fields:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | Serve survey form |
+| GET | `/` | Landing page |
+| GET | `/account` | Account dashboard (email sign-in, payment state) |
+| GET | `/survey` | Survey form |
 | POST | `/api/submit-survey` | Submit survey data |
 | GET | `/api/survey/:email` | Get survey by email |
 | GET | `/api/surveys` | Get all surveys (admin) |
@@ -115,7 +118,9 @@ response_fields:
 
 ```
 niw_web/
-├── index.html              # Main survey form
+├── home.html               # Landing page
+├── index.html              # Survey form (served at /survey)
+├── account.html            # Account dashboard (email + simulated payment)
 ├── styles.css              # Professional styling
 ├── script.js               # Frontend functionality
 ├── server.js               # Express.js backend

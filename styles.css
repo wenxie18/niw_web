@@ -199,6 +199,21 @@ body {
     box-sizing: border-box;
 }
 
+/* Password visibility toggle icon */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 42px;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+}
+.password-toggle:hover {
+    color: #374151;
+}
+
 .form-group.full-width {
     grid-column: 1 / -1;
 }
@@ -593,6 +608,54 @@ select:focus,
 textarea:focus {
     outline: 2px solid #667eea;
     outline-offset: 2px;
+}
+
+/* Site Navigation */
+.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: #ffffffcc;
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.site-nav-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+.site-brand {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #1e293b;
+    letter-spacing: 0.02em;
+}
+
+.nav-left,
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-right {
+    justify-content: flex-end;
+}
+
+.nav-link {
+    color: #334155;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover {
+    color: #2563eb;
 }
 
 /* Print Styles */

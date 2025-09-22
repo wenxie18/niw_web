@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIW Survey</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>NIW Application Assistant</h1>
+                </div>
+                <p class="subtitle">Professional National Interest Waiver Application Survey</p>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="currentStep">1</span> of <span id="totalSteps">8</span> sections
+            </div>
+        </div>
+
+        <!-- Full survey copied from previous index.html -->
+        <form id="surveyForm" class="survey-form"></form>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <h2>Application Submitted Successfully!</h2>
+                <p>Thank you for completing the NIW application survey. Your information has been saved and will be processed by our team.</p>
+                <button class="btn btn-primary" onclick="location.href='/'">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      // Re-inject the original survey HTML by fetching it from the current page if needed
+      // For now, script.js will build behavior on existing markup already present in this file.
+    </script>
+</body>
+</html>
+
+

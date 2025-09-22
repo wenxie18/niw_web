@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account – NIW Application Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="nav-left"></div>
+            <div class="site-brand">TurboNIW</div>
+            <div class="nav-right">
+                <a class="nav-link" href="/">Home</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-user-circle"></i>
+                <h1>My Account</h1>
+            </div>
+            <p class="subtitle">Create an account or sign in with your email to access your NIW preparation tasks. Payment is simulated locally for now.</p>
+        </header>
+
+        <section id="authSection" class="survey-form" style="padding: 32px; display:none;">
+            <div class="section-header">
+                <h2><i class="fas fa-right-to-bracket"></i> Create account / Sign in</h2>
+                <p>Enter your email to access your dashboard.</p>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="accountEmail">Email</label>
+                    <input type="email" id="accountEmail" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="accountPassword">Password</label>
+                    <input type="password" id="accountPassword" placeholder="8–12 characters" minlength="8" maxlength="12">
+                    <button type="button" id="togglePwd" class="password-toggle" aria-label="Toggle password visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button id="registerBtn" class="btn btn-secondary" type="button">Create Account</button>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button id="loginBtn" class="btn btn-primary" type="button">Sign In</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard" class="survey-form" style="padding: 32px; display:none;">
+            <div class="section-header">
+                <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
+                <p>Complete your tasks in order. Payment unlocks the survey.</p>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Plan Selected</label>
+                    <p>Complete NIW Prep – $1,599 (Form filling + Petition letter)</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Status</label>
+                    <p id="paymentStatus">Not paid</p>
+                    <button id="payNowBtn" class="btn btn-success" type="button">Pay Now</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Survey</label>
+                    <p>Fill out the NIW survey to provide your background, publications, and impact.</p>
+                    <a id="surveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Go to Survey</a>
+                </div>
+
+                <div class="form-group">
+                    <label>Session</label>
+                    <button id="logoutBtn" class="btn btn-secondary" type="button">Logout</button>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align:center; color:#64748b; padding: 24px;">
+            <small>© 2025 NIW Application Assistant. Simulated payment for development only.</small>
+        </footer>
+    </div>
+
+    <script>
+      const authSection = document.getElementById('authSection');
+      const emailInput = document.getElementById('accountEmail');
+      const passwordInput = document.getElementById('accountPassword');
+      const registerBtn = document.getElementById('registerBtn');
+      const loginBtn = document.getElementById('loginBtn');
+      const dashboard = document.getElementById('dashboard');
+      const paymentStatus = document.getElementById('paymentStatus');
+      const payNowBtn = document.getElementById('payNowBtn');
+      const surveyLink = document.getElementById('surveyLink');
+
+      async function fetchMe() {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        return data.user || null;
+      }
+
+      function setSurveyEnabled(enabled) {
+        surveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
+        surveyLink.style.opacity = enabled ? '1' : '0.6';
+      }
+
+      async function refreshUI() {
+        const user = await fetchMe();
+        if (user) {
+          authSection.style.display = 'none';
+          dashboard.style.display = 'block';
+          paymentStatus.textContent = user.paid ? 'Paid' : 'Not paid';
+          setSurveyEnabled(!!user.paid);
+        } else {
+          dashboard.style.display = 'none';
+          authSection.style.display = 'block';
+        }
+      }
+
+      // Show/Hide password toggle
+      const togglePwd = document.getElementById('togglePwd');
+      if (togglePwd) {
+        let visible = false;
+        togglePwd.addEventListener('click', () => {
+          visible = !visible;
+          passwordInput.type = visible ? 'text' : 'password';
+          togglePwd.innerHTML = visible ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        });
+      }
+
+      registerBtn.addEventListener('click', async () => {
+        const email = (emailInput.value || '').trim().toLowerCase();
+        const password = passwordInput.value || '';
+        if (!email || !password) { alert('Email and password required'); return; }
+        if (password.length < 8 || password.length > 12) { alert('Password must be 8–12 characters.'); return; }
+        const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const data = await res.json();
+        if (!data.success) { alert(data.error || 'Register failed'); return; }
+        await refreshUI();
+      });
+
+      loginBtn.addEventListener('click', async () => {
+        const email = (emailInput.value || '').trim().toLowerCase();
+        const password = passwordInput.value || '';
+        if (!email || !password) { alert('Email and password required'); return; }
+        const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const data = await res.json();
+        if (!data.success) {
+          // Inline message near buttons instead of alert
+          const msg = document.getElementById('loginMessage') || (() => {
+            const p = document.createElement('p');
+            p.id = 'loginMessage';
+            p.style.color = '#b91c1c';
+            p.style.marginTop = '8px';
+            loginBtn.parentElement.appendChild(p);
+            return p;
+          })();
+          msg.textContent = data.error || 'Login failed';
+          return;
+        }
+        // Clear any error text on success
+        const msg = document.getElementById('loginMessage');
+        if (msg) msg.textContent = '';
+        await refreshUI();
+      });
+
+      payNowBtn.addEventListener('click', async () => {
+        const res = await fetch('/api/pay', { method: 'POST' });
+        const data = await res.json();
+        if (!data.success) { alert(data.error || 'Payment failed'); return; }
+        await refreshUI();
+        alert('Payment successful. Survey unlocked.');
+      });
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        await refreshUI();
+      });
+
+      refreshUI();
+    </script>
+</body>
+</html>
+
+
