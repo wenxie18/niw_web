@@ -12,9 +12,9 @@
     <nav class="site-nav">
         <div class="site-nav-inner">
             <div class="nav-left"></div>
-            <div class="site-brand">TurboNIW</div>
+            <a class="site-brand" href="/">TurboNIW</a>
             <div class="nav-right">
-                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/account">Account</a>
             </div>
         </div>
     </nav>
@@ -66,21 +66,45 @@
                     <p>Complete NIW Prep – $1,599 (Form filling + Petition letter)</p>
                 </div>
 
-                <div class="form-group">
-                    <label>Payment Status</label>
-                    <p id="paymentStatus">Not paid</p>
-                    <button id="payNowBtn" class="btn btn-success" type="button">Pay Now</button>
-                </div>
-
-                <div class="form-group">
-                    <label>Survey</label>
-                    <p>Fill out the NIW survey to provide your background, publications, and impact.</p>
-                    <a id="surveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Go to Survey</a>
-                </div>
-
-                <div class="form-group">
-                    <label>Session</label>
-                    <button id="logoutBtn" class="btn btn-secondary" type="button">Logout</button>
+                <div class="form-group full-width">
+                    <label>Steps</label>
+                    <ul id="stepsList" class="steps">
+                        <li class="step" id="step-plan">
+                            <div class="step-left">
+                                <span class="step-index">1</span>
+                                <span class="step-title">Select Package</span>
+                            </div>
+                            <div></div>
+                        </li>
+                        <li class="step" id="step-pay">
+                            <div class="step-left">
+                                <span class="step-index">2</span>
+                                <span class="step-title">Make Payment</span>
+                            </div>
+                            <div>
+                                <button id="payNowBtn" class="btn btn-success" type="button">Pay Now</button>
+                            </div>
+                        </li>
+                        <li class="step" id="step-survey">
+                            <div class="step-left">
+                                <span class="step-index">3</span>
+                                <span class="step-title">Fill Survey</span>
+                            </div>
+                            <div>
+                                <a id="surveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Go to Survey</a>
+                            </div>
+                        </li>
+                        <li class="step" id="step-petition">
+                            <div class="step-left">
+                                <span class="step-index">4</span>
+                                <span class="step-title">Access Petition Letter</span>
+                            </div>
+                            <div><span style="color:#64748b; font-weight:600;">Coming soon</span></div>
+                        </li>
+                    </ul>
+                    <div class="logout-row">
+                        <button id="logoutBtn" class="btn btn-secondary" type="button">Logout</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -117,8 +141,29 @@
         if (user) {
           authSection.style.display = 'none';
           dashboard.style.display = 'block';
-          paymentStatus.textContent = user.paid ? 'Paid' : 'Not paid';
-          setSurveyEnabled(!!user.paid);
+          // Steps state
+          const stepPlan = document.getElementById('step-plan');
+          const stepPay = document.getElementById('step-pay');
+          const stepSurvey = document.getElementById('step-survey');
+          const stepPetition = document.getElementById('step-petition');
+
+          stepPlan.className = 'step completed';
+
+          if (user.paid) {
+            stepPay.className = 'step completed';
+            // Hide Pay button when paid
+            const payBtn = document.getElementById('payNowBtn');
+            if (payBtn) payBtn.style.display = 'none';
+            // Enable survey
+            setSurveyEnabled(true);
+            stepSurvey.className = 'step current';
+          } else {
+            stepPay.className = 'step current';
+            setSurveyEnabled(false);
+            stepSurvey.className = 'step pending';
+          }
+
+          stepPetition.className = 'step pending';
         } else {
           dashboard.style.display = 'none';
           authSection.style.display = 'block';

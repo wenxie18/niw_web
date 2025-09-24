@@ -214,6 +214,68 @@ body {
     color: #374151;
 }
 
+/* Steps / Progress */
+.steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+
+.step-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.step-index {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-title {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.step.completed .step-index {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.step.current {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.step.pending {
+    opacity: 0.9;
+}
+
+.logout-row {
+    text-align: right;
+    margin-top: 16px;
+}
+
 .form-group.full-width {
     grid-column: 1 / -1;
 }
