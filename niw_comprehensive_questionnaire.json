@@ -1,0 +1,237 @@
+{
+  "niw_questionnaire": {
+    "metadata": {
+      "title": "NIW Qualification Assessment & Service Selection",
+      "version": "2.0", 
+      "description": "Essential qualification assessment and service selection for EB2-NIW applications",
+      "created_date": "2024-12-19",
+      "target_audience": "STEM PhD holders seeking NIW qualification",
+      "total_questions": 22
+    },
+    "qualification_assessment": {
+      "title": "NIW Qualification Assessment",
+      "description": "Let's first assess your basic qualifications for NIW eligibility. This helps us determine if you're a good candidate and identify areas for improvement.",
+      "questions": {
+        "EDUCATION_LEVEL": {
+          "question": "What is your highest degree COMPLETED/OBTAINED? (Do not select degrees currently in progress)",
+          "type": "single_choice",
+          "options": [
+            "PhD (Doctorate) - Completed",
+            "Master's Degree - Completed", 
+            "Bachelor's Degree - Completed",
+            "Other"
+          ],
+          "explanation": "NIW requires at least a Master's degree, but PhD holders have significantly stronger cases. Your education level directly impacts your eligibility strength.",
+          "required": true,
+          "qualification_threshold": "Master's Degree",
+          "legal_importance": "Critical - Minimum requirement for NIW eligibility"
+        },
+        "PUBLICATION_COUNT": {
+          "question": "How many peer-reviewed publications do you have?",
+          "type": "number",
+          "min": 3,
+          "max": 100,
+          "explanation": "Publications demonstrate your research contributions. A minimum of 3 peer-reviewed publications is required for NIW eligibility. Include only peer-reviewed journal articles and conference papers.",
+          "required": true,
+          "qualification_threshold": 3,
+          "writing_tips": [
+            "Count only peer-reviewed publications",
+            "Include both journal articles and conference papers",
+            "Don't include preprints or working papers", 
+            "Focus on quality over quantity"
+          ]
+        },
+        "CITATION_COUNT": {
+          "question": "What is your total citation count across all publications?",
+          "type": "number",
+          "min": 0,
+          "max": 10000,
+          "explanation": "Citations show the impact and recognition of your work. A minimum of 15 citations is required for NIW eligibility. Higher citations strengthen your case. You can find this on Google Scholar.",
+          "required": true,
+          "qualification_threshold": 15,
+          "data_sources": [
+            "Google Scholar"
+          ]
+        },
+        "RESEARCH_FIELD": {
+          "question": "Is your primary research field in STEM (Science, Technology, Engineering, Mathematics)?",
+          "type": "single_choice",
+          "options": [
+            "Yes - STEM Field",
+            "No - Non-STEM Field"
+          ],
+          "explanation": "STEM fields are highly valued for national interest. Being in a STEM field strengthens your NIW petition.",
+          "required": true
+        },
+        "WORK_EXPERIENCE": {
+          "question": "How many years of relevant work experience do you have? (Enter 0 if you are a student)",
+          "type": "number",
+          "min": 0,
+          "max": 30,
+          "explanation": "Work experience can demonstrate practical application of your research, but is not required. Many students and recent graduates have successfully obtained NIW approval based on their research contributions alone.",
+          "required": true,
+          "qualification_threshold": 0
+        },
+        "CURRENT_POSITION": {
+          "question": "What is your current professional position?",
+          "type": "single_choice",
+          "options": [
+            "Research Scientist/Engineer",
+            "Postdoctoral Researcher",
+            "Faculty Member", 
+            "Industry Professional",
+            "Graduate Student",
+            "Other"
+          ],
+          "explanation": "Your current role helps us understand how you're applying your expertise and will be used to customize your petition materials.",
+          "required": true
+        }
+      }
+    },
+    "optional_enhancements": {
+      "title": "Optional Supporting Materials & Processing Options",
+      "description": "These optional elements can enhance your NIW case but are not required to proceed. You can always add them later using our editable Overleaf output.",
+      "questions": {
+        "RECOMMENDATION_LETTERS": {
+          "question": "Would you like to include recommendation letters in your initial application?",
+          "type": "single_choice",
+          "options": [
+            "Yes, I want to include recommendation letters",
+            "No, I'll add them later if needed",
+            "I'm not sure yet"
+          ],
+          "explanation": "Recommendation letters improve approval chances by showcasing external validation from experts in your field. They're not required immediately and can be added later if USCIS issues an RFE.",
+          "pros": [
+            "Improve approval chances",
+            "Showcase external validation",
+            "Strengthen national interest case"
+          ],
+          "cons": [
+            "Require communication with advisors/mentors",
+            "Take time to collect",
+            "Not required for initial draft"
+          ],
+          "system_behavior": "Not required for initial draft generation. Can be added later if USCIS issues an RFE or manually added into the Overleaf output."
+        },
+        "PREMIUM_PROCESSING": {
+          "question": "Would you like to apply with Premium Processing (PP)?",
+          "type": "single_choice",
+          "options": [
+            "Yes, I need faster processing",
+            "No, I prefer standard processing",
+            "I'm not sure yet"
+          ],
+          "explanation": "Premium Processing provides faster USCIS decisions but may increase the chance of receiving an RFE due to faster deadlines and potentially more scrutiny.",
+          "facts": [
+            "USCIS may issue more RFEs for PP cases due to faster deadlines",
+            "Quicker decision but possibly more scrutiny",
+            "Standard processing is safer for approval if time allows"
+          ],
+          "system_advice": "Not essential unless under a time crunch. Standard processing is safer for approval if time allows."
+        },
+        "AWARDS_MEDIA_GRANTS": {
+          "question": "Would you like to include awards, media coverage, or research grants in your case?",
+          "type": "single_choice",
+          "options": [
+            "Yes, I want to include these enhancements",
+            "No, I'll stick with basic case",
+            "I'm not sure what qualifies"
+          ],
+          "explanation": "Awards, media mentions, and grants showcase national interest, public recognition, and funding competitiveness. These can be added manually to the Overleaf output.",
+          "benefits": [
+            "Showcases national interest",
+            "Demonstrates public recognition",
+            "Shows funding competitiveness"
+          ],
+          "limitations": [
+            "Current system doesn't auto-parse these",
+            "Can be added manually to Overleaf output",
+            "System may expand to support these features based on user demand"
+          ]
+        }
+      }
+    },
+    "basic_information": {
+      "title": "Basic Personal Information",
+      "description": "Essential personal and contact information for your NIW application.",
+      "questions": {
+        "PERSONAL_LAST_NAME": {
+          "question": "What is your last name (family name) as it appears on your passport?",
+          "type": "text",
+          "placeholder": "e.g., Smith",
+          "explanation": "Your legal name as it appears on official documents. This must match your passport and other legal documents exactly.",
+          "legal_importance": "Critical - Name consistency is required for all immigration documents",
+          "required": true,
+          "validation": "Must match passport exactly"
+        },
+        "PERSONAL_FIRST_NAME": {
+          "question": "What is your first name (given name) as it appears on your passport?",
+          "type": "text",
+          "placeholder": "e.g., John",
+          "explanation": "Your legal first name as it appears on official documents. Include middle names if they appear on your passport.",
+          "legal_importance": "Critical - Name consistency is required for all immigration documents",
+          "required": true,
+          "validation": "Must match passport exactly"
+        },
+        "CURRENT_EMAIL": {
+          "question": "What is your current Google email address?",
+          "type": "email",
+          "placeholder": "your.email@gmail.com",
+          "explanation": "We'll use this email to send you updates about your case, request additional information, and provide important notifications.",
+          "legal_importance": "Primary communication method",
+          "required": true,
+          "validation": "Must be a valid Google email format"
+        },
+        "CURRENT_PHONE": {
+          "question": "What is your current phone number?",
+          "type": "tel",
+          "placeholder": "+1-555-123-4567",
+          "explanation": "Phone number for urgent communications and verification purposes. Include country code if outside the US.",
+          "legal_importance": "Secondary communication method",
+          "required": false,
+          "validation": "Include country code if international"
+        },
+        "CURRENT_ADDRESS": {
+          "question": "What is your current country of residence?",
+          "type": "single_choice",
+          "options": [
+            "United States",
+            "China",
+            "India",
+            "South Korea",
+            "Philippines",
+            "Mexico",
+            "Other"
+          ],
+          "placeholder": "Select your current country of residence",
+          "explanation": "Your current country of residence is required for immigration processing.",
+          "legal_importance": "Required for immigration processing",
+          "required": true
+        },
+                "COUNTRY_OF_BIRTH": {
+          "question": "What is your country of birth?",
+          "type": "single_choice",
+          "options": [
+            "China",
+            "India",
+            "South Korea",
+            "Philippines",
+            "Mexico",
+            "Other"
+          ],
+          "explanation": "Your country of birth is required for immigration processing and verification purposes.",
+          "legal_importance": "Required for immigration processing",
+          "required": true
+        },
+        "GRADUATION_DATE": {
+          "question": "What is your estimated graduation date? (If currently enrolled)",
+          "type": "date",
+          "format": "YYYY-MM",
+          "explanation": "This helps us understand your timeline and plan follow-up for when you become eligible.",
+          "legal_importance": "Used for lead qualification and follow-up planning",
+          "required": false
+        }
+      }
+    }
+  }
+}

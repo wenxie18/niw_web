@@ -138,6 +138,24 @@
         const user = await fetchMe();
         const logoutBtn = document.getElementById('logoutBtn');
         
+        // Load configuration
+        let config = {};
+        try {
+          const configRes = await fetch('/api/config');
+          const configData = await configRes.json();
+          if (configData.success) {
+            config = configData.config;
+            // Update survey step title based on config
+            const surveyStep = document.querySelector('#step-survey .step-title');
+            if (surveyStep && config.surveyTitle) {
+              const surveyType = config.surveyType || 'full';
+              surveyStep.textContent = config.surveyTitle[surveyType] || 'Fill Survey';
+            }
+          }
+        } catch (e) {
+          console.log('Could not load config, using defaults');
+        }
+        
         if (user) {
           authSection.style.display = 'none';
           dashboard.style.display = 'block';
