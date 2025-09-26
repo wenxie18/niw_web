@@ -153,7 +153,9 @@ app.get('/survey', (req, res) => {
     if (!req.session.user || !req.session.user.paid) {
         return res.redirect('/account');
     }
-    res.sendFile(path.join(__dirname, 'index.html'));
+    const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
+    const surveyFile = surveyType === 'simplified' ? 'survey-simplified.html' : 'index.html';
+    res.sendFile(path.join(__dirname, surveyFile));
 });
 
 app.get('/account', (req, res) => {
