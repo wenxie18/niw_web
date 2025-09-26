@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account – NIW Application Assistant</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -15,6 +15,7 @@
             <a class="site-brand" href="/">TurboNIW</a>
             <div class="nav-right">
                 <a class="nav-link" href="/account">Account</a>
+                <button id="logoutBtn" class="btn btn-secondary" type="button" style="display:none; margin-left: 12px;">Logout</button>
             </div>
         </div>
     </nav>
@@ -24,7 +25,7 @@
                 <i class="fas fa-user-circle"></i>
                 <h1>My Account</h1>
             </div>
-            <p class="subtitle">Create an account or sign in with your email to access your NIW preparation tasks. Payment is simulated locally for now.</p>
+            <p class="subtitle">Create an account or sign in to access your NIW preparation tasks. Payments use Stripe test mode (sandbox).</p>
         </header>
 
         <section id="authSection" class="survey-form" style="padding: 32px; display:none;">
@@ -82,7 +83,7 @@
                                 <span class="step-title">Make Payment</span>
                             </div>
                             <div>
-                                <button id="payNowBtn" class="btn btn-success" type="button">Pay Now</button>
+                                <button id="payNowBtn" class="btn btn-success" type="button">Pay $1,599</button>
                             </div>
                         </li>
                         <li class="step" id="step-survey">
@@ -102,9 +103,6 @@
                             <div><span style="color:#64748b; font-weight:600;">Coming soon</span></div>
                         </li>
                     </ul>
-                    <div class="logout-row">
-                        <button id="logoutBtn" class="btn btn-secondary" type="button">Logout</button>
-                    </div>
                 </div>
             </div>
         </section>
@@ -138,9 +136,13 @@
 
       async function refreshUI() {
         const user = await fetchMe();
+        const logoutBtn = document.getElementById('logoutBtn');
+        
         if (user) {
           authSection.style.display = 'none';
           dashboard.style.display = 'block';
+          logoutBtn.style.display = 'inline-block';
+          
           // Steps state
           const stepPlan = document.getElementById('step-plan');
           const stepPay = document.getElementById('step-pay');
@@ -167,6 +169,7 @@
         } else {
           dashboard.style.display = 'none';
           authSection.style.display = 'block';
+          logoutBtn.style.display = 'none';
         }
       }
 
@@ -218,20 +221,40 @@
       });
 
       payNowBtn.addEventListener('click', async () => {
-        const res = await fetch('/api/pay', { method: 'POST' });
-        const data = await res.json();
-        if (!data.success) { alert(data.error || 'Payment failed'); return; }
-        await refreshUI();
-        alert('Payment successful. Survey unlocked.');
+        try {
+          const res = await fetch('/api/create-checkout-session', { method: 'POST' });
+          const data = await res.json();
+          if (!data.success || !data.url) { alert(data.error || 'Failed to start checkout'); return; }
+          window.location.href = data.url;
+        } catch (e) {
+          alert('Failed to start checkout');
+        }
       });
 
       const logoutBtn = document.getElementById('logoutBtn');
-      logoutBtn.addEventListener('click', async () => {
-        await fetch('/api/logout', { method: 'POST' });
-        await refreshUI();
-      });
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          await fetch('/api/logout', { method: 'POST' });
+          await refreshUI();
+        });
+      }
 
-      refreshUI();
+      // Handle Stripe redirect results
+      (async () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('success') === '1' && params.get('session_id')) {
+          try {
+            const r = await fetch(`/api/checkout/confirm?session_id=${encodeURIComponent(params.get('session_id'))}`);
+            const d = await r.json();
+            if (d && d.success && d.paid) {
+              alert('Payment successful. Survey unlocked.');
+            }
+          } catch (e) {}
+        } else if (params.get('canceled') === '1') {
+          // no-op, user canceled
+        }
+        await refreshUI();
+      })();
     </script>
 </body>
 </html>

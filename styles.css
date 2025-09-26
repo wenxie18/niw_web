@@ -6,13 +6,20 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Crimson Text', 'Georgia', 'Times New Roman', serif;
     line-height: 1.7;
     color: #2d3748;
     background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
     min-height: 100vh;
     font-size: 16px;
     font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+    font-weight: 600;
+    color: #1e293b;
+    letter-spacing: 0.02em;
 }
 
 .container {
@@ -53,11 +60,12 @@ body {
 }
 
 .logo h1 {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
     font-size: 2.25rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #1e293b;
     margin: 0;
-    letter-spacing: -0.025em;
+    letter-spacing: 0.02em;
 }
 
 .subtitle {
@@ -692,10 +700,16 @@ textarea:focus {
 }
 
 .site-brand {
-    font-weight: 700;
-    font-size: 1.125rem;
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+    font-weight: 600;
+    font-size: 1.25rem;
     color: #1e293b;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+}
+
+.site-brand:hover {
+    text-decoration: none;
 }
 
 .nav-left,
@@ -707,6 +721,21 @@ textarea:focus {
 
 .nav-right {
     justify-content: flex-end;
+}
+
+.nav-right .btn {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-height: auto;
+    line-height: 1.4;
+}
+
+.nav-right .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
 .nav-link {

@@ -9,10 +9,29 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
+// Load configuration
+let config;
+try {
+    config = require('./config.js');
+} catch (e) {
+    console.log('⚠️  config.js not found, using environment variables');
+    config = {
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+        STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
+        DB_NAME: process.env.DB_NAME || 'niw_database.db',
+        SESSION_SECRET: process.env.SESSION_SECRET || 'dev-secret',
+        NODE_ENV: process.env.NODE_ENV || 'development',
+        PORT: process.env.PORT || 3000
+    };
+}
+const Stripe = require('stripe');
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.PORT;
 // Centralized configuration
-const DB_NAME = process.env.DB_NAME || 'niw_database.db';
+const DB_NAME = config.DB_NAME;
+const STRIPE_SECRET_KEY = config.STRIPE_SECRET_KEY;
+const stripe = STRIPE_SECRET_KEY ? Stripe(STRIPE_SECRET_KEY) : null;
 
 // Security middleware
 app.use(helmet({
@@ -37,7 +56,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
+    origin: config.NODE_ENV === 'production' 
         ? ['https://yourdomain.com'] // Replace with your actual domain
         : ['http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true
@@ -49,14 +68,14 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // Sessions (memory store OK for dev)
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'dev-secret',
+    secret: config.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
         sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-        secure: process.env.NODE_ENV === 'production'
+        secure: config.NODE_ENV === 'production'
     }
 }));
 
@@ -194,6 +213,76 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/me', (req, res) => {
     res.json({ success: true, user: req.session.user || null });
+});
+
+// Stripe: Create Checkout Session (Test mode when using test secret key)
+app.post('/api/create-checkout-session', async (req, res) => {
+    try {
+        if (!stripe) {
+            return res.status(500).json({ success: false, error: 'Stripe not configured. Set STRIPE_SECRET_KEY.' });
+        }
+        const sessionUser = req.session.user;
+        if (!sessionUser) return res.status(401).json({ success: false, error: 'Not authenticated' });
+
+        const origin = `${req.protocol}://${req.get('host')}`;
+        const priceInCents = 159900; // $1,599.00
+
+        const checkout = await stripe.checkout.sessions.create({
+            mode: 'payment',
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Complete NIW Prep' },
+                        unit_amount: priceInCents
+                    },
+                    quantity: 1
+                }
+            ],
+            client_reference_id: sessionUser.email,
+            metadata: { email: sessionUser.email },
+            success_url: `${origin}/account?success=1&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/account?canceled=1`
+        });
+
+        res.json({ success: true, url: checkout.url });
+    } catch (e) {
+        console.error('Error creating checkout session:', e);
+        res.status(500).json({ success: false, error: 'Failed to create checkout session' });
+    }
+});
+
+// Stripe: Confirm payment after redirect (server-side verification)
+app.get('/api/checkout/confirm', async (req, res) => {
+    try {
+        if (!stripe) {
+            return res.status(500).json({ success: false, error: 'Stripe not configured. Set STRIPE_SECRET_KEY.' });
+        }
+        const sessionId = req.query.session_id;
+        if (!sessionId) return res.status(400).json({ success: false, error: 'Missing session_id' });
+
+        const checkout = await stripe.checkout.sessions.retrieve(sessionId);
+        if (checkout && checkout.payment_status === 'paid') {
+            const paidEmail = (checkout.client_reference_id) || (checkout.metadata && checkout.metadata.email);
+            if (paidEmail) {
+                await new Promise((resolve, reject) => {
+                    db.run('UPDATE users SET paid = 1 WHERE email = ?', [paidEmail], function(err){
+                        if (err) return reject(err);
+                        resolve();
+                    });
+                });
+                if (req.session.user && req.session.user.email === paidEmail) {
+                    req.session.user.paid = true;
+                }
+            }
+            return res.json({ success: true, paid: true });
+        }
+        res.json({ success: true, paid: false });
+    } catch (e) {
+        console.error('Error confirming checkout session:', e);
+        res.status(500).json({ success: false, error: 'Failed to confirm payment' });
+    }
 });
 
 app.post('/api/pay', async (req, res) => {
