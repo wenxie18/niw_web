@@ -2,7 +2,9 @@
 class SurveyForm {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 8;
+        // Dynamically derive total steps from DOM
+        const sections = document.querySelectorAll('.form-section');
+        this.totalSteps = sections && sections.length ? sections.length : 1;
         this.formData = {};
         this.init();
     }
