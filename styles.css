@@ -9,7 +9,7 @@ body {
     font-family: 'Crimson Text', 'Georgia', 'Times New Roman', serif;
     line-height: 1.7;
     color: #2d3748;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
     min-height: 100vh;
     font-size: 16px;
     font-weight: 400;
@@ -23,7 +23,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1100px; /* widen content slightly for a modern feel */
     margin: 0 auto;
     padding: 24px;
     box-sizing: border-box;
@@ -40,6 +40,59 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     text-align: center;
     border: 1px solid #e2e8f0;
+}
+
+/* Home page: use clean, sectioned layout without card look */
+body.home .header,
+body.home .progress-container,
+body.home .survey-form {
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    border: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.home .header::before,
+body.home .progress-container::before {
+    display: none; /* disable full-bleed bands on home */
+}
+
+/* Space sections comfortably on home */
+body.home .header { padding-top: 32px; padding-bottom: 24px; }
+body.home .survey-form { padding-top: 12px; padding-bottom: 12px; }
+body.home .survey-form .section-header { margin-bottom: 12px; }
+
+/* Full-bleed band effect for a professional, full-width look */
+.header,
+.progress-container {
+    position: relative;
+}
+
+.header::before,
+.progress-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 100vw; /* span full viewport width */
+    z-index: -1; /* place behind the card */
+}
+
+/* Use subtle bands to span edge-to-edge while keeping content centered */
+.header::before {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.progress-container::before {
+    background: #ffffff;
+    border-top: 1px solid #eef2f7;
+    border-bottom: 1px solid #eef2f7;
 }
 
 .logo {
@@ -294,7 +347,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 8px;
     font-size: 0.875rem;
     letter-spacing: 0.025em;
-    text-transform: uppercase;
 }
 
 .form-group input,
