@@ -59,10 +59,95 @@ body.home .progress-container::before {
     display: none; /* disable full-bleed bands on home */
 }
 
-/* Space sections comfortably on home */
-body.home .header { padding-top: 32px; padding-bottom: 24px; }
+/* Remove all padding from header on home page to eliminate gap */
+body.home .header { padding: 0; margin: 0; }
 body.home .survey-form { padding-top: 12px; padding-bottom: 12px; }
 body.home .survey-form .section-header { margin-bottom: 12px; }
+
+/* Removed old home-hero styles - using questions-hero instead */
+
+/* Reset any default margins that might cause gaps */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Home hero section */
+.home .questions-hero {
+    width: 100vw;
+    height: 60vh;                   /* reasonable height, not full screen */
+    background-image: url('/background_test.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    top: 0;
+}
+
+.question-list { 
+    list-style: none; 
+    margin: 0; 
+    padding: 0; 
+}
+.question-list li { 
+    font-size: 1.375rem; 
+    line-height: 1.6; 
+    margin: 16px 0; 
+    font-weight: 600; 
+    color: #ffffff; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Home sections */
+.home-section { margin: 28px 0; }
+.home-section.centered { text-align: center; }
+.columns-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; }
+@media (max-width: 800px) { .columns-2 { grid-template-columns: 1fr; } }
+
+/* Center text specifically in Who We Are section */
+body.home .home-about.centered .columns-2 { justify-items: center; }
+body.home .home-about.centered .columns-2 > div { text-align: center; max-width: 720px; }
+
+/* Center section titles on home for centered sections */
+body.home .home-section.centered .section-header { text-align: center; }
+body.home .home-section.centered .section-header::after { left: 50%; transform: translateX(-50%); }
+body.home .home-section.centered .section-header h2 { justify-content: center; }
+body.home .home-section.centered .section-header p { margin: 0 auto; }
+
+/* Services */
+.services-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; justify-items: center; }
+@media (max-width: 900px) { .services-grid { grid-template-columns: 1fr; } }
+.service-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    width: 100%;
+    max-width: 520px;
+}
+.service-card.featured { border-color: #2563eb; box-shadow: 0 4px 10px rgba(37,99,235,0.08); }
+.service-head { display:flex; align-items:center; justify-content: space-between; margin-bottom: 12px; }
+.pill { background:#f1f5f9; color:#0f172a; border-radius: 999px; padding: 6px 12px; font-weight: 600; }
+.pill-accent { background: #dbeafe; color: #1d4ed8; }
+.service-list { margin: 12px 0 16px; padding-left: 18px; }
+.service-list li { margin: 6px 0; }
+.btn.full { display: inline-flex; width: 100%; justify-content: center; }
+
+/* Steps */
+.steps-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; }
+@media (max-width: 1000px) { .steps-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 640px) { .steps-grid { grid-template-columns: 1fr; } }
+.step { background:#ffffff; border:1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+.step-num { display:inline-flex; width:28px; height:28px; border-radius:50%; align-items:center; justify-content:center; background:#2563eb; color:#fff; font-weight:700; margin-right:8px; }
+.home-footer { text-align:center; color:#64748b; padding: 24px; }
 
 /* Full-bleed band effect for a professional, full-width look */
 .header,
@@ -758,11 +843,16 @@ textarea:focus {
     color: #1e293b;
     letter-spacing: 0.05em;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .site-brand:hover {
     text-decoration: none;
 }
+
+.brand-logo { width: 28px; height: 28px; object-fit: contain; display: none; }
 
 .nav-left,
 .nav-right {
