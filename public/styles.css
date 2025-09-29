@@ -1443,12 +1443,12 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
         max-width: 100%;
     }
     
-    /* Navigation - Logo, Account, Free Evaluation, Logout from left to right */
+    /* Navigation - Logo at left edge, buttons on right */
     .site-nav-inner {
         padding: 8px 12px;
         display: flex; /* Use flexbox for left-to-right ordering */
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-between; /* Logo left, buttons right */
         gap: 8px;
     }
     
@@ -1458,6 +1458,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .site-brand {
         order: 1; /* Logo first */
+        margin-right: auto; /* Push logo to left edge */
     }
     
     .brand-logo-text {
@@ -1479,7 +1480,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     /* Hero Section - Increase height to cover all questions */
     .home .questions-hero {
-        height: 80vh; /* Increased to cover all content */
+        height: 85vh; /* Increased to cover all content */
         padding: 100px 12px 40px 12px; /* Increased top padding from 80px to 100px */
     }
     
@@ -1661,7 +1662,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
         padding: 6px 8px;
         display: flex; /* Use flexbox for left-to-right ordering */
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-between; /* Logo left, buttons right */
         gap: 6px; /* Smaller gap between elements */
     }
     
@@ -1671,6 +1672,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .site-brand {
         order: 1; /* Logo first */
+        margin-right: auto; /* Push logo to left edge */
     }
     
     .brand-logo-text {
