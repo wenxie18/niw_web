@@ -279,6 +279,13 @@ app.get('/api/me', (req, res) => {
     res.json({ success: true, user: req.session.user || null });
 });
 
+app.get('/api/stripe-config', (req, res) => {
+    res.json({ 
+        success: true, 
+        publishableKey: config.STRIPE_PUBLISHABLE_KEY 
+    });
+});
+
 // Stripe: Create Checkout Session (Test mode when using test secret key)
 app.post('/api/create-checkout-session', async (req, res) => {
     try {

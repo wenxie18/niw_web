@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/public/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
     <nav class="site-nav">
@@ -123,6 +124,24 @@
       const paymentStatus = document.getElementById('paymentStatus');
       const payNowBtn = document.getElementById('payNowBtn');
       const surveyLink = document.getElementById('surveyLink');
+
+      // Initialize Stripe
+      let stripe = null;
+      let stripePublishableKey = null;
+
+      async function initializeStripe() {
+        try {
+          // Get Stripe publishable key from server
+          const response = await fetch('/api/stripe-config');
+          const data = await response.json();
+          if (data.success && data.publishableKey) {
+            stripePublishableKey = data.publishableKey;
+            stripe = Stripe(stripePublishableKey);
+          }
+        } catch (error) {
+          console.error('Error initializing Stripe:', error);
+        }
+      }
 
       async function fetchMe() {
         const res = await fetch('/api/me');
@@ -274,6 +293,9 @@
         }
         await refreshUI();
       })();
+
+      // Initialize Stripe on page load
+      initializeStripe();
     </script>
 </body>
 </html>
