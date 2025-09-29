@@ -79,7 +79,10 @@ app.use(session({
     }
 }));
 
-// Serve static files (disable default index.html at '/')
+// Serve static files from public directory first (for both local and Vercel)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve other static files from root directory (disable default index.html at '/')
 app.use(express.static(path.join(__dirname), { index: false }));
 
 // Database initialization
