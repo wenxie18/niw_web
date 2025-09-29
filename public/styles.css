@@ -1445,7 +1445,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     /* Navigation - Logo at left edge, buttons on right */
     .site-nav-inner {
-        padding: 8px 12px 8px 20px !important; /* Add small left padding for spacing */
+        padding: 8px 12px 8px 24px !important; /* Add small left padding for spacing */
         display: flex !important; /* Use flexbox for left-to-right ordering */
         align-items: center;
         justify-content: flex-start !important; /* Start from left */
