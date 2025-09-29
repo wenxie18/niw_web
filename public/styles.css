@@ -1449,8 +1449,8 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .nav-right .btn {
-        font-size: 0.75rem;
-        padding: 6px 12px;
+        font-size: 0.7rem;
+        padding: 4px 8px;
     }
     
     /* Hero Section - Increase height to cover all questions */
@@ -1469,7 +1469,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .questions-subtitle {
-        font-size: 0.9rem;
+        font-size: 1rem; /* Increased from 0.9rem */
         margin-bottom: 32px; /* Increased spacing */
     }
     
@@ -1493,12 +1493,12 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .question-content p {
-        font-size: 0.85rem;
+        font-size: 0.9rem; /* Increased from 0.85rem */
         line-height: 1.4; /* Better line height */
     }
     
     .cta-text {
-        font-size: 0.9rem;
+        font-size: 1rem; /* Increased from 0.9rem */
         margin-top: 32px; /* Increased margin to prevent overlap */
     }
     
@@ -1513,7 +1513,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .about-subtitle {
-        font-size: 0.9rem;
+        font-size: 1rem; /* Increased from 0.9rem */
         margin-bottom: 24px;
     }
     
@@ -1531,7 +1531,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .about-card p {
-        font-size: 0.85rem;
+        font-size: 0.9rem; /* Increased from 0.85rem */
     }
     
     .about-disclaimer {
@@ -1550,7 +1550,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .services-subtitle {
-        font-size: 0.9rem;
+        font-size: 1rem; /* Increased from 0.9rem */
         margin-bottom: 24px;
     }
     
@@ -1643,8 +1643,8 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .nav-right .btn {
-        font-size: 0.7rem;
-        padding: 5px 10px;
+        font-size: 0.65rem;
+        padding: 3px 6px;
     }
     
     .home .questions-hero {
@@ -1662,7 +1662,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .questions-subtitle {
-        font-size: 0.8rem;
+        font-size: 0.9rem; /* Increased from 0.8rem */
         margin-bottom: 28px;
     }
     
@@ -1676,6 +1676,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .cta-text {
+        font-size: 0.9rem; /* Increased from default */
         margin-top: 28px;
     }
     
