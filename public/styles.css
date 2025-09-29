@@ -1484,7 +1484,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     }
     
     .questions-container {
-        padding: 100px 12px 40px 12px; /* Increased top padding from 80px to 100px */
+        padding: 120px 12px 40px 12px; /* Increased top padding from 80px to 100px */
     }
     
     .questions-title {
@@ -1524,6 +1524,10 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     .cta-text {
         font-size: 1.1rem; /* Increased from 1rem */
         margin-top: 20px; /* Reduced from 32px */
+    }
+    
+    .cta-text-spaced {
+        margin-top: -40px; /* Move closer to cards on mobile */
     }
     
     /* About Section */
@@ -1717,6 +1721,10 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     .cta-text {
         font-size: 1rem; /* Increased from 0.9rem */
         margin-top: 16px; /* Reduced from 28px */
+    }
+    
+    .cta-text-spaced {
+        margin-top: -30px; /* Move closer to cards on small mobile */
     }
     
     .about-container,
