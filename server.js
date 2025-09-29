@@ -85,6 +85,41 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Serve other static files from root directory (disable default index.html at '/')
 app.use(express.static(path.join(__dirname), { index: false }));
 
+// Handle static files for Vercel - serve from public directory
+app.get('*.css', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'styles.css'));
+});
+
+app.get('*.png', (req, res) => {
+  const fileName = path.basename(req.path);
+  res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
+app.get('*.jpg', (req, res) => {
+  const fileName = path.basename(req.path);
+  res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
+app.get('*.jpeg', (req, res) => {
+  const fileName = path.basename(req.path);
+  res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
+app.get('*.gif', (req, res) => {
+  const fileName = path.basename(req.path);
+  res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
+app.get('*.svg', (req, res) => {
+  const fileName = path.basename(req.path);
+  res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
+app.get('*.js', (req, res) => {
+  const fileName = path.basename(req.path);
+  res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
 // Database initialization
 const db = new sqlite3.Database(DB_NAME, (err) => {
     if (err) {
