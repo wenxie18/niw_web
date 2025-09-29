@@ -17,6 +17,8 @@
             </a>
             <div class="nav-right">
                 <a class="nav-link" href="/account">Account</a>
+                <a class="btn btn-outline" href="/evaluation">Free Evaluation</a>
+                <button id="logoutBtn" class="btn btn-secondary" type="button" style="display:none;">Logout</button>
             </div>
         </div>
     </nav>
@@ -107,7 +109,7 @@
                         <div class="service-features">
                             <div class="feature-item">
                                 <span class="feature-icon">✓</span>
-                                <span>Guided, multi-step survey</span>
+                                <span>Filled Necessary Forms for NIW</span>
                             </div>
                             <div class="feature-item">
                                 <span class="feature-icon">✓</span>
@@ -131,7 +133,7 @@
                         <div class="service-features">
                             <div class="feature-item">
                                 <span class="feature-icon">✓</span>
-                                <span>Everything in Form Filling</span>
+                                <span>Filled Necessary Forms for NIW</span>
                             </div>
                             <div class="feature-item">
                                 <span class="feature-icon">✓</span>
@@ -142,7 +144,7 @@
                                 <span>Evidence organization and narrative flow</span>
                             </div>
                         </div>
-                        <a class="btn btn-primary" href="/account">Start Complete Prep</a>
+                        <a class="btn btn-primary" href="/account">Get Started</a>
                     </div>
                 </div>
                 
@@ -158,6 +160,43 @@
             <small>© 2025 TurboNIW </small>
         </footer>
     </div>
+
+    <script>
+        // Check login status and show/hide logout button
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/me');
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    document.getElementById('logoutBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('logoutBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        });
+
+        // Check login status on page load
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
 </body>
 </html>
 

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free NIW Qualification Evaluation - TurboNIW</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="evaluation">
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="nav-left"></div>
+            <a class="site-brand" href="/">
+                <img src="/TurboNIW-name-italic.png" alt="TurboNIW" class="brand-logo-text">
+            </a>
+            <div class="nav-right">
+                <a class="nav-link" href="/account">Account</a>
+                <a class="btn btn-outline" href="/evaluation">Free Evaluation</a>
+                <button id="logoutBtn" class="btn btn-secondary" type="button" style="display:none;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="header evaluation-hero">
+            <div class="evaluation-intro">
+                <h1>Free NIW Qualification Evaluation</h1>
+                <p class="evaluation-subtitle">Get an instant assessment of your NIW eligibility and personalized recommendations for strengthening your case.</p>
+            </div>
+        </header>
+
+        <form class="evaluation-form" id="evaluationForm">
+                <div class="form-section">
+                    <h2>Basic Information</h2>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>NIW Qualification Assessment</h2>
+                    <p class="section-description">Let's assess your basic qualifications for NIW eligibility. This helps us determine if you're a good candidate and identify areas for improvement.</p>
+                    
+                    <div class="form-group">
+                        <label for="education">What is your highest degree COMPLETED/OBTAINED? *</label>
+                        <select id="education" name="education" required>
+                            <option value="">Select your highest degree</option>
+                            <option value="phd">PhD (Doctorate) - Completed</option>
+                            <option value="masters">Master's Degree - Completed</option>
+                            <option value="bachelors">Bachelor's Degree - Completed</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="field-explanation">NIW requires at least a Master's degree, but PhD holders have significantly stronger cases.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="publications">How many peer-reviewed publications do you have? *</label>
+                        <input type="number" id="publications" name="publications" min="0" max="100" required>
+                        <div class="field-explanation">A minimum of 3 peer-reviewed publications is required for NIW eligibility. Include only peer-reviewed journal articles and conference papers.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="citations">What is your total citation count across all publications? *</label>
+                        <input type="number" id="citations" name="citations" min="0" max="10000" required>
+                        <div class="field-explanation">A minimum of 15 citations is required for NIW eligibility. Higher citations strengthen your case. You can find this on Google Scholar.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="research_field">Is your primary research field in STEM? *</label>
+                        <select id="research_field" name="research_field" required>
+                            <option value="">Select your research field</option>
+                            <option value="yes">Yes - STEM Field</option>
+                            <option value="no">No - Non-STEM Field</option>
+                        </select>
+                        <div class="field-explanation">STEM fields are highly valued for national interest and strengthen your NIW petition.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="work_experience">How many years of relevant work experience do you have? *</label>
+                        <input type="number" id="work_experience" name="work_experience" min="0" max="30" required>
+                        <div class="field-explanation">Work experience can demonstrate practical application of your research, but is not required. Enter 0 if you are a student.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_position">What is your current professional position? *</label>
+                        <select id="current_position" name="current_position" required>
+                            <option value="">Select your current position</option>
+                            <option value="research_scientist">Research Scientist/Engineer</option>
+                            <option value="postdoc">Postdoctoral Researcher</option>
+                            <option value="faculty">Faculty Member</option>
+                            <option value="industry">Industry Professional</option>
+                            <option value="student">Graduate Student</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="field-explanation">Your current role helps us understand how you're applying your expertise.</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Research Impact & Recognition</h2>
+                    <p class="section-description">These factors demonstrate the national importance and impact of your work.</p>
+                    
+                    <div class="form-group">
+                        <label for="awards">Have you received any awards or recognition for your research? *</label>
+                        <select id="awards" name="awards" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes, I have received awards</option>
+                            <option value="no">No, I have not received awards</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grants">Have you received any research grants or funding? *</label>
+                        <select id="grants" name="grants" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes, I have received grants</option>
+                            <option value="no">No, I have not received grants</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patents">Do you have any patents or patent applications? *</label>
+                        <select id="patents" name="patents" required>
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes, I have patents</option>
+                            <option value="no">No, I do not have patents</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Additional Information</h2>
+                    <div class="form-group">
+                        <label for="research_description">Briefly describe your research area and its potential national impact (2-3 sentences):</label>
+                        <textarea id="research_description" name="research_description" rows="4" placeholder="Describe your research and how it could benefit the United States..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timeline">When do you plan to submit your NIW application?</label>
+                        <select id="timeline" name="timeline">
+                            <option value="">Select timeline</option>
+                            <option value="immediate">Within 3 months</option>
+                            <option value="short">3-6 months</option>
+                            <option value="medium">6-12 months</option>
+                            <option value="long">More than 12 months</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">Get My Free Evaluation</button>
+                    <p class="form-disclaimer">
+                        <i class="fas fa-shield-alt"></i>
+                        <strong>Privacy Protected:</strong> Your information is secure and will only be used to provide your evaluation. We will not share your data with third parties.
+                    </p>
+                </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up form listener');
+            const form = document.getElementById('evaluationForm');
+            if (!form) {
+                console.error('Form not found!');
+                return;
+            }
+            
+            // Test button click
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                console.log('Submit button found');
+                submitBtn.addEventListener('click', function(e) {
+                    console.log('Button clicked!');
+                });
+            } else {
+                console.error('Submit button not found!');
+            }
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('Form submitted!');
+                
+                // Collect form data
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                console.log('Form data:', data);
+                
+                // Basic validation
+                if (!data.email || !data.name || !data.education || !data.publications || !data.citations) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Processing...';
+                submitBtn.disabled = true;
+                
+                try {
+                    console.log('Submitting to API...');
+                    // Submit to API
+                    const response = await fetch('/api/submit-evaluation', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    console.log('Response received:', response.status);
+                    const result = await response.json();
+                    console.log('Result:', result);
+                    
+                    if (result.success) {
+                        // Show success message
+                        alert('Thank you! Your evaluation has been submitted. We will send your results to your email within 24 hours.');
+                        
+                        // Reset form
+                        this.reset();
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                } catch (error) {
+                    console.error('Error submitting evaluation:', error);
+                    alert('There was an error submitting your evaluation. Please try again.');
+                } finally {
+                    // Reset button state
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+
+        // Check login status and show/hide logout button
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/me');
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    document.getElementById('logoutBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('logoutBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        });
+
+        // Check login status on page load
+        checkLoginStatus();
+    </script>
+</body>
+</html>

@@ -162,6 +162,68 @@ app.get('/account', (req, res) => {
     res.sendFile(path.join(__dirname, 'account.html'));
 });
 
+app.get('/evaluation', (req, res) => {
+    res.sendFile(path.join(__dirname, 'evaluation.html'));
+});
+
+// API endpoint for evaluation form submission
+app.post('/api/submit-evaluation', async (req, res) => {
+    try {
+        const { email, name, education, publications, citations, research_field, work_experience, current_position, awards, grants, patents, research_description, timeline } = req.body;
+        
+        // Basic validation
+        if (!email || !name || !education || !publications || !citations) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Please fill in all required fields.' 
+            });
+        }
+
+        // Create evaluation record
+        const evaluationId = uuidv4();
+        const evaluationData = {
+            email,
+            name,
+            education,
+            publications: parseInt(publications),
+            citations: parseInt(citations),
+            research_field,
+            work_experience: parseInt(work_experience) || 0,
+            current_position,
+            awards,
+            grants,
+            patents,
+            research_description,
+            timeline,
+            submission_date: new Date().toISOString()
+        };
+
+        // Save to database (you can create a separate table for evaluations)
+        await new Promise((resolve, reject) => {
+            db.run(`
+                INSERT INTO survey_responses (id, email, full_name, data)
+                VALUES (?, ?, ?, ?)
+            `, [evaluationId, email, name, JSON.stringify(evaluationData)], function(err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        res.json({
+            success: true,
+            message: 'Evaluation submitted successfully',
+            evaluationId: evaluationId
+        });
+
+    } catch (error) {
+        console.error('Error submitting evaluation:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Internal server error' 
+        });
+    }
+});
+
 // API Routes
 // Auth endpoints
 app.post('/api/register', async (req, res) => {
