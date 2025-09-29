@@ -1233,6 +1233,13 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     color: #374151;
 }
 
+/* Logout button specific styling - higher specificity */
+.nav-right #logoutBtn {
+    padding: 8px 12px !important; /* Smaller horizontal padding */
+    font-size: 0.75rem !important; /* Smaller font */
+    min-width: auto !important; /* Remove minimum width */
+}
+
 .btn-success {
     background: linear-gradient(135deg, #059669, #047857);
     color: white;
