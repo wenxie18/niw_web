@@ -95,7 +95,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
 .questions-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 120px 24px 40px 24px;
+    padding: 40px 24px 40px 24px; /* Reduced top padding from 120px to 80px */
     text-align: center;
 }
 
@@ -107,7 +107,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
     font-size: 3rem;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 16px;
+    margin-bottom: 8px; /* Reduced from 16px to move title up */
     text-shadow: 0 2px 4px rgba(255,255,255,0.5);
     line-height: 1.2;
 }
@@ -117,6 +117,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
     color: #334155;
     text-shadow: 0 1px 2px rgba(255,255,255,0.5);
     font-weight: 400;
+    margin-bottom: 20px; /* Further reduced from 12px to move cards up */
 }
 
 /* Questions Grid */
@@ -128,6 +129,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
+    margin-top: -20px; /* Move cards up without affecting CTA text position */
 }
 
 /* Question Cards */
@@ -187,7 +189,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
 }
 
 .cta-text-spaced {
-    margin-top: 64px;
+    margin-top: -20px; /* Increased from -64px to move text lower */
 }
 
 .btn-large {
@@ -1485,7 +1487,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .questions-subtitle {
         font-size: 1.1rem; /* Increased from 1rem */
-        margin-bottom: 32px; /* Increased spacing */
+        margin-bottom: 20px; /* Reduced from 32px */
     }
     
     .questions-grid {
@@ -1514,7 +1516,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .cta-text {
         font-size: 1.1rem; /* Increased from 1rem */
-        margin-top: 32px; /* Increased margin to prevent overlap */
+        margin-top: 20px; /* Reduced from 32px */
     }
     
     /* About Section */
@@ -1693,7 +1695,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .questions-subtitle {
         font-size: 1rem; /* Increased from 0.9rem */
-        margin-bottom: 28px;
+        margin-bottom: 16px; /* Reduced from 28px */
     }
     
     .questions-grid {
@@ -1707,7 +1709,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .cta-text {
         font-size: 1rem; /* Increased from 0.9rem */
-        margin-top: 28px;
+        margin-top: 16px; /* Reduced from 28px */
     }
     
     .about-container,
