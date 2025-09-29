@@ -1419,272 +1419,260 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
 }
 
 /* ========================================
-   COMPREHENSIVE MOBILE RESPONSIVENESS
+   SIMPLE MOBILE RESPONSIVENESS
    ======================================== */
 
-/* Mobile Navigation */
+/* Mobile: Scale everything down proportionally */
 @media (max-width: 768px) {
+    /* Overall scaling */
+    body {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding: 12px;
+        max-width: 100%;
+    }
+    
+    /* Navigation */
     .site-nav-inner {
-        padding: 8px 16px;
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .nav-left {
-        display: none;
-    }
-    
-    .site-brand {
-        justify-self: center;
-        margin-bottom: 8px;
+        padding: 8px 12px;
     }
     
     .brand-logo-text {
         height: 16px;
     }
     
-    .nav-right {
-        justify-self: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
     .nav-right .btn {
         font-size: 0.75rem;
         padding: 6px 12px;
     }
+    
+    /* Hero Section */
+    .home .questions-hero {
+        height: 50vh;
+        padding: 60px 12px 30px 12px;
+    }
+    
+    .questions-container {
+        padding: 60px 12px 30px 12px;
+    }
+    
+    .questions-title {
+        font-size: 1.75rem;
+        margin-bottom: 16px;
+    }
+    
+    .questions-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+    }
+    
+    .questions-grid {
+        gap: 16px;
+    }
+    
+    .question-card {
+        padding: 16px;
+    }
+    
+    .question-number {
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+    }
+    
+    .question-content h3 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+    
+    .question-content p {
+        font-size: 0.85rem;
+    }
+    
+    .cta-text {
+        font-size: 0.9rem;
+        margin-top: 24px;
+    }
+    
+    /* About Section */
+    .about-container {
+        padding: 30px 12px;
+    }
+    
+    .about-intro h2 {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .about-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+    }
+    
+    .about-grid {
+        gap: 16px;
+    }
+    
+    .about-card {
+        padding: 16px;
+    }
+    
+    .about-card h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    
+    .about-card p {
+        font-size: 0.85rem;
+    }
+    
+    .about-disclaimer {
+        font-size: 0.8rem;
+        margin-top: 20px;
+    }
+    
+    /* Services Section */
+    .services-container {
+        padding: 30px 12px;
+    }
+    
+    .services-intro h2 {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .services-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+    }
+    
+    .services-grid {
+        gap: 16px;
+    }
+    
+    .service-card {
+        padding: 16px;
+    }
+    
+    .service-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .service-price {
+        margin-bottom: 12px;
+    }
+    
+    .price-amount {
+        font-size: 1.25rem;
+    }
+    
+    .price-period {
+        font-size: 0.8rem;
+    }
+    
+    .service-features {
+        gap: 8px;
+    }
+    
+    .feature-item {
+        font-size: 0.8rem;
+    }
+    
+    .services-guarantee {
+        font-size: 0.8rem;
+        margin-top: 20px;
+    }
+    
+    /* Forms */
+    .evaluation-form {
+        padding: 16px;
+    }
+    
+    .form-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 12px;
+    }
+    
+    .form-group label {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-large {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 480px) {
+    body {
+        font-size: 13px;
+    }
+    
+    .container {
+        padding: 8px;
+    }
+    
     .site-nav-inner {
-        padding: 6px 12px;
+        padding: 6px 8px;
     }
     
     .brand-logo-text {
         height: 14px;
     }
     
-    .nav-right {
-        gap: 8px;
-    }
-    
     .nav-right .btn {
         font-size: 0.7rem;
         padding: 5px 10px;
     }
-}
-
-/* Mobile Hero Section */
-@media (max-width: 768px) {
+    
     .home .questions-hero {
-        height: 60vh;
-        padding: 80px 20px 40px 20px;
+        height: 45vh;
+        padding: 50px 8px 25px 8px;
     }
     
     .questions-container {
-        padding: 80px 20px 40px 20px;
+        padding: 50px 8px 25px 8px;
     }
     
     .questions-title {
-        font-size: 2rem;
-        line-height: 1.2;
-    }
-    
-    .questions-subtitle {
-        font-size: 1rem;
-        margin-bottom: 32px;
-    }
-    
-    .questions-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .question-card {
-        padding: 20px;
-    }
-    
-    .question-number {
         font-size: 1.5rem;
-        margin-bottom: 12px;
-    }
-    
-    .question-content h3 {
-        font-size: 1.1rem;
-        margin-bottom: 8px;
-    }
-    
-    .question-content p {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .home .questions-hero {
-        height: 50vh;
-        padding: 60px 16px 30px 16px;
-    }
-    
-    .questions-container {
-        padding: 60px 16px 30px 16px;
-    }
-    
-    .questions-title {
-        font-size: 1.75rem;
     }
     
     .questions-subtitle {
-        font-size: 0.9rem;
-        margin-bottom: 24px;
+        font-size: 0.8rem;
     }
     
     .question-card {
-        padding: 16px;
-    }
-}
-
-/* Mobile About Section */
-@media (max-width: 768px) {
-    .about-container {
-        padding: 40px 20px;
+        padding: 12px;
     }
     
-    .about-intro h2 {
-        font-size: 1.75rem;
-        margin-bottom: 16px;
-    }
-    
-    .about-subtitle {
-        font-size: 1rem;
-        margin-bottom: 32px;
-    }
-    
-    .about-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    
-    .about-card {
-        padding: 20px;
-        text-align: center;
-    }
-    
-    .about-card h3 {
-        font-size: 1.1rem;
-        margin-bottom: 12px;
-    }
-    
-    .about-card p {
-        font-size: 0.9rem;
-    }
-}
-
-/* Mobile Services Section */
-@media (max-width: 768px) {
+    .about-container,
     .services-container {
-        padding: 40px 20px;
+        padding: 20px 8px;
     }
     
+    .about-intro h2,
     .services-intro h2 {
-        font-size: 1.75rem;
-        margin-bottom: 16px;
-    }
-    
-    .services-subtitle {
-        font-size: 1rem;
-        margin-bottom: 32px;
-    }
-    
-    .services-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    
-    .service-card {
-        padding: 24px 20px;
-    }
-    
-    .service-card h3 {
         font-size: 1.25rem;
-        margin-bottom: 12px;
     }
     
-    .service-price {
-        margin-bottom: 16px;
+    .about-card,
+    .service-card {
+        padding: 12px;
     }
     
-    .price-amount {
-        font-size: 1.5rem;
-    }
-    
-    .service-features {
-        gap: 12px;
-    }
-    
-    .feature-item {
-        font-size: 0.9rem;
-    }
-}
-
-/* Mobile Forms */
-@media (max-width: 768px) {
     .evaluation-form {
-        padding: 20px;
-    }
-    
-    .form-section {
-        margin-bottom: 32px;
-    }
-    
-    .form-section h2 {
-        font-size: 1.5rem;
-        margin-bottom: 16px;
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-group label {
-        font-size: 1rem;
-        margin-bottom: 8px;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
         padding: 12px;
-        font-size: 1rem;
-    }
-    
-    .btn-large {
-        padding: 14px 24px;
-        font-size: 1rem;
-        width: 100%;
-    }
-}
-
-/* Mobile Container Adjustments */
-@media (max-width: 768px) {
-    .container {
-        padding: 16px;
-    }
-    
-    .header {
-        padding: 24px 20px;
-        margin-bottom: 24px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 12px;
-    }
-    
-    .header {
-        padding: 20px 16px;
-        margin-bottom: 20px;
     }
 }
 
@@ -1804,3 +1792,4 @@ textarea:focus {
         display: block !important;
     }
 }
+
