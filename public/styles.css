@@ -1464,17 +1464,18 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     .nav-right {
         order: 2; /* Buttons second */
         margin-left: auto; /* Push buttons to right */
+        position: static !important; /* Override desktop fixed positioning */
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        z-index: auto !important;
+        display: flex;
+        flex-direction: row; /* Horizontal line */
+        gap: 6px; /* Small gap between buttons */
     }
     
     .brand-logo-text {
         height: 16px;
-    }
-    
-    .nav-right {
-        display: flex;
-        flex-direction: row; /* Horizontal line */
-        gap: 6px; /* Small gap between buttons */
-        order: 2; /* Buttons second */
     }
     
     .nav-right .btn {
@@ -1485,7 +1486,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     /* Hero Section - Increase height to cover all questions */
     .home .questions-hero {
-        height: 90vh; /* Increased to cover all content */
+        height: 95vh; /* Increased to cover all content */
         padding: 100px 12px 40px 12px; /* Increased top padding from 80px to 100px */
     }
     
@@ -1683,17 +1684,18 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     .nav-right {
         order: 2; /* Buttons second */
         margin-left: auto; /* Push buttons to right */
+        position: static !important; /* Override desktop fixed positioning */
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        z-index: auto !important;
+        display: flex;
+        flex-direction: row; /* Horizontal line */
+        gap: 4px; /* Smaller gap between buttons */
     }
     
     .brand-logo-text {
         height: 14px;
-    }
-    
-    .nav-right {
-        display: flex;
-        flex-direction: row; /* Horizontal line */
-        gap: 4px; /* Smaller gap between buttons */
-        order: 2; /* Buttons second */
     }
     
     .nav-right .btn {
