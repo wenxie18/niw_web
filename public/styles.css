@@ -77,7 +77,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
 .home .questions-hero {
     width: 100vw;
     height: 70vh;                   /* reasonable height, not full screen */
-    background-image: url('/hero-image.jpg');
+    background-image: url('/public/hero-image.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
