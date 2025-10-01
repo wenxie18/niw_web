@@ -76,7 +76,7 @@
                 </div>
                 
                 <div class="steps-grid">
-                    <div class="step-card completed" id="step-plan">
+                    <div class="step-card" id="step-plan">
                         <div class="step-number">1</div>
                         <div class="step-content">
                             <h4>Select Package</h4>
@@ -124,7 +124,7 @@
         </section>
 
         <footer style="text-align:center; color:#64748b; padding: 24px;">
-            <small>© 2025 NIW Application Assistant. Simulated payment for development only.</small>
+            <small>© 2025 TurboNIW</small>
         </footer>
     </div>
 
@@ -203,9 +203,15 @@
           const stepSurvey = document.getElementById('step-survey');
           const stepPetition = document.getElementById('step-petition');
 
+          // Step 1: Select Package - always completed when user is logged in
           stepPlan.className = 'step-card completed';
 
+          // Update progress bar and text
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
           if (user.paid) {
+            // Step 2: Payment - completed when user has paid
             stepPay.className = 'step-card completed';
             // Hide Pay button when paid and add Completed status
             const payBtn = document.getElementById('payNowBtn');
@@ -221,13 +227,34 @@
                 stepStatus.appendChild(completedBadge);
               }
             }
-            // Enable survey
+            // Step 3: Survey - enabled when paid
             setSurveyEnabled(true);
             stepSurvey.className = 'step-card';
+            
+            // Update progress: 2 of 4 steps completed
+            if (progressFill) progressFill.style.width = '50%';
+            if (progressText) progressText.textContent = '2 of 4 steps completed';
           } else {
+            // Step 2: Payment - current step when not paid
             stepPay.className = 'step-card';
+            // Show Pay button
+            const payBtn = document.getElementById('payNowBtn');
+            if (payBtn) {
+              payBtn.style.display = 'inline-block';
+              // Remove any existing completed badge
+              const stepStatus = payBtn.parentElement;
+              const existingBadge = stepStatus.querySelector('.status-badge.completed');
+              if (existingBadge) {
+                existingBadge.remove();
+              }
+            }
+            // Step 3: Survey - disabled when not paid
             setSurveyEnabled(false);
             stepSurvey.className = 'step-card disabled';
+            
+            // Update progress: 1 of 4 steps completed
+            if (progressFill) progressFill.style.width = '25%';
+            if (progressText) progressText.textContent = '1 of 4 steps completed';
           }
 
           stepPetition.className = 'step-card disabled';
