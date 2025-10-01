@@ -24,89 +24,101 @@
         </div>
     </nav>
     <div class="container">
-        <header class="header">
-            <div class="logo">
-                <i class="fas fa-user-circle"></i>
-                <h1>My Account</h1>
-            </div>
-            <p class="subtitle">Create an account or sign in to access your NIW preparation tasks. Payments use Stripe test mode (sandbox).</p>
-        </header>
 
-        <section id="authSection" class="survey-form" style="padding: 32px; display:none;">
-            <div class="section-header">
-                <h2><i class="fas fa-right-to-bracket"></i> Create account / Sign in</h2>
-                <p>Enter your email to access your dashboard.</p>
+        <section id="authSection" class="auth-card">
+            <div class="auth-header">
+                <h1>Sign In</h1>
+                <p>to start preparing your NIW application materials and track your progress</p>
             </div>
-            <div class="form-grid">
+            <div class="auth-form">
                 <div class="form-group">
-                    <label for="accountEmail">Email</label>
-                    <input type="email" id="accountEmail" placeholder="you@example.com">
+                    <label for="accountEmail">Email Address</label>
+                    <input type="email" id="accountEmail" placeholder="you@example.com" required>
                 </div>
                 <div class="form-group">
                     <label for="accountPassword">Password</label>
-                    <input type="password" id="accountPassword" placeholder="8–12 characters" minlength="8" maxlength="12">
-                    <button type="button" id="togglePwd" class="password-toggle" aria-label="Toggle password visibility">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="accountPassword" placeholder="8–12 characters" minlength="8" maxlength="12" required>
+                        <button type="button" id="togglePwd" class="password-toggle" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <button id="registerBtn" class="btn btn-secondary" type="button">Create Account</button>
-                </div>
-                <div class="form-group">
-                    <label>&nbsp;</label>
+                <div class="auth-buttons">
                     <button id="loginBtn" class="btn btn-primary" type="button">Sign In</button>
+                    <button id="registerBtn" class="btn btn-outline" type="button">Create Account</button>
                 </div>
             </div>
         </section>
 
-        <section id="dashboard" class="survey-form" style="padding: 32px; display:none;">
-            <div class="section-header">
-                <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
-                <p>Complete your tasks in order. Payment unlocks the survey.</p>
+        <section id="dashboard" class="dashboard-container" style="display:none;">
+            <div class="dashboard-header">
+                <h2>Your NIW Journey</h2>
+                <p>Complete your tasks in order to progress through your NIW application materials preparation.</p>
             </div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Plan Selected</label>
-                    <p>Complete NIW Prep – $1,599 (Form filling + Petition letter)</p>
+            
+            <div class="plan-card">
+                <div class="plan-info">
+                    <h3>Selected Plan</h3>
+                    <p class="plan-name">Complete NIW Prep</p>
+                    <p class="plan-price">$1,599</p>
+                    <p class="plan-description">Form filling + Petition letter</p>
                 </div>
+            </div>
 
-                <div class="form-group full-width">
-                    <label>Steps</label>
-                    <ul id="stepsList" class="steps">
-                        <li class="step" id="step-plan">
-                            <div class="step-left">
-                                <span class="step-index">1</span>
-                                <span class="step-title">Select Package</span>
-                            </div>
-                            <div></div>
-                        </li>
-                        <li class="step" id="step-pay">
-                            <div class="step-left">
-                                <span class="step-index">2</span>
-                                <span class="step-title">Make Payment</span>
-                            </div>
-                            <div>
-                                <button id="payNowBtn" class="btn btn-success" type="button">Pay $1,599</button>
-                            </div>
-                        </li>
-                        <li class="step" id="step-survey">
-                            <div class="step-left">
-                                <span class="step-index">3</span>
-                                <span class="step-title">Fill Survey</span>
-                            </div>
-                            <div>
-                                <a id="surveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Go to Survey</a>
-                            </div>
-                        </li>
-                        <li class="step" id="step-petition">
-                            <div class="step-left">
-                                <span class="step-index">4</span>
-                                <span class="step-title">Access Petition Letter</span>
-                            </div>
-                            <div><span style="color:#64748b; font-weight:600;">Coming soon</span></div>
-                        </li>
-                    </ul>
+            <div class="progress-tracker">
+                <div class="progress-header">
+                    <h3>Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">1 of 4 steps completed</span>
+                </div>
+                
+                <div class="steps-grid">
+                    <div class="step-card completed" id="step-plan">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Select Package</h4>
+                            <p>Choose your NIW preparation package</p>
+                        </div>
+                        <div class="step-status">
+                            <span class="status-badge completed">Completed</span>
+                        </div>
+                    </div>
+
+                    <div class="step-card" id="step-pay">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Make Payment</h4>
+                            <p>Secure payment to unlock your services</p>
+                        </div>
+                        <div class="step-status">
+                            <button id="payNowBtn" class="btn btn-success" type="button">Pay $1,599</button>
+                        </div>
+                    </div>
+
+                    <div class="step-card disabled" id="step-survey">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Fill Survey</h4>
+                            <p>Complete your NIW qualification assessment</p>
+                        </div>
+                        <div class="step-status">
+                            <a id="surveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Go to Survey</a>
+                        </div>
+                    </div>
+
+                    <div class="step-card disabled" id="step-petition">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Access Petition Letter</h4>
+                            <p>Download your personalized petition letter</p>
+                        </div>
+                        <div class="step-status">
+                            <span class="status-badge coming-soon">Coming Soon</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -117,12 +129,23 @@
     </div>
 
     <script>
-      const authSection = document.getElementById('authSection');
-      const emailInput = document.getElementById('accountEmail');
-      const passwordInput = document.getElementById('accountPassword');
-      const registerBtn = document.getElementById('registerBtn');
-      const loginBtn = document.getElementById('loginBtn');
-      const dashboard = document.getElementById('dashboard');
+      document.addEventListener('DOMContentLoaded', function() {
+        const authSection = document.getElementById('authSection');
+        const emailInput = document.getElementById('accountEmail');
+        const passwordInput = document.getElementById('accountPassword');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const dashboard = document.getElementById('dashboard');
+        
+        console.log('DOM loaded, elements found:', {
+          authSection: !!authSection,
+          emailInput: !!emailInput,
+          passwordInput: !!passwordInput,
+          registerBtn: !!registerBtn,
+          loginBtn: !!loginBtn,
+          dashboard: !!dashboard
+        });
+      
       const paymentStatus = document.getElementById('paymentStatus');
       const payNowBtn = document.getElementById('payNowBtn');
       const surveyLink = document.getElementById('surveyLink');
@@ -168,7 +191,7 @@
           if (configData.success) {
             config = configData.config;
             // Update survey step title based on config
-            const surveyStep = document.querySelector('#step-survey .step-title');
+            const surveyStep = document.querySelector('#step-survey h4');
             if (surveyStep && config.surveyTitle) {
               const surveyType = config.surveyType || 'full';
               surveyStep.textContent = config.surveyTitle[surveyType] || 'Fill Survey';
@@ -189,23 +212,23 @@
           const stepSurvey = document.getElementById('step-survey');
           const stepPetition = document.getElementById('step-petition');
 
-          stepPlan.className = 'step completed';
+          stepPlan.className = 'step-card completed';
 
           if (user.paid) {
-            stepPay.className = 'step completed';
+            stepPay.className = 'step-card completed';
             // Hide Pay button when paid
             const payBtn = document.getElementById('payNowBtn');
             if (payBtn) payBtn.style.display = 'none';
             // Enable survey
             setSurveyEnabled(true);
-            stepSurvey.className = 'step current';
+            stepSurvey.className = 'step-card';
           } else {
-            stepPay.className = 'step current';
+            stepPay.className = 'step-card';
             setSurveyEnabled(false);
-            stepSurvey.className = 'step pending';
+            stepSurvey.className = 'step-card disabled';
           }
 
-          stepPetition.className = 'step pending';
+          stepPetition.className = 'step-card disabled';
         } else {
           dashboard.style.display = 'none';
           authSection.style.display = 'block';
@@ -225,8 +248,10 @@
       }
 
       registerBtn.addEventListener('click', async () => {
+        console.log('Register button clicked!');
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
+        console.log('Email:', email, 'Password length:', password.length);
         if (!email || !password) { alert('Email and password required'); return; }
         if (password.length < 8 || password.length > 12) { alert('Password must be 8–12 characters.'); return; }
         const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
@@ -236,8 +261,10 @@
       });
 
       loginBtn.addEventListener('click', async () => {
+        console.log('Login button clicked!');
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
+        console.log('Email:', email, 'Password length:', password.length);
         if (!email || !password) { alert('Email and password required'); return; }
         const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
         const data = await res.json();
@@ -296,8 +323,9 @@
         await refreshUI();
       })();
 
-      // Initialize Stripe on page load
-      initializeStripe();
+        // Initialize Stripe on page load
+        initializeStripe();
+      });
     </script>
 </body>
 </html>
