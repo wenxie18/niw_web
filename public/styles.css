@@ -241,7 +241,7 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
 }
 
 /* Home sections */
-.home-section { margin: 60px 0; }
+.home-section { margin: 40px 0; }
 .home-section.centered { text-align: center; }
 .columns-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; }
 
@@ -768,7 +768,6 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
 .steps-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; }
 @media (max-width: 1000px) { .steps-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media (max-width: 640px) { .steps-grid { grid-template-columns: 1fr; } }
-.step { background:#ffffff; border:1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
 .step-num { display:inline-flex; width:28px; height:28px; border-radius:50%; align-items:center; justify-content:center; background:#2563eb; color:#fff; font-weight:700; margin-right:8px; }
 .home-footer { text-align:center; color:#64748b; padding: 24px; }
 
@@ -993,52 +992,6 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     gap: 16px;
 }
 
-.step {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 16px 20px;
-}
-
-.step-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.step-index {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #f1f5f9;
-    color: #334155;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.step-title {
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.step.completed .step-index {
-    background: #10b981;
-    color: #ffffff;
-}
-
-.step.current {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.step.pending {
-    opacity: 0.9;
-}
 
 .logout-row {
     text-align: right;
@@ -1887,6 +1840,355 @@ textarea:focus {
     
     .form-section {
         display: block !important;
+    }
+}
+
+/* Account Page Styles */
+.account-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 32px;
+    border-radius: 16px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.user-avatar {
+    font-size: 3rem;
+    opacity: 0.9;
+}
+
+.user-details h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.user-details p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Auth Card */
+.auth-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.auth-header h2 {
+    font-size: 1.875rem;
+    margin-bottom: 8px;
+    color: #1e293b;
+}
+
+.auth-header p {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.auth-buttons .btn {
+    flex: 1;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.dashboard-header h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: #1e293b;
+}
+
+.dashboard-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* Plan Card */
+.plan-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.plan-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    color: #374151;
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.plan-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 8px;
+}
+
+.plan-description {
+    color: #64748b;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Progress Tracker */
+.progress-tracker {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+}
+
+.progress-header {
+    margin-bottom: 32px;
+}
+
+.progress-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    color: #1e293b;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Steps Grid */
+.steps-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.step-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 60px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-card.completed .step-number {
+    background: #22c55e;
+    color: white;
+}
+
+.step-card.disabled .step-number {
+    background: #9ca3af;
+    color: white;
+}
+
+.step-card.completed {
+    background: #f0fdf4;
+    border-color: #22c55e;
+}
+
+.step-card.disabled {
+    opacity: 0.6;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #d1d5db;
+}
+
+.step-card.completed:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+    border-color: #16a34a;
+}
+
+
+.step-content {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.step-content h4 {
+    font-size: 1.125rem;
+    margin-bottom: 8px;
+    color: #1e293b;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.step-content p {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.step-status {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.coming-soon {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Responsive Design for Account Page */
+@media (max-width: 768px) {
+    .user-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    
+    .user-details h1 {
+        font-size: 2rem;
+    }
+    
+    .auth-card {
+        padding: 24px;
+        margin: 0 16px 32px 16px;
+    }
+    
+    .auth-buttons {
+        flex-direction: column;
+    }
+    
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .step-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .step-status {
+        width: 100%;
+    }
+    
+    .step-status .btn {
+        width: 100%;
     }
 }
 

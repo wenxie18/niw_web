@@ -137,16 +137,7 @@
         const loginBtn = document.getElementById('loginBtn');
         const dashboard = document.getElementById('dashboard');
         
-        console.log('DOM loaded, elements found:', {
-          authSection: !!authSection,
-          emailInput: !!emailInput,
-          passwordInput: !!passwordInput,
-          registerBtn: !!registerBtn,
-          loginBtn: !!loginBtn,
-          dashboard: !!dashboard
-        });
       
-      const paymentStatus = document.getElementById('paymentStatus');
       const payNowBtn = document.getElementById('payNowBtn');
       const surveyLink = document.getElementById('surveyLink');
 
@@ -198,7 +189,7 @@
             }
           }
         } catch (e) {
-          console.log('Could not load config, using defaults');
+          // Config loading failed, using defaults
         }
         
         if (user) {
@@ -259,52 +250,83 @@
       }
 
       registerBtn.addEventListener('click', async () => {
-        console.log('Register button clicked!');
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
-        console.log('Email:', email, 'Password length:', password.length);
-        if (!email || !password) { alert('Email and password required'); return; }
-        if (password.length < 8 || password.length > 12) { alert('Password must be 8–12 characters.'); return; }
-        const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-        const data = await res.json();
-        if (!data.success) { alert(data.error || 'Register failed'); return; }
-        await refreshUI();
+        
+        if (!email || !password) { 
+          alert('Email and password required'); 
+          return; 
+        }
+        if (password.length < 8 || password.length > 12) { 
+          alert('Password must be 8–12 characters.'); 
+          return; 
+        }
+        
+        try {
+          const res = await fetch('/api/register', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ email, password }) 
+          });
+          const data = await res.json();
+          if (!data.success) { 
+            alert(data.error || 'Register failed'); 
+            return; 
+          }
+          await refreshUI();
+        } catch (error) {
+          alert('Registration failed. Please try again.');
+        }
       });
 
       loginBtn.addEventListener('click', async () => {
-        console.log('Login button clicked!');
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
-        console.log('Email:', email, 'Password length:', password.length);
-        if (!email || !password) { alert('Email and password required'); return; }
-        const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-        const data = await res.json();
-        if (!data.success) {
-          // Inline message near buttons instead of alert
-          const msg = document.getElementById('loginMessage') || (() => {
-            const p = document.createElement('p');
-            p.id = 'loginMessage';
-            p.style.color = '#b91c1c';
-            p.style.marginTop = '8px';
-            loginBtn.parentElement.appendChild(p);
-            return p;
-          })();
-          msg.textContent = data.error || 'Login failed';
-          return;
+        
+        if (!email || !password) { 
+          alert('Email and password required'); 
+          return; 
         }
-        // Clear any error text on success
-        const msg = document.getElementById('loginMessage');
-        if (msg) msg.textContent = '';
-        await refreshUI();
+        
+        try {
+          const res = await fetch('/api/login', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ email, password }) 
+          });
+          const data = await res.json();
+          if (!data.success) {
+            // Inline message near buttons instead of alert
+            const msg = document.getElementById('loginMessage') || (() => {
+              const p = document.createElement('p');
+              p.id = 'loginMessage';
+              p.style.color = '#b91c1c';
+              p.style.marginTop = '8px';
+              loginBtn.parentElement.appendChild(p);
+              return p;
+            })();
+            msg.textContent = data.error || 'Login failed';
+            return;
+          }
+          // Clear any error text on success
+          const msg = document.getElementById('loginMessage');
+          if (msg) msg.textContent = '';
+          await refreshUI();
+        } catch (error) {
+          alert('Login failed. Please try again.');
+        }
       });
 
       payNowBtn.addEventListener('click', async () => {
         try {
           const res = await fetch('/api/create-checkout-session', { method: 'POST' });
           const data = await res.json();
-          if (!data.success || !data.url) { alert(data.error || 'Failed to start checkout'); return; }
+          if (!data.success || !data.url) { 
+            alert(data.error || 'Failed to start checkout'); 
+            return; 
+          }
           window.location.href = data.url;
-        } catch (e) {
+        } catch (error) {
           alert('Failed to start checkout');
         }
       });
@@ -312,8 +334,12 @@
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-          await fetch('/api/logout', { method: 'POST' });
-          await refreshUI();
+          try {
+            await fetch('/api/logout', { method: 'POST' });
+            await refreshUI();
+          } catch (error) {
+            console.error('Logout failed:', error);
+          }
         });
       }
 
@@ -327,9 +353,9 @@
             if (d && d.success && d.paid) {
               alert('Payment successful. Survey unlocked.');
             }
-          } catch (e) {}
-        } else if (params.get('canceled') === '1') {
-          // no-op, user canceled
+          } catch (error) {
+            console.error('Payment confirmation failed:', error);
+          }
         }
         await refreshUI();
       })();
