@@ -216,9 +216,17 @@
 
           if (user.paid) {
             stepPay.className = 'step-card completed';
-            // Hide Pay button when paid
+            // Hide Pay button when paid and add Completed status
             const payBtn = document.getElementById('payNowBtn');
-            if (payBtn) payBtn.style.display = 'none';
+            if (payBtn) {
+              payBtn.style.display = 'none';
+              // Add Completed status badge
+              const stepStatus = payBtn.parentElement;
+              const completedBadge = document.createElement('span');
+              completedBadge.className = 'status-badge completed';
+              completedBadge.textContent = 'Completed';
+              stepStatus.appendChild(completedBadge);
+            }
             // Enable survey
             setSurveyEnabled(true);
             stepSurvey.className = 'step-card';
