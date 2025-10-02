@@ -183,6 +183,24 @@ function initDatabase() {
         if (err) console.error('Error creating users table:', err.message);
     });
 
+    // Payments table to track payment history
+    db.run(`
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT NOT NULL,
+            stripe_session_id TEXT UNIQUE NOT NULL,
+            amount_cents INTEGER NOT NULL,
+            amount_dollars REAL NOT NULL,
+            package_type TEXT NOT NULL,
+            payment_type TEXT NOT NULL, -- 'initial', 'upgrade', 'downgrade'
+            status TEXT DEFAULT 'completed',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_email) REFERENCES users (email)
+        )
+    `, (err) => {
+        if (err) console.error('Error creating payments table:', err.message);
+    });
+
     // Add package_type column if it doesn't exist (migration)
     db.run(`
         ALTER TABLE users ADD COLUMN package_type TEXT DEFAULT 'full'
@@ -413,14 +431,45 @@ app.get('/api/checkout/confirm', async (req, res) => {
         if (checkout && checkout.payment_status === 'paid') {
             const paidEmail = (checkout.client_reference_id) || (checkout.metadata && checkout.metadata.email);
             if (paidEmail) {
+                // Determine package type and payment type based on payment amount
+                const amountPaid = checkout.amount_total; // Amount in cents
+                const amountDollars = amountPaid / 100;
+                let packageType = 'full';
+                let paymentType = 'initial';
+                
+                if (amountPaid === 29900) { // $299.00
+                    packageType = 'form-filling';
+                    paymentType = 'initial';
+                } else if (amountPaid === 130000) { // $1,300.00 (upgrade)
+                    packageType = 'full';
+                    paymentType = 'upgrade';
+                } else if (amountPaid === 159900) { // $1,599.00
+                    packageType = 'full';
+                    paymentType = 'initial';
+                }
+                
+                // Record payment in payments table
                 await new Promise((resolve, reject) => {
-                    db.run('UPDATE users SET paid = 1 WHERE email = ?', [paidEmail], function(err){
+                    db.run(`
+                        INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
+                        VALUES (?, ?, ?, ?, ?, ?, 'completed')
+                    `, [paidEmail, sessionId, amountPaid, amountDollars, packageType, paymentType], function(err) {
                         if (err) return reject(err);
                         resolve();
                     });
                 });
+                
+                // Update user's current package type and paid status
+                await new Promise((resolve, reject) => {
+                    db.run('UPDATE users SET paid = 1, package_type = ? WHERE email = ?', [packageType, paidEmail], function(err){
+                        if (err) return reject(err);
+                        resolve();
+                    });
+                });
+                
                 if (req.session.user && req.session.user.email === paidEmail) {
                     req.session.user.paid = true;
+                    req.session.user.packageType = packageType;
                 }
             }
             return res.json({ success: true, paid: true });
@@ -681,6 +730,33 @@ app.get('/api/surveys', (req, res) => {
             data: rows
         });
     });
+});
+
+// Get payment history for a user
+app.get('/api/payments', async (req, res) => {
+    try {
+        const sessionUser = req.session.user;
+        if (!sessionUser) {
+            return res.status(401).json({ success: false, error: 'Not authenticated' });
+        }
+
+        const payments = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT id, amount_cents, amount_dollars, package_type, payment_type, status, created_at
+                FROM payments 
+                WHERE user_email = ? 
+                ORDER BY created_at DESC
+            `, [sessionUser.email], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+        res.json({ success: true, payments: payments });
+    } catch (error) {
+        console.error('Error fetching payments:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
 });
 
 app.get('/api/health', (req, res) => {

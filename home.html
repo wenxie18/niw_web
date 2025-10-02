@@ -170,6 +170,17 @@
                 
                 if (data.success && data.user) {
                     document.getElementById('logoutBtn').style.display = 'inline-block';
+                    
+                    // If user has already paid, disable package selection buttons
+                    if (data.user.paid) {
+                        const packageButtons = document.querySelectorAll('a[onclick*="setPackageAndRedirect"]');
+                        packageButtons.forEach(button => {
+                            button.style.opacity = '0.5';
+                            button.style.pointerEvents = 'none';
+                            button.style.cursor = 'not-allowed';
+                            button.title = 'You have already selected a package. Go to your account page to manage it.';
+                        });
+                    }
                 } else {
                     document.getElementById('logoutBtn').style.display = 'none';
                 }
@@ -193,7 +204,15 @@
                     return;
                 }
                 
-                // User is logged in, set package type on server
+                // Check if user has already paid
+                if (meData.user.paid) {
+                    // User has already paid, show alert and redirect to account
+                    alert('You have already selected and paid for a package. Please go to your account page to manage your package.');
+                    window.location.href = '/account';
+                    return;
+                }
+                
+                // User is logged in but not paid, set package type on server
                 const response = await fetch('/api/set-package', {
                     method: 'POST',
                     headers: {

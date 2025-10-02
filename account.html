@@ -167,6 +167,7 @@
               dashboard.style.display = 'block';
               logoutBtn.style.display = 'inline-block';
               
+              
               // Determine package type (default to 'full' for now, can be enhanced later)
               const packageType = user.packageType || 'full';
               
@@ -263,17 +264,17 @@
               if (user.paid) {
                 // Step 2: Payment - completed when user has paid
                 stepPay.className = 'step-card completed';
-                // Hide Pay button when paid and add Completed status
+                // Hide Pay button when paid and add payment status
                 const payStatus = stepPay.querySelector('.step-status');
                 if (payStatus) {
                   // Clear existing content
                   payStatus.innerHTML = '';
                   
-                  // Add Completed badge
-                  const completedBadge = document.createElement('span');
-                  completedBadge.className = 'status-badge completed';
-                  completedBadge.textContent = 'Completed';
-                  payStatus.appendChild(completedBadge);
+                  // Add payment status badge
+                  const paymentBadge = document.createElement('span');
+                  paymentBadge.className = 'status-badge completed';
+                  paymentBadge.textContent = packageType === 'form-filling' ? 'Paid $299' : 'Paid $1,599';
+                  payStatus.appendChild(paymentBadge);
                 }
                 
                 // Step 3: Survey - enabled when user has paid (but not completed yet)
