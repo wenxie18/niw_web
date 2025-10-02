@@ -43,6 +43,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
             scriptSrcAttr: ["'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
+            frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
         },
     },
 }));
@@ -205,8 +206,6 @@ app.get('/survey', (req, res) => {
     }
     const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
     const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
-    console.log('Serving survey file:', surveyFile);
-    console.log('Full path:', path.join(__dirname, surveyFile));
     res.sendFile(path.join(__dirname, surveyFile));
 });
 
