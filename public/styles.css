@@ -2059,6 +2059,12 @@ textarea:focus {
     gap: 60px;
 }
 
+.step-card#step-survey {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 60px;
+}
+
 .step-number {
     width: 40px;
     height: 40px;
@@ -2112,6 +2118,11 @@ textarea:focus {
     margin-left: 20px;
 }
 
+.step-card#step-survey .step-content {
+    margin-left: 20px;
+    display: block;
+}
+
 .step-content h4 {
     font-size: 1.125rem;
     margin-bottom: 8px;
@@ -2131,6 +2142,13 @@ textarea:focus {
     margin-top: 12px;
     display: flex;
     justify-content: flex-end;
+}
+
+.step-card#step-survey .step-status {
+    justify-content: flex-start;
+    margin-top: 12px;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .status-badge {
@@ -2195,15 +2213,13 @@ textarea:focus {
 /* Survey Buttons Styling */
 .survey-buttons {
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
 }
 
 .survey-buttons .btn {
-    flex: 1;
-    min-width: 140px;
+    width: 100%;
     max-width: 200px;
     padding: 12px 20px;
     font-size: 0.9rem;
