@@ -132,6 +132,41 @@ function initDatabase() {
         }
     });
 
+    // Create first_survey_responses table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS first_survey_responses (
+            id TEXT PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            full_name TEXT,
+            submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+            data TEXT,
+            status TEXT DEFAULT 'submitted'
+        )
+    `, (err) => {
+        if (err) {
+            console.error('Error creating first_survey_responses table:', err.message);
+        } else {
+            console.log('First survey responses table ready');
+        }
+    });
+
+    // Create first_survey_fields table for easier querying
+    db.run(`
+        CREATE TABLE IF NOT EXISTS first_survey_fields (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            response_id TEXT,
+            field_name TEXT,
+            field_value TEXT,
+            FOREIGN KEY (response_id) REFERENCES first_survey_responses (id)
+        )
+    `, (err) => {
+        if (err) {
+            console.error('Error creating first_survey_fields table:', err.message);
+        } else {
+            console.log('First survey fields table ready');
+        }
+    });
+
     // Users table
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
@@ -164,6 +199,14 @@ app.get('/survey', (req, res) => {
 
 app.get('/account', (req, res) => {
     res.sendFile(path.join(__dirname, 'account.html'));
+});
+
+app.get('/first-survey', (req, res) => {
+    // Require login and paid account before serving first survey
+    if (!req.session.user || !req.session.user.paid) {
+        return res.redirect('/account');
+    }
+    res.sendFile(path.join(__dirname, 'first-survey.html'));
 });
 
 app.get('/evaluation', (req, res) => {
@@ -442,6 +485,79 @@ app.post('/api/submit-survey', async (req, res) => {
 
     } catch (error) {
         console.error('Error submitting survey:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Internal server error' 
+        });
+    }
+});
+
+// First Survey Submission Route
+app.post('/api/submit-first-survey', async (req, res) => {
+    try {
+        const { email, ...formData } = req.body;
+        
+        // For testing: allow empty submissions
+        if (!email) {
+            email = 'test@example.com'; // Default email for testing
+        }
+
+        // Validate email format only if email is provided
+        if (email && email !== 'test@example.com') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Invalid email format' 
+                });
+            }
+        }
+
+        const responseId = uuidv4();
+        const fullName = `${formData.FIRST_NAME || ''} ${formData.LAST_NAME || ''}`.trim();
+        const dataJson = JSON.stringify(formData);
+
+        // Save to database
+        await new Promise((resolve, reject) => {
+            db.run(`
+                INSERT OR REPLACE INTO first_survey_responses (id, email, full_name, data, submission_date)
+                VALUES (?, ?, ?, ?, datetime('now'))
+            `, [responseId, email, fullName, dataJson], function(err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // Save individual fields
+        await new Promise((resolve, reject) => {
+            db.run('DELETE FROM first_survey_fields WHERE response_id = ?', [responseId], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        for (const [fieldName, fieldValue] of Object.entries(formData)) {
+            if (fieldValue && fieldValue.toString().trim()) {
+                await new Promise((resolve, reject) => {
+                    db.run(`
+                        INSERT INTO first_survey_fields (response_id, field_name, field_value)
+                        VALUES (?, ?, ?)
+                    `, [responseId, fieldName, fieldValue.toString()], (err) => {
+                        if (err) reject(err);
+                        else resolve();
+                    });
+                });
+            }
+        }
+
+        res.json({
+            success: true,
+            message: 'First survey submitted successfully',
+            responseId: responseId
+        });
+
+    } catch (error) {
+        console.error('Error submitting first survey:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Internal server error' 

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Survey - NIW Application Form - Professional Consulting</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+      // Require account + payment before accessing the survey
+      (function(){
+        try {
+          var s = JSON.parse(localStorage.getItem('niw_account') || '{}');
+          if (!s || !s.email) { window.location.replace('/account'); return; }
+          if (!s.paid) { window.location.replace('/account'); return; }
+        } catch(e) {
+          window.location.replace('/account');
+        }
+      })();
+    </script>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="nav-left"></div>
+            <a class="site-brand" href="/">
+                <img src="/TurboNIW-name-italic.png" alt="TurboNIW" class="brand-logo-text">
+            </a>
+            <div class="nav-right">
+                <a class="nav-link" href="/account">Account</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>First Survey</h1>
+                <p class="subtitle">Complete your personal and immigration information for the NIW application form. This comprehensive survey collects all necessary details for your petition preparation.</p>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="currentStep">1</span> of <span id="totalSteps">6</span> sections
+            </div>
+        </div>
+
+        <!-- Survey Form -->
+        <form id="surveyForm" class="survey-form">
+            <!-- Section 1: Personal Information -->
+            <div class="survey-section" id="section-1">
+                <h2>Personal Information</h2>
+                
+                <div class="form-group">
+                    <label for="PERSONAL_TITLE">Please select your personal title:</label>
+                    <select id="PERSONAL_TITLE" name="PERSONAL_TITLE" required>
+                        <option value="">Select title</option>
+                        <option value="Dr.">Dr.</option>
+                        <option value="Prof.">Prof.</option>
+                        <option value="Mr.">Mr.</option>
+                        <option value="Mrs.">Mrs.</option>
+                        <option value="Ms.">Ms.</option>
+                        <option value="Miss">Miss</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="LAST_NAME">Last Name / Family Name / Surname</label>
+                    <input type="text" id="LAST_NAME" name="LAST_NAME" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="FIRST_NAME">First Name / Given Name</label>
+                    <input type="text" id="FIRST_NAME" name="FIRST_NAME" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="COUNTRY_OF_BIRTH">Country of Birth</label>
+                    <input type="text" id="COUNTRY_OF_BIRTH" name="COUNTRY_OF_BIRTH" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="DATE_OF_BIRTH">Date of Birth (mm/dd/yyyy)</label>
+                    <input type="date" id="DATE_OF_BIRTH" name="DATE_OF_BIRTH" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="EMAIL_ADDRESS">Email Address</label>
+                    <input type="email" id="EMAIL_ADDRESS" name="EMAIL_ADDRESS" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="MOBILE_NUMBER">Mobile Number</label>
+                    <input type="tel" id="MOBILE_NUMBER" name="MOBILE_NUMBER" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="MIDDLE_NAME">Middle Name</label>
+                    <input type="text" id="MIDDLE_NAME" name="MIDDLE_NAME">
+                </div>
+
+                <div class="form-group">
+                    <label for="FIRST_NAME_NATIVE">First Name / Given Name (Native)</label>
+                    <input type="text" id="FIRST_NAME_NATIVE" name="FIRST_NAME_NATIVE">
+                </div>
+
+                <div class="form-group">
+                    <label for="LAST_NAME_NATIVE">Last Name / Family Name / Surname (Native)</label>
+                    <input type="text" id="LAST_NAME_NATIVE" name="LAST_NAME_NATIVE">
+                </div>
+
+                <div class="form-group">
+                    <label for="MIDDLE_NAME_NATIVE">Middle Name (Native)</label>
+                    <input type="text" id="MIDDLE_NAME_NATIVE" name="MIDDLE_NAME_NATIVE">
+                </div>
+            </div>
+
+            <!-- Section 2: Mailing Contact Information -->
+            <div class="survey-section" id="section-2" style="display: none;">
+                <h2>Mailing Contact Information</h2>
+                
+                <div class="form-group">
+                    <label for="STREET_ADDRESS">Street Address</label>
+                    <input type="text" id="STREET_ADDRESS" name="STREET_ADDRESS" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="APARTMENT_SUITE_FLOOR">Apartment / Suite / Floor</label>
+                    <input type="text" id="APARTMENT_SUITE_FLOOR" name="APARTMENT_SUITE_FLOOR">
+                </div>
+
+                <div class="form-group">
+                    <label for="APARTMENT_SUITE_FLOOR_NUMBER">Apartment / Suite / Floor Number</label>
+                    <input type="text" id="APARTMENT_SUITE_FLOOR_NUMBER" name="APARTMENT_SUITE_FLOOR_NUMBER">
+                </div>
+
+                <div class="form-group">
+                    <label for="CITY">City</label>
+                    <input type="text" id="CITY" name="CITY" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="STATE">State</label>
+                    <input type="text" id="STATE" name="STATE" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="POSTAL_CODE">Postal Code</label>
+                    <input type="text" id="POSTAL_CODE" name="POSTAL_CODE" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="COUNTRY">Country</label>
+                    <input type="text" id="COUNTRY" name="COUNTRY" required>
+                </div>
+            </div>
+
+            <!-- Section 3: Immigration Information -->
+            <div class="survey-section" id="section-3" style="display: none;">
+                <h2>Immigration Information</h2>
+                
+                <div class="form-group">
+                    <label for="CLASS_OF_ADMISSION">Class of Admission</label>
+                    <select id="CLASS_OF_ADMISSION" name="CLASS_OF_ADMISSION" required>
+                        <option value="">Select class of admission</option>
+                        <option value="F-1">F-1 (Student)</option>
+                        <option value="J-1">J-1 (Exchange Visitor)</option>
+                        <option value="H-1B">H-1B (Specialty Occupation)</option>
+                        <option value="O-1">O-1 (Extraordinary Ability)</option>
+                        <option value="L-1">L-1 (Intracompany Transferee)</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ALIEN_REGISTRATION_NUMBER">Alien Registration Number (A#)</label>
+                    <input type="text" id="ALIEN_REGISTRATION_NUMBER" name="ALIEN_REGISTRATION_NUMBER" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="COUNTRY_OF_CITIZENSHIP">Country of Citizenship or Nationality</label>
+                    <input type="text" id="COUNTRY_OF_CITIZENSHIP" name="COUNTRY_OF_CITIZENSHIP" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="CURRENT_COUNTRY_RESIDENCE">Alien's current country of residence or, if now in the United States, last country of permanent residence abroad.</label>
+                    <input type="text" id="CURRENT_COUNTRY_RESIDENCE" name="CURRENT_COUNTRY_RESIDENCE" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="FOREIGN_ADDRESS_STREET">Foreign address Street Number and Name</label>
+                    <input type="text" id="FOREIGN_ADDRESS_STREET" name="FOREIGN_ADDRESS_STREET">
+                </div>
+
+                <div class="form-group">
+                    <label for="FOREIGN_ADDRESS_APT">Foreign address Apt, Ste, Flr.</label>
+                    <input type="text" id="FOREIGN_ADDRESS_APT" name="FOREIGN_ADDRESS_APT">
+                </div>
+
+                <div class="form-group">
+                    <label for="FOREIGN_ADDRESS_CITY">Foreign address City</label>
+                    <input type="text" id="FOREIGN_ADDRESS_CITY" name="FOREIGN_ADDRESS_CITY">
+                </div>
+
+                <div class="form-group">
+                    <label for="FOREIGN_ADDRESS_STATE">Foreign address State/Province</label>
+                    <input type="text" id="FOREIGN_ADDRESS_STATE" name="FOREIGN_ADDRESS_STATE">
+                </div>
+
+                <div class="form-group">
+                    <label for="FOREIGN_ADDRESS_POSTAL">Foreign address Postal Code</label>
+                    <input type="text" id="FOREIGN_ADDRESS_POSTAL" name="FOREIGN_ADDRESS_POSTAL">
+                </div>
+
+                <div class="form-group">
+                    <label for="FOREIGN_ADDRESS_COUNTRY">Foreign address Country</label>
+                    <input type="text" id="FOREIGN_ADDRESS_COUNTRY" name="FOREIGN_ADDRESS_COUNTRY">
+                </div>
+            </div>
+
+            <!-- Section 4: Education Information -->
+            <div class="survey-section" id="section-4" style="display: none;">
+                <h2>Education Information</h2>
+                
+                <div class="form-group">
+                    <label for="HIGHEST_DEGREE">What is your highest degree?</label>
+                    <select id="HIGHEST_DEGREE" name="HIGHEST_DEGREE" required>
+                        <option value="">Select degree</option>
+                        <option value="Bachelor's">Bachelor's Degree</option>
+                        <option value="Master's">Master's Degree</option>
+                        <option value="PhD">Doctor of Philosophy (PhD)</option>
+                        <option value="MD">Doctor of Medicine (MD)</option>
+                        <option value="JD">Juris Doctor (JD)</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="FIELD_OF_STUDY">Field of Study</label>
+                    <input type="text" id="FIELD_OF_STUDY" name="FIELD_OF_STUDY" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="UNIVERSITY_NAME">University/Institution Name</label>
+                    <input type="text" id="UNIVERSITY_NAME" name="UNIVERSITY_NAME" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="GRADUATION_DATE">Graduation Date (mm/dd/yyyy)</label>
+                    <input type="date" id="GRADUATION_DATE" name="GRADUATION_DATE" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="GPA">GPA (if applicable)</label>
+                    <input type="text" id="GPA" name="GPA" placeholder="e.g., 3.8">
+                </div>
+            </div>
+
+            <!-- Section 5: Employment Information -->
+            <div class="survey-section" id="section-5" style="display: none;">
+                <h2>Employment Information</h2>
+                
+                <div class="form-group">
+                    <label for="CURRENT_POSITION">Current Position/Title</label>
+                    <input type="text" id="CURRENT_POSITION" name="CURRENT_POSITION" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="CURRENT_EMPLOYER">Current Employer/Institution</label>
+                    <input type="text" id="CURRENT_EMPLOYER" name="CURRENT_EMPLOYER" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="EMPLOYMENT_START_DATE">Employment Start Date (mm/dd/yyyy)</label>
+                    <input type="date" id="EMPLOYMENT_START_DATE" name="EMPLOYMENT_START_DATE" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ANNUAL_SALARY">Annual Salary (if applicable)</label>
+                    <input type="text" id="ANNUAL_SALARY" name="ANNUAL_SALARY" placeholder="e.g., $80,000">
+                </div>
+
+                <div class="form-group">
+                    <label for="WORK_DESCRIPTION">Brief description of your work/research</label>
+                    <textarea id="WORK_DESCRIPTION" name="WORK_DESCRIPTION" rows="4" required></textarea>
+                </div>
+            </div>
+
+            <!-- Section 6: Additional Information -->
+            <div class="survey-section" id="section-6" style="display: none;">
+                <h2>Additional Information</h2>
+                
+                <div class="form-group">
+                    <label for="PUBLICATIONS">Publications (list major publications, if any)</label>
+                    <textarea id="PUBLICATIONS" name="PUBLICATIONS" rows="4" placeholder="List your publications, papers, articles, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="AWARDS">Awards and Honors (if any)</label>
+                    <textarea id="AWARDS" name="AWARDS" rows="4" placeholder="List any awards, honors, recognitions, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="MEMBERSHIPS">Professional Memberships (if any)</label>
+                    <textarea id="MEMBERSHIPS" name="MEMBERSHIPS" rows="3" placeholder="List professional organizations, societies, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="ADDITIONAL_INFO">Any additional information you'd like to include</label>
+                    <textarea id="ADDITIONAL_INFO" name="ADDITIONAL_INFO" rows="4" placeholder="Any other relevant information for your NIW application"></textarea>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">Previous</button>
+                <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">Submit Survey</button>
+            </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <h2>Survey Submitted Successfully!</h2>
+            <p>Thank you for completing the first survey. Your information has been saved and will be used to prepare your NIW application materials.</p>
+            <a href="/account" class="btn btn-primary">Return to Account</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('surveyForm');
+            const sections = document.querySelectorAll('.survey-section');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const progressFill = document.getElementById('progressFill');
+            const currentStepSpan = document.getElementById('currentStep');
+            const totalStepsSpan = document.getElementById('totalSteps');
+            const successMessage = document.getElementById('successMessage');
+
+            let currentSection = 0;
+            const totalSections = sections.length;
+            totalStepsSpan.textContent = totalSections;
+
+            function updateProgress() {
+                const progress = ((currentSection + 1) / totalSections) * 100;
+                progressFill.style.width = progress + '%';
+                currentStepSpan.textContent = currentSection + 1;
+            }
+
+            function showSection(index) {
+                sections.forEach((section, i) => {
+                    section.style.display = i === index ? 'block' : 'none';
+                });
+                
+                prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
+                nextBtn.style.display = index === totalSections - 1 ? 'none' : 'inline-block';
+                submitBtn.style.display = index === totalSections - 1 ? 'inline-block' : 'none';
+                
+                updateProgress();
+            }
+
+            function validateCurrentSection() {
+                const currentSectionElement = sections[currentSection];
+                const requiredFields = currentSectionElement.querySelectorAll('[required]');
+                
+                for (let field of requiredFields) {
+                    if (!field.value.trim()) {
+                        field.focus();
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            nextBtn.addEventListener('click', function() {
+                if (validateCurrentSection()) {
+                    currentSection++;
+                    showSection(currentSection);
+                } else {
+                    alert('Please fill in all required fields before proceeding.');
+                }
+            });
+
+            prevBtn.addEventListener('click', function() {
+                currentSection--;
+                showSection(currentSection);
+            });
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!validateCurrentSection()) {
+                    alert('Please fill in all required fields before submitting.');
+                    return;
+                }
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/submit-first-survey', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        form.style.display = 'none';
+                        successMessage.style.display = 'block';
+                    } else {
+                        alert('Error submitting survey: ' + (result.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    alert('Error submitting survey. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+
+            // Initialize
+            showSection(0);
+        });
+    </script>
+</body>
+</html>

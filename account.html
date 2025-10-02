@@ -101,11 +101,14 @@
                     <div class="step-card disabled" id="step-survey">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h4>Fill Survey</h4>
-                            <p>Complete your NIW qualification assessment</p>
+                            <h4>Complete Surveys</h4>
+                            <p>Fill out both surveys to prepare your petition letter</p>
                         </div>
                         <div class="step-status">
-                            <a id="surveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Go to Survey</a>
+                            <div class="survey-buttons">
+                                <a id="firstSurveyLink" class="btn btn-secondary" href="/first-survey" style="pointer-events:none; opacity:0.6; margin-right: 8px;">First Survey</a>
+                                <a id="secondSurveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Second Survey</a>
+                            </div>
                         </div>
                     </div>
 
@@ -113,7 +116,7 @@
                         <div class="step-number">4</div>
                         <div class="step-content">
                             <h4>Access Petition Letter</h4>
-                            <p>Download your personalized petition letter</p>
+                            <p>Download your petition letter draft</p>
                         </div>
                         <div class="step-status">
                             <span class="status-badge coming-soon">Coming Soon</span>
@@ -139,7 +142,6 @@
         
       
       const payNowBtn = document.getElementById('payNowBtn');
-      const surveyLink = document.getElementById('surveyLink');
 
       // Initialize Stripe
       let stripe = null;
@@ -166,8 +168,17 @@
       }
 
       function setSurveyEnabled(enabled) {
-        surveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
-        surveyLink.style.opacity = enabled ? '1' : '0.6';
+        const firstSurveyLink = document.getElementById('firstSurveyLink');
+        const secondSurveyLink = document.getElementById('secondSurveyLink');
+        
+        if (firstSurveyLink) {
+          firstSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
+          firstSurveyLink.style.opacity = enabled ? '1' : '0.6';
+        }
+        if (secondSurveyLink) {
+          secondSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
+          secondSurveyLink.style.opacity = enabled ? '1' : '0.6';
+        }
       }
 
       async function refreshUI() {

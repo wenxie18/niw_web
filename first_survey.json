@@ -1,0 +1,1135 @@
+{
+  "form_info": {
+    "form_id": "1A-H2_4Xy3Lzk9nI71cktUwfLxOkO4grpePGzlkO4mnI",
+    "form_url": "https://docs.google.com/forms/d/1A-H2_4Xy3Lzk9nI71cktUwfLxOkO4grpePGzlkO4mnI/edit",
+    "title": "Unknown Form",
+    "extracted_at": "2025-10-01T22:08:07.985710",
+    "method": "google_forms_api",
+    "total_items": 96
+  },
+  "questions": [
+    {
+      "question_number": 1,
+      "item_id": "445caff9",
+      "title": "Personal Information",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 2,
+      "item_id": "2ce60fea",
+      "title": "Please select your personal title: ",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Dr.",
+        "Prof.",
+        "Mr.",
+        "Mrs.",
+        "Ms.",
+        "Miss"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 3,
+      "item_id": "6c47c713",
+      "title": "S2.1. Last Name / Family Name / Surname",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 4,
+      "item_id": "370ebcc3",
+      "title": "S2.2. First Name / Given Name",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 5,
+      "item_id": "6eae2cdf",
+      "title": "S2.3. Country of Birth",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 6,
+      "item_id": "44618352",
+      "title": "S2.4. Date of Birth (mm/dd/yyyy)",
+      "description": "",
+      "type": "date",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "include_time": false,
+      "include_year": true
+    },
+    {
+      "question_number": 7,
+      "item_id": "51cf57a5",
+      "title": "S2.5. Email Address",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 8,
+      "item_id": "3c920f5e",
+      "title": "S2.6. Mobile Number",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 9,
+      "item_id": "1ccdca52",
+      "title": "S2.7. Middle Name",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 10,
+      "item_id": "3ad7671b",
+      "title": "S2.8. First Name / Given Name (Native)",
+      "description": "If the person's native alphabet is other than Roman letters, type \nor print the person's foreign name.",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 11,
+      "item_id": "4078198c",
+      "title": "S2.9. Last Name / Family Name / Surname (Native)",
+      "description": "If the person's native alphabet is other than Roman letters, type\nor print the person's foreign name.",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 12,
+      "item_id": "349e6112",
+      "title": "S2.10. Middle Name (Native)",
+      "description": "If the person's native alphabet is other than Roman letters, type\nor print the person's foreign name.",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 13,
+      "item_id": "19b29e6c",
+      "title": "S3.1. Mailing Contact Information",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 14,
+      "item_id": "1f64deb3",
+      "title": "S3.2. Street Address",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 15,
+      "item_id": "546b72be",
+      "title": "S3.3. Apartment / Suite / Floor",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Apt.",
+        "Ste.",
+        "Flr."
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 16,
+      "item_id": "6d17f583",
+      "title": "S3.4. Apartment / Suite / Floor Number",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 17,
+      "item_id": "1928910e",
+      "title": "S3.5. City",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 18,
+      "item_id": "462f757b",
+      "title": "S3.6. State",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 19,
+      "item_id": "50e5448e",
+      "title": "S3.7. Postal Code",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 20,
+      "item_id": "78b205e0",
+      "title": "S3.8. Country",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 21,
+      "item_id": "0083f220",
+      "title": "Immigration Information",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 22,
+      "item_id": "43fbdafa",
+      "title": "S4.1. Class of Admission",
+      "description": "",
+      "type": "dropdown",
+      "options": [
+        "F1"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 23,
+      "item_id": "3e6cfef7",
+      "title": "S4.2. Alien Registration Number (A#)",
+      "description": "You can find it from your OPT EAD card",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": true,
+      "subtype": "short_answer",
+      "image_source_uri": "",
+      "image_alt_text": ""
+    },
+    {
+      "question_number": 24,
+      "item_id": "217498ac",
+      "title": "S4.3. Country of Citizenship or Nationality",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 25,
+      "item_id": "73f78821",
+      "title": "S4.4.0. Alien is in the United States and will apply for adjustment of status to that of lawful permanent resident.",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Yes"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 26,
+      "item_id": "20c362ef",
+      "title": "S4.4. Alien's current country of residence or, if now in the United States, last country of permanent residence abroad.",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 27,
+      "item_id": "7d8cd67d",
+      "title": "S4.5. Foreign address Steet Number and Name",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "paragraph"
+    },
+    {
+      "question_number": 28,
+      "item_id": "4ff8157c",
+      "title": "S4.6. Foreign address Apt, Ste, Flr.",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Apt.",
+        "Ste.",
+        "Flr."
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 29,
+      "item_id": "1603b77a",
+      "title": "S4.7. Foreign address City or Town",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 30,
+      "item_id": "6dc4e01c",
+      "title": "S4.8. Foreign address Province",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 31,
+      "item_id": "5b99c030",
+      "title": "S4.9. Foreign address Postal Code",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 32,
+      "item_id": "2b109d91",
+      "title": "S4.10. Foreign address Country",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 33,
+      "item_id": "666a1249",
+      "title": "S5.1. Education",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 34,
+      "item_id": "1d3b4946",
+      "title": "S5.2. U.S. Diploma / Degree attained relevant to the job opportunity",
+      "description": "",
+      "type": "checkbox",
+      "options": [
+        "None",
+        "High School/GED",
+        "Associate",
+        "Bachelor's",
+        "Master's",
+        "Doctorate (PhD)",
+        "Other Degree (JD, MD, etc.)"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 35,
+      "item_id": "6d0e5dfa",
+      "title": "S5.3. Choose box, A professional (at minimum, processing a bachelor's degree or a foreign degree equivalent to a U.S. bachelor's degree)",
+      "description": "",
+      "type": "checkbox",
+      "options": [
+        "None",
+        "High School/GED",
+        "Associate",
+        "Bachelor's",
+        "Master's",
+        "Doctorate (PhD)",
+        "Other Degree (JD, MD, etc.)"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 36,
+      "item_id": "50823d23",
+      "title": "S5.4. Specify major(s) and/or field(s) of study (may list more than one related major and more than one field)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "paragraph"
+    },
+    {
+      "question_number": 37,
+      "item_id": "100b7ac2",
+      "title": "S5.5. Name of Institution that issued the degree/diploma",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 38,
+      "item_id": "33c32d03",
+      "title": "S5.4.1  Name of Country of institution that issued the degree/diploma in the prior question",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 39,
+      "item_id": "08934b0d",
+      "title": "S5.6. Month/year attained (mm/yyyy)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 40,
+      "item_id": "7530b679",
+      "title": "Employment Information",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 41,
+      "item_id": "221d0e9f",
+      "title": "S6.1. Employer Name",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 42,
+      "item_id": "7f9cf7d4",
+      "title": "S6.2. Employer Address 1",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 43,
+      "item_id": "78302d67",
+      "title": "S6.3. Employer Address 2",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 44,
+      "item_id": "1c663d2c",
+      "title": "S6.4. Employer City or Town",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 45,
+      "item_id": "32ac68e3",
+      "title": "S6.5. Employer Postal Code",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 46,
+      "item_id": "2475dc0e",
+      "title": "S6.6. Employer Country",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 47,
+      "item_id": "7a88830a",
+      "title": "S6.7. Employer State, Territory, or Province",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 48,
+      "item_id": "6d739ba8",
+      "title": "S6.8. Job Title",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 49,
+      "item_id": "72cd4db3",
+      "title": "S6.24. Job Duties: Specify details of the job (work tasks performed, use of tools/equipment, supervision, etc.) (up to 3,500 characters)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "paragraph"
+    },
+    {
+      "question_number": 50,
+      "item_id": "559cd010",
+      "title": "S6.24.1 Job Duties: non-technical job description (up to 250 characters)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 51,
+      "item_id": "0fd76be6",
+      "title": "S6.9. Job SOC Code",
+      "description": "1. Open ChatGPT： https://chatgpt.com/\n2. Type following prompt for SOC Code suggestion: \n*\"I’m applying for an NIW Green Card and need the best SOC Code for my job. My details:\nMajor: [Your Field]\nJob Title: [Your Job Title]\nIndustry: [Your Industry]\nJob Description: [Briefly describe key responsibilities & impact]\nCan you suggest the most relevant SOC Code?\"*",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 52,
+      "item_id": "0e16e2e1",
+      "title": "S6.10. Annual Income in USD($)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 53,
+      "item_id": "3f7aa3ae",
+      "title": "S6.11. Is this a full-time position?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 54,
+      "item_id": "52c9569d",
+      "title": "S6.12. Is this a permanent position?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 55,
+      "item_id": "4e6bcae7",
+      "title": "S6.13. Is this a new position?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 56,
+      "item_id": "395ea511",
+      "title": "S6.14. Job Start Date",
+      "description": "",
+      "type": "date",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "include_time": false,
+      "include_year": true
+    },
+    {
+      "question_number": 57,
+      "item_id": "7ddb2400",
+      "title": "S6.15. Job is current",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 58,
+      "item_id": "33165d98",
+      "title": "S6.16. Worksite Location",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Contact Mailing Address",
+        "Employer Address",
+        "Other"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 59,
+      "item_id": "4bde023e",
+      "title": "S6.17. Other worksite location Street Number and Name",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 60,
+      "item_id": "3dc9edb7",
+      "title": "S6.18. Other worksite location APT / STE / FLR and Unit",
+      "description": "i.e. APT 1000",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 61,
+      "item_id": "65059c23",
+      "title": "S6.19. Other worksite location City or Town",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 62,
+      "item_id": "24eb87a6",
+      "title": "S6.20. Other worksite location State",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 63,
+      "item_id": "1cd600ba",
+      "title": "S6.21. Other worksite location ZIP Code",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 64,
+      "item_id": "7778c600",
+      "title": "S6.22. Job End Date",
+      "description": "End the end date if job is not current",
+      "type": "date",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "include_time": false,
+      "include_year": true
+    },
+    {
+      "question_number": 65,
+      "item_id": "7322f93b",
+      "title": "S6.23. Hours Worked Per Week",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 66,
+      "item_id": "3c748e53",
+      "title": "S6.25. Are you a nonprofit organized as tax exempt or a governmental research organization?",
+      "description": " If you are self-petitioning, select \"No\". Additionally, prepare a separate $300 check  Asylum Program Fee apart from the $715 application fee when submitting your payment.  ",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 67,
+      "item_id": "481feeb1",
+      "title": "S6.26. Do you currently employ a total of 25 or fewer full-time equivalent employees in the United States, including all affiliates or subsidiaries of this company/organization?",
+      "description": "If you are self-petitioning, select \"Yes\". Additionally, prepare a separate $300 check  Asylum Program Fee apart from the $715 application fee when submitting your payment.  ",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 68,
+      "item_id": "6f395b35",
+      "title": "Traveler Information",
+      "description": "1. Visit the I-94 Website\nGo to https://i94.cbp.dhs.gov\n2. Access Your I-94 Record\nClick “Get Most Recent I-94”\nClick “Consent & Continue”\n3. Enter Your Information\nFill in:\nFirst and Last Name (as on your passport)\nDate of Birth (MM/DD/YYYY)\nPassport Number\nCountry of Issuance\nClick “Next”\n4. Copy Required Information\nS7.3. Admission I-94 Record Number → Found under “Admission (I-94) Record Number”\nS7.1. Date of Last Arrival → Found under “GET THIS TRAVELER'S TRAVEL HISTORY”",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 69,
+      "item_id": "1f7a36e2",
+      "title": "S7.3. Admission I-94 Record Number",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 70,
+      "item_id": "4ecb4627",
+      "title": "S7.1. Date of Last Arrival (mm/dd/yyyy)",
+      "description": "Match the I94 travel history",
+      "type": "date",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "include_time": false,
+      "include_year": true
+    },
+    {
+      "question_number": 71,
+      "item_id": "2fd920fd",
+      "title": "S7.2. Travel Document Number / Passport Number",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 72,
+      "item_id": "17bd11e0",
+      "title": "S7.4. Status on Form I-94 (i.e. class of admission, or paroled, if paroled)",
+      "description": "exp: F1",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 73,
+      "item_id": "5e81fc69",
+      "title": "S7.5. Country of Issuance for Passport or Travel Document",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 74,
+      "item_id": "30613fda",
+      "title": "S7.6. Expiration Date for Passport or Travel Document (mm/dd/yyyy)",
+      "description": "",
+      "type": "date",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "include_time": false,
+      "include_year": true
+    },
+    {
+      "question_number": 75,
+      "item_id": "3787930a",
+      "title": "S7.7. Expiration Date for  I-94 (mm/dd/yyyy)",
+      "description": "Answer D/S if you hold F1, which stands for \"Duration of Status\". This means that the student can stay in the United States as long as they maintain their visa status. ",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 76,
+      "item_id": "7922fb19",
+      "title": "Application Information",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 77,
+      "item_id": "016aeb5b",
+      "title": "S8.0. This petition is being filed for (select only one box):\n\nSelect \"An alien applying for an NIW.\"",
+      "description": "",
+      "type": "checkbox",
+      "options": [
+        "An alien applying for an NIW (who IS a member of the professions holding an advanced degree or an alien of exceptional ability).",
+        "An alien of extraordinary ability.",
+        "An outstanding professor or researcher.",
+        "A multinational executive or manager.",
+        "A member of the professions holding an advanced degree or an alien of exceptional ability (who is NOT seeking a National Interest Waiver (NIW)).",
+        "A professional (at a minimum, possessing a bachelor's degree or a foreign degree equivalent to a U.S. bachelor's degree).",
+        "A skilled worker (requiring at least two years of specialized training or experience).",
+        "Any other worker (requiring less than two years of training or experience)."
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 78,
+      "item_id": "4d30a7a8",
+      "title": "S8.1. Are you filing any other petitions or applications with the Form I-140?",
+      "description": "Choose No, we only support no PP and no 485 NIW filing now",
+      "type": "multiple_choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 79,
+      "item_id": "76674690",
+      "title": "S8.2. Is this person for whom you are filing in removal Proceedings?",
+      "description": "choose no",
+      "type": "multiple_choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 80,
+      "item_id": "4d0c2828",
+      "title": "S8.3. Has any immigrant visa petition ever been filed by or on behalf of this person?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 81,
+      "item_id": "0963cf47",
+      "title": "S8.4. Are you filing this petition without an original labor certification because the original labor certification was previously submitted in support of another Form I-140?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 82,
+      "item_id": "3398d7c3",
+      "title": "S8.5. If you are filing this petition without an original labor certification, are you requesting that U.S. Citizenship and Immigration Services (USCIS) requests duplicate labor certification from the Department of Labor (DOL)?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 83,
+      "item_id": "6c8b25db",
+      "title": "S8.6. Type of petitioner",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "Self",
+        "Employer"
+      ],
+      "required": true,
+      "has_image": false
+    },
+    {
+      "question_number": 84,
+      "item_id": "0e569a78",
+      "title": "S8.7. Are you using a Petitioner or Authorized Signatory?",
+      "description": "",
+      "type": "multiple_choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 85,
+      "item_id": "47031951",
+      "title": "S8.8. Petitioner's or Authorized Signatory's Family Name (Last Name)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 86,
+      "item_id": "09da4df6",
+      "title": "S8.9. Petitioner's or Authorized Signatory's Given Name (First Name)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 87,
+      "item_id": "0ef1e1e7",
+      "title": "S8.10. Petitioner's or Authorized Signatory's Title",
+      "description": "Most users are Dr.",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 88,
+      "item_id": "58d98aa3",
+      "title": "S8.11. Petitioner's or Authorized Signatory's Daytime Telephone Number",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 89,
+      "item_id": "26eec40e",
+      "title": "S8.12. Petitioner's or Authorized Signatory's Mobile Telephone Number",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 90,
+      "item_id": "355197be",
+      "title": "S8.13. Petitioner's or Authorized Signatory's Email Address (if any)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 91,
+      "item_id": "70f45c83",
+      "title": "Final Review",
+      "description": "",
+      "type": "page_break",
+      "options": [],
+      "required": false,
+      "has_image": false
+    },
+    {
+      "question_number": 92,
+      "item_id": "507c1966",
+      "title": "S9.1. U.S. Social Security Number (SSN) (if any)",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 93,
+      "item_id": "70e351c5",
+      "title": "S9.2. USCIS Online Account Number (if any)",
+      "description": "Go to the USCIS website: https://my.uscis.gov\nLog in to your account using your email and password.\nNavigate to “ Your cases ” (scroll down).\nClick on “Documents” from the Case  I-765, Application for Employment Authorization.\nFind the “USCIS Online Account Number” under your I-765 C03B Standalone Approval.pdf.",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": true,
+      "subtype": "short_answer",
+      "image_source_uri": "",
+      "image_alt_text": ""
+    },
+    {
+      "question_number": 94,
+      "item_id": "22be78bc",
+      "title": "S9.3. Signature",
+      "description": "Sign I-140 Page 7 Part 10.  6 after printing ",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 95,
+      "item_id": "61292b60",
+      "title": "S9.4. Petitioner's or Authorized Signatory's Signature",
+      "description": "",
+      "type": "text",
+      "options": [],
+      "required": false,
+      "has_image": false,
+      "subtype": "short_answer"
+    },
+    {
+      "question_number": 96,
+      "item_id": "0fa3ca3a",
+      "title": "S9.5. Date Signed",
+      "description": "",
+      "type": "date",
+      "options": [],
+      "required": true,
+      "has_image": false,
+      "include_time": false,
+      "include_year": true
+    }
+  ]
+}
