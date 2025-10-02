@@ -60,9 +60,9 @@
             <div class="plan-card">
                 <div class="plan-info">
                     <h3>Selected Plan</h3>
-                    <p class="plan-name">Complete NIW Prep</p>
-                    <p class="plan-price">$1,599</p>
-                    <p class="plan-description">Form filling + Petition letter</p>
+                    <p class="plan-name" id="planName">Complete NIW Preparation</p>
+                    <p class="plan-price" id="planPrice">$1,599</p>
+                    <p class="plan-description" id="planDescription">Form filling + Petition letter draft</p>
                 </div>
             </div>
 
@@ -81,9 +81,15 @@
                         <div class="step-content">
                             <h4>Select Package</h4>
                             <p>Choose your NIW preparation package</p>
+                            <div id="packageSelection" style="margin-top: 12px; display: none;">
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn btn-outline" onclick="changePackage('form-filling')" id="formFillingBtn" style="font-size: 0.8rem; padding: 6px 12px;">Form Filling ($299)</button>
+                                    <button class="btn btn-outline" onclick="changePackage('full')" id="fullPackageBtn" style="font-size: 0.8rem; padding: 6px 12px;">Full Package ($1,599)</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="step-status">
-                            <span class="status-badge completed">Completed</span>
+                            <button id="changePackageBtn" class="btn btn-secondary" onclick="togglePackageSelection()" style="font-size: 0.8rem; padding: 4px 8px; display: none;">Change</button>
                         </div>
                     </div>
 
@@ -101,13 +107,19 @@
                     <div class="step-card disabled" id="step-survey">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h4>Complete Surveys</h4>
-                            <p>Fill out both surveys to prepare your petition letter</p>
+                            <h4 id="surveyStepTitle">Complete Surveys</h4>
+                            <p id="surveyStepDescription">Fill out both surveys to prepare your petition letter</p>
                         </div>
                         <div class="step-status">
-                            <div class="survey-buttons">
-                                <a id="firstSurveyLink" class="btn btn-secondary" href="/first-survey" style="pointer-events:none; opacity:0.6; margin-right: 8px;">First Survey</a>
-                                <a id="secondSurveyLink" class="btn btn-secondary" href="/survey" style="pointer-events:none; opacity:0.6;">Second Survey</a>
+                            <!-- Form Filling Package - Only First Survey -->
+                            <div id="formFillingButtons" class="survey-buttons" style="display: none;">
+                                <a id="firstSurveyLinkForm" class="btn" href="/first-survey">First Survey</a>
+                            </div>
+                            
+                            <!-- Full Package - Both Surveys -->
+                            <div id="fullPackageButtons" class="survey-buttons" style="display: none;">
+                                <a id="firstSurveyLinkFull" class="btn" href="/first-survey">First Survey</a>
+                                <a id="secondSurveyLinkFull" class="btn" href="/survey">Second Survey</a>
                             </div>
                         </div>
                     </div>
@@ -132,6 +144,307 @@
     </div>
 
     <script>
+        // Global refreshUI function
+        async function refreshUI() {
+          try {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            
+            const authSection = document.getElementById('authSection');
+            const dashboard = document.getElementById('dashboard');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (!data.success || !data.user) {
+              authSection.style.display = 'block';
+              dashboard.style.display = 'none';
+              logoutBtn.style.display = 'none';
+              return;
+            }
+            
+            const user = data.user;
+            if (user) {
+              authSection.style.display = 'none';
+              dashboard.style.display = 'block';
+              logoutBtn.style.display = 'inline-block';
+              
+              // Determine package type (default to 'full' for now, can be enhanced later)
+              const packageType = user.packageType || 'full';
+              
+              // Update plan information based on package type
+              const planName = document.getElementById('planName');
+              const planPrice = document.getElementById('planPrice');
+              const planDescription = document.getElementById('planDescription');
+              
+              if (packageType === 'form-filling') {
+                if (planName) planName.textContent = 'Form Filling Package';
+                if (planPrice) planPrice.textContent = '$299';
+                if (planDescription) planDescription.textContent = 'Complete NIW application forms';
+                
+                // Update step 3 content for form filling package
+                const surveyStepTitle = document.getElementById('surveyStepTitle');
+                const surveyStepDescription = document.getElementById('surveyStepDescription');
+                if (surveyStepTitle) surveyStepTitle.textContent = 'Complete Survey';
+                if (surveyStepDescription) surveyStepDescription.textContent = 'Fill out the application form survey';
+                
+                // Highlight selected package button
+                const formFillingBtn = document.getElementById('formFillingBtn');
+                const fullPackageBtn = document.getElementById('fullPackageBtn');
+                if (formFillingBtn) formFillingBtn.style.background = '#2563eb';
+                if (formFillingBtn) formFillingBtn.style.color = 'white';
+                if (fullPackageBtn) fullPackageBtn.style.background = 'transparent';
+                if (fullPackageBtn) fullPackageBtn.style.color = '#2563eb';
+              } else {
+                if (planName) planName.textContent = 'Complete NIW Preparation';
+                if (planPrice) planPrice.textContent = '$1,599';
+                if (planDescription) planDescription.textContent = 'Form filling + Petition letter draft';
+                
+                // Update step 3 content for full package
+                const surveyStepTitle = document.getElementById('surveyStepTitle');
+                const surveyStepDescription = document.getElementById('surveyStepDescription');
+                if (surveyStepTitle) surveyStepTitle.textContent = 'Complete Surveys';
+                if (surveyStepDescription) surveyStepDescription.textContent = 'Fill out both surveys to prepare your petition letter';
+                
+                // Highlight selected package button
+                const formFillingBtn = document.getElementById('formFillingBtn');
+                const fullPackageBtn = document.getElementById('fullPackageBtn');
+                if (fullPackageBtn) fullPackageBtn.style.background = '#2563eb';
+                if (fullPackageBtn) fullPackageBtn.style.color = 'white';
+                if (formFillingBtn) formFillingBtn.style.background = 'transparent';
+                if (formFillingBtn) formFillingBtn.style.color = '#2563eb';
+              }
+              
+              // Update payment button text based on package type
+              const payNowBtn = document.getElementById('payNowBtn');
+              if (payNowBtn) {
+                if (packageType === 'form-filling') {
+                  payNowBtn.textContent = 'Pay $299';
+                } else {
+                  payNowBtn.textContent = 'Pay $1,599';
+                }
+              }
+
+              // Steps state
+              const stepPlan = document.getElementById('step-plan');
+              const stepPay = document.getElementById('step-pay');
+              const stepSurvey = document.getElementById('step-survey');
+              const stepPetition = document.getElementById('step-petition');
+
+              // Step 1: Select Package - always completed when user is logged in
+              stepPlan.className = 'step-card completed';
+
+              // Package change logic based on payment status
+              const changePackageBtn = document.getElementById('changePackageBtn');
+              if (user.paid) {
+                // User has paid - show change button only for upgrades
+                if (packageType === 'form-filling') {
+                  // User paid $299 - can upgrade to $1,599
+                  if (changePackageBtn) {
+                    changePackageBtn.style.display = 'inline-block';
+                    changePackageBtn.textContent = 'Upgrade to Full Package';
+                  }
+                } else {
+                  // User paid $1,599 - no changes allowed
+                  if (changePackageBtn) {
+                    changePackageBtn.style.display = 'none';
+                  }
+                }
+              } else {
+                // User hasn't paid - can change package freely
+                if (changePackageBtn) {
+                  changePackageBtn.style.display = 'inline-block';
+                  changePackageBtn.textContent = 'Change';
+                }
+              }
+
+              // Update progress bar and text
+              const progressFill = document.getElementById('progressFill');
+              const progressText = document.getElementById('progressText');
+              
+              if (user.paid) {
+                // Step 2: Payment - completed when user has paid
+                stepPay.className = 'step-card completed';
+                // Hide Pay button when paid and add Completed status
+                const payStatus = stepPay.querySelector('.step-status');
+                if (payStatus) {
+                  // Clear existing content
+                  payStatus.innerHTML = '';
+                  
+                  // Add Completed badge
+                  const completedBadge = document.createElement('span');
+                  completedBadge.className = 'status-badge completed';
+                  completedBadge.textContent = 'Completed';
+                  payStatus.appendChild(completedBadge);
+                }
+                
+                // Step 3: Survey - enabled when user has paid (but not completed yet)
+                stepSurvey.className = 'step-card';
+                setSurveyEnabled(true, packageType);
+                
+                // Step 4: Petition - disabled until surveys are completed
+                stepPetition.className = 'step-card disabled';
+                
+                // Update progress - only 2 of 4 steps completed (Package + Payment)
+                if (progressFill) progressFill.style.width = '50%';
+                if (progressText) progressText.textContent = '2 of 4 steps completed';
+              } else {
+                // Step 2: Payment - show Pay button when not paid
+                stepPay.className = 'step-card';
+                const payStatus = stepPay.querySelector('.step-status');
+                if (payStatus) {
+                  // Remove Completed badge if present
+                  const completedBadge = payStatus.querySelector('.completed-badge');
+                  if (completedBadge) completedBadge.remove();
+                  
+                  // Ensure Pay button exists
+                  if (!payStatus.querySelector('button')) {
+                    const payBtn = document.createElement('button');
+                    payBtn.id = 'payNowBtn';
+                    payBtn.className = 'btn btn-success';
+                    payBtn.type = 'button';
+                    payBtn.textContent = packageType === 'form-filling' ? 'Pay $299' : 'Pay $1,599';
+                    payStatus.appendChild(payBtn);
+                  }
+                }
+                
+                // Step 3: Survey - disabled when user hasn't paid
+                stepSurvey.className = 'step-card disabled';
+                setSurveyEnabled(false, packageType);
+                
+                // Step 4: Petition - disabled when user hasn't paid
+                stepPetition.className = 'step-card disabled';
+                
+                // Update progress
+                if (progressFill) progressFill.style.width = '25%';
+                if (progressText) progressText.textContent = '1 of 4 steps completed';
+              }
+            }
+          } catch (error) {
+            console.error('Error refreshing UI:', error);
+          }
+        }
+
+        // Global setSurveyEnabled function
+        function setSurveyEnabled(enabled, packageType = 'full') {
+          const formFillingButtons = document.getElementById('formFillingButtons');
+          const fullPackageButtons = document.getElementById('fullPackageButtons');
+          
+          if (packageType === 'form-filling') {
+            if (formFillingButtons) {
+              formFillingButtons.style.display = enabled ? 'flex' : 'none';
+            }
+            if (fullPackageButtons) {
+              fullPackageButtons.style.display = 'none';
+            }
+          } else {
+            if (fullPackageButtons) {
+              fullPackageButtons.style.display = enabled ? 'flex' : 'none';
+            }
+            if (formFillingButtons) {
+              formFillingButtons.style.display = 'none';
+            }
+          }
+        }
+
+        // Function to mark surveys as completed and update progress
+        function markSurveysCompleted() {
+          const stepSurvey = document.getElementById('step-survey');
+          const stepPetition = document.getElementById('step-petition');
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
+          // Mark survey step as completed
+          stepSurvey.className = 'step-card completed';
+          
+          // Enable petition step
+          stepPetition.className = 'step-card';
+          
+          // Update progress to 3 of 4 steps completed
+          if (progressFill) progressFill.style.width = '75%';
+          if (progressText) progressText.textContent = '3 of 4 steps completed';
+        }
+
+        // Function to mark petition as completed
+        function markPetitionCompleted() {
+          const stepPetition = document.getElementById('step-petition');
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
+          // Mark petition step as completed
+          stepPetition.className = 'step-card completed';
+          
+          // Update progress to 4 of 4 steps completed
+          if (progressFill) progressFill.style.width = '100%';
+          if (progressText) progressText.textContent = '4 of 4 steps completed';
+        }
+
+        // Package selection functions
+        function togglePackageSelection() {
+            const packageSelection = document.getElementById('packageSelection');
+            if (packageSelection.style.display === 'none') {
+                packageSelection.style.display = 'block';
+            } else {
+                packageSelection.style.display = 'none';
+            }
+        }
+
+        async function changePackage(packageType) {
+            try {
+                // Check if user is trying to upgrade from form-filling to full package
+                const currentUser = await fetch('/api/me').then(res => res.json());
+                if (currentUser.success && currentUser.user && currentUser.user.paid) {
+                    const currentPackage = currentUser.user.packageType || 'full';
+                    
+                    if (currentPackage === 'form-filling' && packageType === 'full') {
+                        // This is an upgrade - redirect to payment for the difference
+                        const confirmUpgrade = confirm('Upgrade to Full Package? You will be charged the difference of $1,300.');
+                        if (!confirmUpgrade) {
+                            document.getElementById('packageSelection').style.display = 'none';
+                            return;
+                        }
+                        
+                        // Set package type and redirect to payment
+                        await fetch('/api/set-package', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ packageType: packageType })
+                        });
+                        
+                        // Redirect to payment
+                        window.location.href = '/account';
+                        return;
+                    } else if (currentPackage === 'full' && packageType === 'form-filling') {
+                        // Downgrade not allowed
+                        alert('Cannot downgrade from Full Package. No changes allowed after payment.');
+                        document.getElementById('packageSelection').style.display = 'none';
+                        return;
+                    }
+                }
+                
+                // Regular package change (for unpaid users)
+                const response = await fetch('/api/set-package', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ packageType: packageType })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Hide package selection
+                    document.getElementById('packageSelection').style.display = 'none';
+                    // Refresh the UI to show updated package info
+                    await refreshUI();
+                } else {
+                    alert('Failed to change package: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error changing package:', error);
+                alert('Failed to change package. Please try again.');
+            }
+        }
+
       document.addEventListener('DOMContentLoaded', function() {
         const authSection = document.getElementById('authSection');
         const emailInput = document.getElementById('accountEmail');
@@ -141,7 +454,7 @@
         const dashboard = document.getElementById('dashboard');
         
       
-      const payNowBtn = document.getElementById('payNowBtn');
+      // payNowBtn declaration moved to global scope
 
       // Initialize Stripe
       let stripe = null;
@@ -167,114 +480,46 @@
         return data.user || null;
       }
 
-      function setSurveyEnabled(enabled) {
-        const firstSurveyLink = document.getElementById('firstSurveyLink');
-        const secondSurveyLink = document.getElementById('secondSurveyLink');
+      function setSurveyEnabled(enabled, packageType = 'full') {
+        const formFillingButtons = document.getElementById('formFillingButtons');
+        const fullPackageButtons = document.getElementById('fullPackageButtons');
         
-        if (firstSurveyLink) {
-          firstSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
-          firstSurveyLink.style.opacity = enabled ? '1' : '0.6';
-        }
-        if (secondSurveyLink) {
-          secondSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
-          secondSurveyLink.style.opacity = enabled ? '1' : '0.6';
-        }
-      }
-
-      async function refreshUI() {
-        const user = await fetchMe();
-        const logoutBtn = document.getElementById('logoutBtn');
-        
-        // Load configuration
-        let config = {};
-        try {
-          const configRes = await fetch('/api/config');
-          const configData = await configRes.json();
-          if (configData.success) {
-            config = configData.config;
-            // Update survey step title based on config
-            const surveyStep = document.querySelector('#step-survey h4');
-            if (surveyStep && config.surveyTitle) {
-              const surveyType = config.surveyType || 'full';
-              surveyStep.textContent = config.surveyTitle[surveyType] || 'Fill Survey';
+        if (packageType === 'form-filling') {
+          // Show only form filling buttons
+          if (formFillingButtons) {
+            formFillingButtons.style.display = enabled ? 'flex' : 'none';
+            const firstSurveyLink = document.getElementById('firstSurveyLinkForm');
+            if (firstSurveyLink) {
+              firstSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
+              firstSurveyLink.style.opacity = enabled ? '1' : '0.6';
             }
           }
-        } catch (e) {
-          // Config loading failed, using defaults
-        }
-        
-        if (user) {
-          authSection.style.display = 'none';
-          dashboard.style.display = 'block';
-          logoutBtn.style.display = 'inline-block';
-          
-          // Steps state
-          const stepPlan = document.getElementById('step-plan');
-          const stepPay = document.getElementById('step-pay');
-          const stepSurvey = document.getElementById('step-survey');
-          const stepPetition = document.getElementById('step-petition');
-
-          // Step 1: Select Package - always completed when user is logged in
-          stepPlan.className = 'step-card completed';
-
-          // Update progress bar and text
-          const progressFill = document.getElementById('progressFill');
-          const progressText = document.getElementById('progressText');
-          
-          if (user.paid) {
-            // Step 2: Payment - completed when user has paid
-            stepPay.className = 'step-card completed';
-            // Hide Pay button when paid and add Completed status
-            const payBtn = document.getElementById('payNowBtn');
-            if (payBtn) {
-              payBtn.style.display = 'none';
-              // Add Completed status badge only if it doesn't exist
-              const stepStatus = payBtn.parentElement;
-              const existingBadge = stepStatus.querySelector('.status-badge.completed');
-              if (!existingBadge) {
-                const completedBadge = document.createElement('span');
-                completedBadge.className = 'status-badge completed';
-                completedBadge.textContent = 'Completed';
-                stepStatus.appendChild(completedBadge);
-              }
-            }
-            // Step 3: Survey - enabled when paid
-            setSurveyEnabled(true);
-            stepSurvey.className = 'step-card';
-            
-            // Update progress: 2 of 4 steps completed
-            if (progressFill) progressFill.style.width = '50%';
-            if (progressText) progressText.textContent = '2 of 4 steps completed';
-          } else {
-            // Step 2: Payment - current step when not paid
-            stepPay.className = 'step-card';
-            // Show Pay button
-            const payBtn = document.getElementById('payNowBtn');
-            if (payBtn) {
-              payBtn.style.display = 'inline-block';
-              // Remove any existing completed badge
-              const stepStatus = payBtn.parentElement;
-              const existingBadge = stepStatus.querySelector('.status-badge.completed');
-              if (existingBadge) {
-                existingBadge.remove();
-              }
-            }
-            // Step 3: Survey - disabled when not paid
-            setSurveyEnabled(false);
-            stepSurvey.className = 'step-card disabled';
-            
-            // Update progress: 1 of 4 steps completed
-            if (progressFill) progressFill.style.width = '25%';
-            if (progressText) progressText.textContent = '1 of 4 steps completed';
+          if (fullPackageButtons) {
+            fullPackageButtons.style.display = 'none';
           }
-
-          stepPetition.className = 'step-card disabled';
         } else {
-          dashboard.style.display = 'none';
-          authSection.style.display = 'block';
-          logoutBtn.style.display = 'none';
+          // Show full package buttons (both surveys)
+          if (fullPackageButtons) {
+            fullPackageButtons.style.display = enabled ? 'flex' : 'none';
+            const firstSurveyLink = document.getElementById('firstSurveyLinkFull');
+            const secondSurveyLink = document.getElementById('secondSurveyLinkFull');
+            if (firstSurveyLink) {
+              firstSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
+              firstSurveyLink.style.opacity = enabled ? '1' : '0.6';
+            }
+            if (secondSurveyLink) {
+              secondSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
+              secondSurveyLink.style.opacity = enabled ? '1' : '0.6';
+            }
+          }
+          if (formFillingButtons) {
+            formFillingButtons.style.display = 'none';
+          }
         }
       }
+
+      // Duplicate refreshUI function removed - using global one above
+
 
       // Show/Hide password toggle
       const togglePwd = document.getElementById('togglePwd');
@@ -355,7 +600,7 @@
         }
       });
 
-      payNowBtn.addEventListener('click', async () => {
+      document.getElementById('payNowBtn')?.addEventListener('click', async () => {
         try {
           const res = await fetch('/api/create-checkout-session', { method: 'POST' });
           const data = await res.json();
@@ -372,12 +617,14 @@
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-          try {
-            await fetch('/api/logout', { method: 'POST' });
-            await refreshUI();
-          } catch (error) {
-            console.error('Logout failed:', error);
-          }
+            try {
+              await fetch('/api/logout', { method: 'POST' });
+              // Clear URL parameters and redirect to clean account page
+              window.history.replaceState({}, document.title, '/account');
+              await refreshUI();
+            } catch (error) {
+              console.error('Logout failed:', error);
+            }
         });
       }
 
@@ -389,12 +636,16 @@
             const r = await fetch(`/api/checkout/confirm?session_id=${encodeURIComponent(params.get('session_id'))}`);
             const d = await r.json();
             if (d && d.success && d.paid) {
+              // Clear URL parameters first
+              window.history.replaceState({}, document.title, '/account');
+              // Show success message
               alert('Payment successful. Survey unlocked.');
             }
           } catch (error) {
             console.error('Payment confirmation failed:', error);
           }
         }
+        // Always refresh UI after handling payment or on normal page load
         await refreshUI();
       })();
 

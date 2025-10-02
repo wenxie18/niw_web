@@ -2192,3 +2192,67 @@ textarea:focus {
     }
 }
 
+/* Survey Buttons Styling */
+.survey-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.survey-buttons .btn {
+    flex: 1;
+    min-width: 140px;
+    max-width: 200px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.survey-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.survey-buttons .btn:first-child {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border: 1px solid #3b82f6;
+    color: white;
+}
+
+.survey-buttons .btn:first-child:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    border-color: #1d4ed8;
+}
+
+.survey-buttons .btn:last-child {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: 1px solid #10b981;
+    color: white;
+}
+
+.survey-buttons .btn:last-child:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    border-color: #059669;
+}
+
+/* Mobile responsiveness for survey buttons */
+@media (max-width: 768px) {
+    .survey-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .survey-buttons .btn {
+        width: 100%;
+        max-width: none;
+        min-width: auto;
+    }
+}
+

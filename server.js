@@ -40,7 +40,8 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
+            scriptSrcAttr: ["'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
         },
     },
@@ -174,10 +175,20 @@ function initDatabase() {
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             paid INTEGER DEFAULT 0,
+            package_type TEXT DEFAULT 'full',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `, (err) => {
         if (err) console.error('Error creating users table:', err.message);
+    });
+
+    // Add package_type column if it doesn't exist (migration)
+    db.run(`
+        ALTER TABLE users ADD COLUMN package_type TEXT DEFAULT 'full'
+    `, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding package_type column:', err.message);
+        }
     });
 }
 
@@ -193,7 +204,9 @@ app.get('/survey', (req, res) => {
         return res.redirect('/account');
     }
     const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
-    const surveyFile = surveyType === 'simplified' ? 'survey-simplified.html' : 'index.html';
+    const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
+    console.log('Serving survey file:', surveyFile);
+    console.log('Full path:', path.join(__dirname, surveyFile));
     res.sendFile(path.join(__dirname, surveyFile));
 });
 
@@ -343,7 +356,24 @@ app.post('/api/create-checkout-session', async (req, res) => {
         if (!sessionUser) return res.status(401).json({ success: false, error: 'Not authenticated' });
 
         const origin = `${req.protocol}://${req.get('host')}`;
-        const priceInCents = 159900; // $1,599.00
+        
+        // Determine price based on package type and payment status
+        const packageType = sessionUser.packageType || 'full';
+        let priceInCents, productName;
+        
+        if (packageType === 'form-filling') {
+            if (sessionUser.paid) {
+                // User already paid for form-filling, this is an upgrade
+                priceInCents = 130000; // $1,300.00 (difference)
+                productName = 'Upgrade to Complete NIW Prep';
+            } else {
+                priceInCents = 29900; // $299.00
+                productName = 'Form Filling Package';
+            }
+        } else {
+            priceInCents = 159900; // $1,599.00
+            productName = 'Complete NIW Prep';
+        }
 
         const checkout = await stripe.checkout.sessions.create({
             mode: 'payment',
@@ -352,7 +382,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 {
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Complete NIW Prep' },
+                        product_data: { name: productName },
                         unit_amount: priceInCents
                     },
                     quantity: 1
@@ -400,6 +430,35 @@ app.get('/api/checkout/confirm', async (req, res) => {
     } catch (e) {
         console.error('Error confirming checkout session:', e);
         res.status(500).json({ success: false, error: 'Failed to confirm payment' });
+    }
+});
+
+// Set package type
+app.post('/api/set-package', async (req, res) => {
+    try {
+        const sessionUser = req.session.user;
+        if (!sessionUser) return res.status(401).json({ success: false, error: 'Not authenticated' });
+
+        const { packageType } = req.body;
+        if (!packageType || !['form-filling', 'full'].includes(packageType)) {
+            return res.status(400).json({ success: false, error: 'Invalid package type' });
+        }
+
+        // Store package type in user session
+        req.session.user.packageType = packageType;
+
+        // Update database
+        await new Promise((resolve, reject) => {
+            db.run('UPDATE users SET package_type = ? WHERE email = ?', [packageType, sessionUser.email], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        res.json({ success: true });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 

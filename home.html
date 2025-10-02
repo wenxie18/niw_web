@@ -120,7 +120,7 @@
                                 <span> Formatted documents ready to file</span>
                             </div>
                         </div>
-                        <a class="btn btn-outline" href="/account">Start with Form Filling</a>
+                        <a class="btn btn-outline" href="javascript:void(0)" onclick="setPackageAndRedirect('form-filling')">Start with Form Filling</a>
                     </div>
                     
                     <div class="service-card featured">
@@ -144,7 +144,7 @@
                                 <span>Strategic evidence presentation for maximum impact</span>
                             </div>
                         </div>
-                        <a class="btn btn-primary" href="/account">Get Started</a>
+                        <a class="btn btn-primary" href="javascript:void(0)" onclick="setPackageAndRedirect('full')">Get Started</a>
                     </div>
                 </div>
                 
@@ -179,23 +179,69 @@
             }
         }
 
-        // Logout functionality
-        document.getElementById('logoutBtn').addEventListener('click', async function() {
+        // Package selection functionality
+        window.setPackageAndRedirect = async function(packageType) {
             try {
-                const response = await fetch('/api/logout', { method: 'POST' });
-                const data = await response.json();
+                // Check if user is logged in first
+                const meResponse = await fetch('/api/me');
+                const meData = await meResponse.json();
                 
-                if (data.success) {
-                    document.getElementById('logoutBtn').style.display = 'none';
-                    window.location.reload();
+                if (!meData.success || !meData.user) {
+                    // User not logged in, store package type in localStorage and redirect to account
+                    localStorage.setItem('selectedPackage', packageType);
+                    window.location.href = '/account';
+                    return;
+                }
+                
+                // User is logged in, set package type on server
+                const response = await fetch('/api/set-package', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ packageType: packageType })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    // Redirect to account page
+                    window.location.href = '/account';
+                } else {
+                    console.error('Failed to set package type:', result.error);
+                    // Still redirect to account page
+                    window.location.href = '/account';
                 }
             } catch (error) {
-                console.error('Error logging out:', error);
+                console.error('Error setting package type:', error);
+                // Store package type in localStorage and redirect to account
+                localStorage.setItem('selectedPackage', packageType);
+                window.location.href = '/account';
             }
-        });
+        }
+
 
         // Check login status on page load
-        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function() {
+                    try {
+                        const response = await fetch('/api/logout', { method: 'POST' });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            document.getElementById('logoutBtn').style.display = 'none';
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Error logging out:', error);
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
