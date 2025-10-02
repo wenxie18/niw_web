@@ -594,8 +594,18 @@
       }
 
       if (loginBtn) {
+        let isLoggingIn = false;
         loginBtn.addEventListener('click', async () => {
+        if (isLoggingIn) {
+          console.log('Login already in progress, ignoring click');
+          return;
+        }
+        
         console.log('Real login button clicked!');
+        isLoggingIn = true;
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Signing In...';
+        
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
         
@@ -604,17 +614,37 @@
         if (!email || !password) { 
           console.log('Missing email or password');
           alert('Email and password required'); 
+          isLoggingIn = false;
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Sign In';
           return; 
         }
         
         try {
           console.log('Making API call to /api/login');
+          
+          // Add timeout to prevent hanging
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            console.log('API call timed out after 10 seconds');
+            controller.abort();
+          }, 10000);
+          
           const res = await fetch('/api/login', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ email, password }) 
+            body: JSON.stringify({ email, password }),
+            signal: controller.signal
           });
+          
+          clearTimeout(timeoutId);
           console.log('API response status:', res.status);
+          
+          if (!res.ok) {
+            console.error('API response not ok:', res.status, res.statusText);
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          
           const data = await res.json();
           console.log('API response data:', data);
           if (!data.success) {
@@ -636,7 +666,16 @@
           console.log('Login successful, calling refreshUI');
           await refreshUI();
         } catch (error) {
-          alert('Login failed. Please try again.');
+          console.error('Login error:', error);
+          if (error.name === 'AbortError') {
+            alert('Login request timed out. Please try again.');
+          } else {
+            alert('Login failed: ' + error.message);
+          }
+        } finally {
+          isLoggingIn = false;
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Sign In';
         }
         });
       } else {
