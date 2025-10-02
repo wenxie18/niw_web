@@ -93,11 +93,15 @@ app.use(express.static(path.join(__dirname), { index: false }));
 
 
 // Database initialization
-const db = new sqlite3.Database(DB_NAME, (err) => {
+// On Vercel, use /tmp directory for database file
+const dbPath = config.NODE_ENV === 'production' ? '/tmp/niw_database.db' : DB_NAME;
+console.log('Using database path:', dbPath);
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
     } else {
-        console.log('Connected to SQLite database');
+        console.log('Connected to SQLite database at:', dbPath);
         initDatabase();
     }
 });
@@ -333,21 +337,46 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     try {
+        console.log('Login attempt received for email:', req.body.email);
         const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
+        if (!email || !password) {
+            console.log('Missing email or password');
+            return res.status(400).json({ success: false, error: 'Email and password required' });
+        }
+        
+        console.log('Querying database for user:', email);
         const user = await new Promise((resolve, reject) => {
-            db.get('SELECT email, password_hash, paid FROM users WHERE email = ?', [email], (err, row) => {
-                if (err) return reject(err);
+            db.get('SELECT email, password_hash, paid, package_type FROM users WHERE email = ?', [email], (err, row) => {
+                if (err) {
+                    console.error('Database error:', err);
+                    return reject(err);
+                }
+                console.log('Database query result:', row ? 'User found' : 'User not found');
                 resolve(row);
             });
         });
-        if (!user) return res.status(404).json({ success: false, error: 'No account found. Please create an account.' });
+        
+        if (!user) {
+            console.log('User not found in database');
+            return res.status(404).json({ success: false, error: 'No account found. Please create an account.' });
+        }
+        
+        console.log('Comparing password for user:', email);
         const ok = await bcrypt.compare(password, user.password_hash);
-        if (!ok) return res.status(401).json({ success: false, error: 'Incorrect password' });
-        req.session.user = { email: user.email, paid: user.paid === 1 };
+        if (!ok) {
+            console.log('Password comparison failed');
+            return res.status(401).json({ success: false, error: 'Incorrect password' });
+        }
+        
+        console.log('Login successful, setting session for user:', email);
+        req.session.user = { 
+            email: user.email, 
+            paid: user.paid === 1,
+            packageType: user.package_type || 'full'
+        };
         res.json({ success: true });
     } catch (e) {
-        console.error(e);
+        console.error('Login error:', e);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
@@ -358,6 +387,16 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/me', (req, res) => {
     res.json({ success: true, user: req.session.user || null });
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        database: db ? 'connected' : 'disconnected'
+    });
 });
 
 app.get('/api/stripe-config', (req, res) => {
