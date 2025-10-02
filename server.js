@@ -8,6 +8,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 
 // Load configuration
 let config;
@@ -68,7 +69,7 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-// Sessions (memory store OK for dev)
+// Sessions (memory store OK for dev, but need proper store for production)
 app.use(session({
     secret: config.SESSION_SECRET,
     resave: false,
@@ -78,7 +79,10 @@ app.use(session({
         sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         secure: config.NODE_ENV === 'production'
-    }
+    },
+    // For Vercel/production, we need to handle sessions differently
+    // Since we can't use memory store, we'll use a simple approach
+    store: config.NODE_ENV === 'production' ? undefined : undefined // Use default memory store for now
 }));
 
 // Serve static files from public directory first (for both local and Vercel)

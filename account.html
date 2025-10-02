@@ -447,6 +447,8 @@
         }
 
       document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded - Account page script starting');
+        
         const authSection = document.getElementById('authSection');
         const emailInput = document.getElementById('accountEmail');
         const passwordInput = document.getElementById('accountPassword');
@@ -463,6 +465,15 @@
           loginBtn: !!loginBtn,
           dashboard: !!dashboard
         });
+        
+        // Test: Add a simple click handler to see if JavaScript is working
+        if (loginBtn) {
+          console.log('Adding test click handler to login button');
+          loginBtn.addEventListener('click', function() {
+            console.log('Login button clicked!');
+            alert('Login button clicked - JavaScript is working!');
+          });
+        }
         
       
       // payNowBtn declaration moved to global scope
