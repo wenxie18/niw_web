@@ -146,9 +146,13 @@
     <script>
         // Global refreshUI function
         async function refreshUI() {
+          console.log('refreshUI called');
           try {
+            console.log('Fetching /api/me');
             const res = await fetch('/api/me');
+            console.log('API /me response status:', res.status);
             const data = await res.json();
+            console.log('API /me response data:', data);
             
             const authSection = document.getElementById('authSection');
             const dashboard = document.getElementById('dashboard');
@@ -469,10 +473,11 @@
         // Test: Add a simple click handler to see if JavaScript is working
         if (loginBtn) {
           console.log('Adding test click handler to login button');
-          loginBtn.addEventListener('click', function() {
-            console.log('Login button clicked!');
-            alert('Login button clicked - JavaScript is working!');
-          });
+          // Remove the test handler - it was interfering with the real login
+          // loginBtn.addEventListener('click', function() {
+          //   console.log('Login button clicked!');
+          //   alert('Login button clicked - JavaScript is working!');
+          // });
         }
         
       
@@ -590,21 +595,28 @@
 
       if (loginBtn) {
         loginBtn.addEventListener('click', async () => {
+        console.log('Real login button clicked!');
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
         
+        console.log('Login attempt with email:', email);
+        
         if (!email || !password) { 
+          console.log('Missing email or password');
           alert('Email and password required'); 
           return; 
         }
         
         try {
+          console.log('Making API call to /api/login');
           const res = await fetch('/api/login', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ email, password }) 
           });
+          console.log('API response status:', res.status);
           const data = await res.json();
+          console.log('API response data:', data);
           if (!data.success) {
             // Inline message near buttons instead of alert
             const msg = document.getElementById('loginMessage') || (() => {
@@ -621,6 +633,7 @@
           // Clear any error text on success
           const msg = document.getElementById('loginMessage');
           if (msg) msg.textContent = '';
+          console.log('Login successful, calling refreshUI');
           await refreshUI();
         } catch (error) {
           alert('Login failed. Please try again.');
