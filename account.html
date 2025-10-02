@@ -454,6 +454,16 @@
         const loginBtn = document.getElementById('loginBtn');
         const dashboard = document.getElementById('dashboard');
         
+        // Debug: Check if elements are found
+        console.log('Auth elements found:', {
+          authSection: !!authSection,
+          emailInput: !!emailInput,
+          passwordInput: !!passwordInput,
+          registerBtn: !!registerBtn,
+          loginBtn: !!loginBtn,
+          dashboard: !!dashboard
+        });
+        
       
       // payNowBtn declaration moved to global scope
 
@@ -533,7 +543,8 @@
         });
       }
 
-      registerBtn.addEventListener('click', async () => {
+      if (registerBtn) {
+        registerBtn.addEventListener('click', async () => {
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
         
@@ -561,9 +572,13 @@
         } catch (error) {
           alert('Registration failed. Please try again.');
         }
-      });
+        });
+      } else {
+        console.error('Register button not found!');
+      }
 
-      loginBtn.addEventListener('click', async () => {
+      if (loginBtn) {
+        loginBtn.addEventListener('click', async () => {
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
         
@@ -599,7 +614,10 @@
         } catch (error) {
           alert('Login failed. Please try again.');
         }
-      });
+        });
+      } else {
+        console.error('Login button not found!');
+      }
 
       document.getElementById('payNowBtn')?.addEventListener('click', async () => {
         try {
