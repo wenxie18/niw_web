@@ -186,7 +186,8 @@ app.get('/api/health', (req, res) => {
         success: true, 
         message: 'Server is running',
         timestamp: new Date().toISOString(),
-        database: db ? 'connected' : 'disconnected'
+        database: db ? 'connected' : 'disconnected',
+        postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing'
     });
 });
 
