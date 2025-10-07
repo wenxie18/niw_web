@@ -108,14 +108,6 @@ app.use(express.static(path.join(__dirname), { index: false }));
 db.initDatabase().catch(console.error);
 
 // API Routes
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        success: true, 
-        message: 'Server is running',
-        timestamp: new Date().toISOString(),
-        database: 'connected'
-    });
-});
 
 app.post('/api/register', async (req, res) => {
     try {
@@ -186,7 +178,7 @@ app.get('/api/me', (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         success: true, 
-        message: 'Server is running - WEBHOOK TEST',
+        message: 'Server is running',
         timestamp: new Date().toISOString(),
         database: db ? 'connected' : 'disconnected',
         postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing',
