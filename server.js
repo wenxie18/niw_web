@@ -192,6 +192,15 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Test endpoint to verify code updates
+app.get('/api/test', (req, res) => {
+    res.json({ 
+        message: 'This is the NEW VERSION 2.0.0',
+        timestamp: new Date().toISOString(),
+        postgres_url_status: process.env.POSTGRES_URL ? 'SET' : 'NOT SET'
+    });
+});
+
 app.get('/api/stripe-config', (req, res) => {
     res.json({ 
         success: true, 
