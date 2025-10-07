@@ -118,6 +118,14 @@ app.post('/api/register', async (req, res) => {
         const userId = uuidv4();
         
         await db.run('INSERT INTO users (email, password_hash) VALUES ($1, $2)', [email.toLowerCase(), hashedPassword]);
+        
+        // Automatically log the user in after successful registration
+        req.session.user = { 
+            email: email.toLowerCase(), 
+            paid: false, 
+            packageType: 'full' // Default package type
+        };
+        
         res.json({ success: true });
     } catch (e) {
         console.error(e);

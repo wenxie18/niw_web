@@ -560,33 +560,82 @@
       }
 
       if (registerBtn) {
+        let isRegistering = false;
         registerBtn.addEventListener('click', async () => {
+        if (isRegistering) {
+          console.log('Registration already in progress, ignoring click');
+          return;
+        }
+        
+        console.log('Register button clicked!');
+        isRegistering = true;
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'Creating Account...';
+        
         const email = (emailInput.value || '').trim().toLowerCase();
         const password = passwordInput.value || '';
         
         if (!email || !password) { 
           alert('Email and password required'); 
+          isRegistering = false;
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Create Account';
           return; 
         }
         if (password.length < 8 || password.length > 12) { 
           alert('Password must be 8–12 characters.'); 
+          isRegistering = false;
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Create Account';
           return; 
         }
         
         try {
+          console.log('Making API call to /api/register');
+          
+          // Add timeout to prevent hanging
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            console.log('Registration API call timed out after 10 seconds');
+            controller.abort();
+          }, 10000);
+          
           const res = await fetch('/api/register', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ email, password }) 
+            body: JSON.stringify({ email, password }),
+            signal: controller.signal
           });
+          
+          clearTimeout(timeoutId);
+          console.log('Registration API response status:', res.status);
+          
+          if (!res.ok) {
+            console.error('Registration API response not ok:', res.status, res.statusText);
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          
           const data = await res.json();
+          console.log('Registration API response data:', data);
+          
           if (!data.success) { 
             alert(data.error || 'Register failed'); 
             return; 
           }
+          
+          console.log('Registration successful, calling refreshUI');
           await refreshUI();
         } catch (error) {
-          alert('Registration failed. Please try again.');
+          console.error('Registration error:', error);
+          if (error.name === 'AbortError') {
+            alert('Registration request timed out. Please try again.');
+          } else {
+            alert('Registration failed: ' + error.message);
+          }
+        } finally {
+          isRegistering = false;
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Create Account';
         }
         });
       } else {
