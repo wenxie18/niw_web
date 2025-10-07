@@ -40,6 +40,9 @@ try {
 const app = express();
 const PORT = config.PORT;
 
+// Trust proxy for Vercel (fixes rate limiting issue)
+app.set('trust proxy', 1);
+
 // Centralized configuration
 const DB_NAME = config.DB_NAME;
 const STRIPE_SECRET_KEY = config.STRIPE_SECRET_KEY;
