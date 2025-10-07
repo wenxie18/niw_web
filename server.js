@@ -187,7 +187,7 @@ app.get('/api/me', (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         success: true, 
-        message: 'Server is running - UPDATED VERSION',
+        message: 'Server is running - RATE LIMIT FIXED',
         timestamp: new Date().toISOString(),
         database: db ? 'connected' : 'disconnected',
         postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing',
