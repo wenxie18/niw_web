@@ -1,6 +1,11 @@
+// Load environment variables for local development
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const db = require('./database');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -9,6 +14,7 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const Stripe = require('stripe');
 
 // Load configuration
 let config;
@@ -20,15 +26,20 @@ try {
         STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
         STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
         DB_NAME: process.env.DB_NAME || 'niw_database.db',
-        SESSION_SECRET: process.env.SESSION_SECRET || 'dev-secret',
+        SESSION_SECRET: process.env.SESSION_SECRET || 'niw_survey_2025_secure_session_key_xyz789',
         NODE_ENV: process.env.NODE_ENV || 'development',
-        PORT: process.env.PORT || 3000
+        PORT: process.env.PORT || 3000,
+        SURVEY_TYPE: process.env.SURVEY_TYPE || 'simplified',
+        SURVEY_TITLE: {
+            full: process.env.SURVEY_TITLE_FULL || 'NIW Application Survey',
+            simplified: process.env.SURVEY_TITLE_SIMPLIFIED || 'Simplified NIW Application Survey'
+        }
     };
 }
-const Stripe = require('stripe');
 
 const app = express();
 const PORT = config.PORT;
+
 // Centralized configuration
 const DB_NAME = config.DB_NAME;
 const STRIPE_SECRET_KEY = config.STRIPE_SECRET_KEY;
@@ -44,6 +55,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
             scriptSrcAttr: ["'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https://api.stripe.com"],
             frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
         },
     },
@@ -52,31 +64,29 @@ app.use(helmet({
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
+    max: 100 // limit each IP to 100 requests per windowMs
 });
-app.use('/api/', limiter);
+app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-    origin: config.NODE_ENV === 'production' 
-        ? ['https://yourdomain.com'] // Replace with your actual domain
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://niw-web.vercel.app', 'https://www.niw-web.vercel.app']
         : ['http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true
 }));
 
-// Body parsing middleware
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Sessions (memory store OK for dev, but need proper store for production)
+// Session configuration
 app.use(session({
     secret: config.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
+        secure: config.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         secure: config.NODE_ENV === 'production'
     },
@@ -93,245 +103,35 @@ app.use(express.static(path.join(__dirname), { index: false }));
 
 
 // Database initialization
-// On Vercel, use /tmp directory for database file
-const dbPath = config.NODE_ENV === 'production' ? '/tmp/niw_database.db' : DB_NAME;
-console.log('Using database path:', dbPath);
-
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to SQLite database at:', dbPath);
-        initDatabase();
-    }
-});
-
-function initDatabase() {
-    // Create survey_responses table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS survey_responses (
-            id TEXT PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT,
-            submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-            data TEXT,
-            status TEXT DEFAULT 'submitted'
-        )
-    `, (err) => {
-        if (err) {
-            console.error('Error creating survey_responses table:', err.message);
-        } else {
-            console.log('Survey responses table ready');
-        }
-    });
-
-    // Create response_fields table for easier querying
-    db.run(`
-        CREATE TABLE IF NOT EXISTS response_fields (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            response_id TEXT,
-            field_name TEXT,
-            field_value TEXT,
-            FOREIGN KEY (response_id) REFERENCES survey_responses (id)
-        )
-    `, (err) => {
-        if (err) {
-            console.error('Error creating response_fields table:', err.message);
-        } else {
-            console.log('Response fields table ready');
-        }
-    });
-
-    // Create first_survey_responses table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS first_survey_responses (
-            id TEXT PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT,
-            submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-            data TEXT,
-            status TEXT DEFAULT 'submitted'
-        )
-    `, (err) => {
-        if (err) {
-            console.error('Error creating first_survey_responses table:', err.message);
-        } else {
-            console.log('First survey responses table ready');
-        }
-    });
-
-    // Create first_survey_fields table for easier querying
-    db.run(`
-        CREATE TABLE IF NOT EXISTS first_survey_fields (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            response_id TEXT,
-            field_name TEXT,
-            field_value TEXT,
-            FOREIGN KEY (response_id) REFERENCES first_survey_responses (id)
-        )
-    `, (err) => {
-        if (err) {
-            console.error('Error creating first_survey_fields table:', err.message);
-        } else {
-            console.log('First survey fields table ready');
-        }
-    });
-
-    // Users table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            paid INTEGER DEFAULT 0,
-            package_type TEXT DEFAULT 'full',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `, (err) => {
-        if (err) console.error('Error creating users table:', err.message);
-    });
-
-    // Payments table to track payment history
-    db.run(`
-        CREATE TABLE IF NOT EXISTS payments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_email TEXT NOT NULL,
-            stripe_session_id TEXT UNIQUE NOT NULL,
-            amount_cents INTEGER NOT NULL,
-            amount_dollars REAL NOT NULL,
-            package_type TEXT NOT NULL,
-            payment_type TEXT NOT NULL, -- 'initial', 'upgrade', 'downgrade'
-            status TEXT DEFAULT 'completed',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_email) REFERENCES users (email)
-        )
-    `, (err) => {
-        if (err) console.error('Error creating payments table:', err.message);
-    });
-
-    // Add package_type column if it doesn't exist (migration)
-    db.run(`
-        ALTER TABLE users ADD COLUMN package_type TEXT DEFAULT 'full'
-    `, (err) => {
-        if (err && !err.message.includes('duplicate column name')) {
-            console.error('Error adding package_type column:', err.message);
-        }
-    });
-}
-
-// Routes
-// Pages
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'home.html'));
-});
-
-app.get('/survey', (req, res) => {
-    // Require login and paid account before serving survey
-    if (!req.session.user || !req.session.user.paid) {
-        return res.redirect('/account');
-    }
-    const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
-    const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
-    res.sendFile(path.join(__dirname, surveyFile));
-});
-
-app.get('/account', (req, res) => {
-    res.sendFile(path.join(__dirname, 'account.html'));
-});
-
-app.get('/first-survey', (req, res) => {
-    // Require login and paid account before serving first survey
-    if (!req.session.user || !req.session.user.paid) {
-        return res.redirect('/account');
-    }
-    res.sendFile(path.join(__dirname, 'first-survey.html'));
-});
-
-app.get('/evaluation', (req, res) => {
-    res.sendFile(path.join(__dirname, 'evaluation.html'));
-});
-
-// API endpoint for evaluation form submission
-app.post('/api/submit-evaluation', async (req, res) => {
-    try {
-        const { email, name, education, publications, citations, research_field, work_experience, current_position, awards, grants, patents, research_description, timeline } = req.body;
-        
-        // Basic validation
-        if (!email || !name || !education || !publications || !citations) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Please fill in all required fields.' 
-            });
-        }
-
-        // Create evaluation record
-        const evaluationId = uuidv4();
-        const evaluationData = {
-            email,
-            name,
-            education,
-            publications: parseInt(publications),
-            citations: parseInt(citations),
-            research_field,
-            work_experience: parseInt(work_experience) || 0,
-            current_position,
-            awards,
-            grants,
-            patents,
-            research_description,
-            timeline,
-            submission_date: new Date().toISOString()
-        };
-
-        // Save to database (you can create a separate table for evaluations)
-        await new Promise((resolve, reject) => {
-            db.run(`
-                INSERT INTO survey_responses (id, email, full_name, data)
-                VALUES (?, ?, ?, ?)
-            `, [evaluationId, email, name, JSON.stringify(evaluationData)], function(err) {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        res.json({
-            success: true,
-            message: 'Evaluation submitted successfully',
-            evaluationId: evaluationId
-        });
-
-    } catch (error) {
-        console.error('Error submitting evaluation:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Internal server error' 
-        });
-    }
-});
+db.initDatabase().catch(console.error);
 
 // API Routes
-// Auth endpoints
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        database: 'connected'
+    });
+});
+
 app.post('/api/register', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
-        if (password.length < 8 || password.length > 12) {
-            return res.status(400).json({ success: false, error: 'Password must be 8–12 characters.' });
-        }
-        const hash = await bcrypt.hash(password, 10);
-        await new Promise((resolve, reject) => {
-            db.run('INSERT INTO users (email, password_hash) VALUES (?, ?)', [email, hash], function(err){
-                if (err) return reject(err);
-                resolve();
-            });
-        });
-        req.session.user = { email, paid: 0 };
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const userId = uuidv4();
+        
+        await db.run('INSERT INTO users (email, password_hash) VALUES ($1, $2)', [email.toLowerCase(), hashedPassword]);
         res.json({ success: true });
     } catch (e) {
-        if (e && e.message && e.message.includes('UNIQUE'))
-            return res.status(409).json({ success: false, error: 'Email already registered' });
         console.error(e);
-        res.status(500).json({ success: false, error: 'Internal server error' });
+        if (e.code === '23505') { // Unique constraint violation
+            res.status(400).json({ success: false, error: 'Email already registered' });
+        } else {
+            res.status(500).json({ success: false, error: 'Internal server error' });
+        }
     }
 });
 
@@ -345,16 +145,7 @@ app.post('/api/login', async (req, res) => {
         }
         
         console.log('Querying database for user:', email);
-        const user = await new Promise((resolve, reject) => {
-            db.get('SELECT email, password_hash, paid, package_type FROM users WHERE email = ?', [email], (err, row) => {
-                if (err) {
-                    console.error('Database error:', err);
-                    return reject(err);
-                }
-                console.log('Database query result:', row ? 'User found' : 'User not found');
-                resolve(row);
-            });
-        });
+        const user = await db.get('SELECT email, password_hash, paid, package_type FROM users WHERE email = $1', [email.toLowerCase()]);
         
         if (!user) {
             console.log('User not found in database');
@@ -371,7 +162,7 @@ app.post('/api/login', async (req, res) => {
         console.log('Login successful, setting session for user:', email);
         req.session.user = { 
             email: user.email, 
-            paid: user.paid === 1,
+            paid: user.paid === true,
             packageType: user.package_type || 'full'
         };
         res.json({ success: true });
@@ -406,75 +197,104 @@ app.get('/api/stripe-config', (req, res) => {
     });
 });
 
-// Stripe: Create Checkout Session (Test mode when using test secret key)
-app.post('/api/create-checkout-session', async (req, res) => {
+// Set package type for user
+app.post('/api/set-package', async (req, res) => {
     try {
-        if (!stripe) {
-            return res.status(500).json({ success: false, error: 'Stripe not configured. Set STRIPE_SECRET_KEY.' });
-        }
+        const { packageType } = req.body;
         const sessionUser = req.session.user;
-        if (!sessionUser) return res.status(401).json({ success: false, error: 'Not authenticated' });
-
-        const origin = `${req.protocol}://${req.get('host')}`;
         
-        // Determine price based on package type and payment status
-        const packageType = sessionUser.packageType || 'full';
+        if (!sessionUser) {
+            return res.status(401).json({ success: false, error: 'Not authenticated' });
+        }
+        
+        // Update user's package type in database
+        await db.run('UPDATE users SET package_type = $1 WHERE email = $2', [packageType, sessionUser.email]);
+        
+        // Update session
+        req.session.user.packageType = packageType;
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error setting package type:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// Stripe checkout session creation
+app.post('/api/create-checkout-session', async (req, res) => {
+    if (!stripe) {
+        return res.status(500).json({ success: false, error: 'Stripe not configured' });
+    }
+    
+    try {
+        const sessionUser = req.session.user;
+        if (!sessionUser) {
+            return res.status(401).json({ success: false, error: 'Not authenticated' });
+        }
+        
+        const { packageType } = req.body;
+        if (!packageType) {
+            return res.status(400).json({ success: false, error: 'Package type required' });
+        }
+        
+        // Determine pricing based on package type and current payment status
         let priceInCents, productName;
         
         if (packageType === 'form-filling') {
             if (sessionUser.paid) {
-                // User already paid for form-filling, this is an upgrade
-                priceInCents = 130000; // $1,300.00 (difference)
-                productName = 'Upgrade to Complete NIW Prep';
+                // User is upgrading from form-filling to full package
+                priceInCents = 130000; // $1,300 (difference)
+                productName = 'Upgrade to Full Package';
             } else {
-                priceInCents = 29900; // $299.00
+                priceInCents = 29900; // $299
                 productName = 'Form Filling Package';
             }
         } else {
-            priceInCents = 159900; // $1,599.00
-            productName = 'Complete NIW Prep';
+            priceInCents = 159900; // $1,599
+            productName = 'Full Package';
         }
-
-        const checkout = await stripe.checkout.sessions.create({
-            mode: 'payment',
+        
+        const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: { name: productName },
-                        unit_amount: priceInCents
+            line_items: [{
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: productName,
                     },
-                    quantity: 1
-                }
-            ],
+                    unit_amount: priceInCents,
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${req.headers.origin}/account?success=1&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.headers.origin}/account?canceled=1`,
             client_reference_id: sessionUser.email,
-            metadata: { email: sessionUser.email },
-            success_url: `${origin}/account?success=1&session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${origin}/account?canceled=1`
+            metadata: {
+                email: sessionUser.email,
+                package_type: packageType
+            }
         });
-
-        res.json({ success: true, url: checkout.url });
-    } catch (e) {
-        console.error('Error creating checkout session:', e);
+        
+        res.json({ success: true, sessionId: session.id });
+    } catch (error) {
+        console.error('Error creating checkout session:', error);
         res.status(500).json({ success: false, error: 'Failed to create checkout session' });
     }
 });
 
-// Stripe: Confirm payment after redirect (server-side verification)
+// Stripe checkout confirmation
 app.get('/api/checkout/confirm', async (req, res) => {
     try {
-        if (!stripe) {
-            return res.status(500).json({ success: false, error: 'Stripe not configured. Set STRIPE_SECRET_KEY.' });
+        const { session_id } = req.query;
+        if (!session_id || !stripe) {
+            return res.json({ success: true, paid: false });
         }
-        const sessionId = req.query.session_id;
-        if (!sessionId) return res.status(400).json({ success: false, error: 'Missing session_id' });
-
-        const checkout = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        const checkout = await stripe.checkout.sessions.retrieve(session_id);
         if (checkout && checkout.payment_status === 'paid') {
             const paidEmail = (checkout.client_reference_id) || (checkout.metadata && checkout.metadata.email);
             if (paidEmail) {
-                // Determine package type and payment type based on payment amount
                 const amountPaid = checkout.amount_total; // Amount in cents
                 const amountDollars = amountPaid / 100;
                 let packageType = 'full';
@@ -492,23 +312,13 @@ app.get('/api/checkout/confirm', async (req, res) => {
                 }
                 
                 // Record payment in payments table
-                await new Promise((resolve, reject) => {
-                    db.run(`
-                        INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
-                        VALUES (?, ?, ?, ?, ?, ?, 'completed')
-                    `, [paidEmail, sessionId, amountPaid, amountDollars, packageType, paymentType], function(err) {
-                        if (err) return reject(err);
-                        resolve();
-                    });
-                });
+                await db.run(`
+                    INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
+                    VALUES ($1, $2, $3, $4, $5, $6, 'completed')
+                `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType]);
                 
                 // Update user's current package type and paid status
-                await new Promise((resolve, reject) => {
-                    db.run('UPDATE users SET paid = 1, package_type = ? WHERE email = ?', [packageType, paidEmail], function(err){
-                        if (err) return reject(err);
-                        resolve();
-                    });
-                });
+                await db.run('UPDATE users SET paid = true, package_type = $1 WHERE email = $2', [packageType, paidEmail]);
                 
                 if (req.session.user && req.session.user.email === paidEmail) {
                     req.session.user.paid = true;
@@ -524,258 +334,7 @@ app.get('/api/checkout/confirm', async (req, res) => {
     }
 });
 
-// Set package type
-app.post('/api/set-package', async (req, res) => {
-    try {
-        const sessionUser = req.session.user;
-        if (!sessionUser) return res.status(401).json({ success: false, error: 'Not authenticated' });
-
-        const { packageType } = req.body;
-        if (!packageType || !['form-filling', 'full'].includes(packageType)) {
-            return res.status(400).json({ success: false, error: 'Invalid package type' });
-        }
-
-        // Store package type in user session
-        req.session.user.packageType = packageType;
-
-        // Update database
-        await new Promise((resolve, reject) => {
-            db.run('UPDATE users SET package_type = ? WHERE email = ?', [packageType, sessionUser.email], (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        res.json({ success: true });
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
-
-app.post('/api/pay', async (req, res) => {
-    try {
-        const sessionUser = req.session.user;
-        if (!sessionUser) return res.status(401).json({ success: false, error: 'Not authenticated' });
-        await new Promise((resolve, reject) => {
-            db.run('UPDATE users SET paid = 1 WHERE email = ?', [sessionUser.email], function(err){
-                if (err) return reject(err);
-                resolve();
-            });
-        });
-        req.session.user.paid = true;
-        res.json({ success: true });
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
-app.post('/api/submit-survey', async (req, res) => {
-    try {
-        const { email, ...formData } = req.body;
-        
-        // For testing: allow empty submissions
-        if (!email) {
-            email = 'test@example.com'; // Default email for testing
-        }
-
-        // Validate email format only if email is provided
-        if (email && email !== 'test@example.com') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                return res.status(400).json({ 
-                    success: false, 
-                    error: 'Invalid email format' 
-                });
-            }
-        }
-
-        const responseId = uuidv4();
-        const fullName = formData.PERSONAL_FULL_NAME || '';
-        const dataJson = JSON.stringify(formData);
-
-        // Save to database
-        await new Promise((resolve, reject) => {
-            db.run(`
-                INSERT OR REPLACE INTO survey_responses (id, email, full_name, data)
-                VALUES (?, ?, ?, ?)
-            `, [responseId, email, fullName, dataJson], function(err) {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        // Save individual fields
-        await new Promise((resolve, reject) => {
-            db.run('DELETE FROM response_fields WHERE response_id = ?', [responseId], (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        for (const [fieldName, fieldValue] of Object.entries(formData)) {
-            if (fieldValue && fieldValue.toString().trim()) {
-                await new Promise((resolve, reject) => {
-                    db.run(`
-                        INSERT INTO response_fields (response_id, field_name, field_value)
-                        VALUES (?, ?, ?)
-                    `, [responseId, fieldName, fieldValue.toString()], (err) => {
-                        if (err) reject(err);
-                        else resolve();
-                    });
-                });
-            }
-        }
-
-        res.json({
-            success: true,
-            message: 'Survey submitted successfully',
-            responseId: responseId
-        });
-
-    } catch (error) {
-        console.error('Error submitting survey:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Internal server error' 
-        });
-    }
-});
-
-// First Survey Submission Route
-app.post('/api/submit-first-survey', async (req, res) => {
-    try {
-        const { email, ...formData } = req.body;
-        
-        // For testing: allow empty submissions
-        if (!email) {
-            email = 'test@example.com'; // Default email for testing
-        }
-
-        // Validate email format only if email is provided
-        if (email && email !== 'test@example.com') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                return res.status(400).json({ 
-                    success: false, 
-                    error: 'Invalid email format' 
-                });
-            }
-        }
-
-        const responseId = uuidv4();
-        const fullName = `${formData.FIRST_NAME || ''} ${formData.LAST_NAME || ''}`.trim();
-        const dataJson = JSON.stringify(formData);
-
-        // Save to database
-        await new Promise((resolve, reject) => {
-            db.run(`
-                INSERT OR REPLACE INTO first_survey_responses (id, email, full_name, data, submission_date)
-                VALUES (?, ?, ?, ?, datetime('now'))
-            `, [responseId, email, fullName, dataJson], function(err) {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        // Save individual fields
-        await new Promise((resolve, reject) => {
-            db.run('DELETE FROM first_survey_fields WHERE response_id = ?', [responseId], (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        for (const [fieldName, fieldValue] of Object.entries(formData)) {
-            if (fieldValue && fieldValue.toString().trim()) {
-                await new Promise((resolve, reject) => {
-                    db.run(`
-                        INSERT INTO first_survey_fields (response_id, field_name, field_value)
-                        VALUES (?, ?, ?)
-                    `, [responseId, fieldName, fieldValue.toString()], (err) => {
-                        if (err) reject(err);
-                        else resolve();
-                    });
-                });
-            }
-        }
-
-        res.json({
-            success: true,
-            message: 'First survey submitted successfully',
-            responseId: responseId
-        });
-
-    } catch (error) {
-        console.error('Error submitting first survey:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Internal server error' 
-        });
-    }
-});
-
-app.get('/api/survey/:email', (req, res) => {
-    const { email } = req.params;
-    
-    db.get(`
-        SELECT id, email, full_name, submission_date, data, status
-        FROM survey_responses
-        WHERE email = ?
-        ORDER BY submission_date DESC
-        LIMIT 1
-    `, [email], (err, row) => {
-        if (err) {
-            console.error('Error retrieving survey:', err);
-            return res.status(500).json({ 
-                success: false, 
-                error: 'Internal server error' 
-            });
-        }
-
-        if (!row) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Survey not found' 
-            });
-        }
-
-        res.json({
-            success: true,
-            data: {
-                id: row.id,
-                email: row.email,
-                full_name: row.full_name,
-                submission_date: row.submission_date,
-                data: JSON.parse(row.data || '{}'),
-                status: row.status
-            }
-        });
-    });
-});
-
-app.get('/api/surveys', (req, res) => {
-    db.all(`
-        SELECT id, email, full_name, submission_date, status
-        FROM survey_responses
-        ORDER BY submission_date DESC
-    `, (err, rows) => {
-        if (err) {
-            console.error('Error retrieving surveys:', err);
-            return res.status(500).json({ 
-                success: false, 
-                error: 'Internal server error' 
-            });
-        }
-
-        res.json({
-            success: true,
-            data: rows
-        });
-    });
-});
-
-// Get payment history for a user
+// Get user payments
 app.get('/api/payments', async (req, res) => {
     try {
         const sessionUser = req.session.user;
@@ -783,17 +342,12 @@ app.get('/api/payments', async (req, res) => {
             return res.status(401).json({ success: false, error: 'Not authenticated' });
         }
 
-        const payments = await new Promise((resolve, reject) => {
-            db.all(`
-                SELECT id, amount_cents, amount_dollars, package_type, payment_type, status, created_at
-                FROM payments 
-                WHERE user_email = ? 
-                ORDER BY created_at DESC
-            `, [sessionUser.email], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        });
+        const payments = await db.all(`
+            SELECT id, amount_cents, amount_dollars, package_type, payment_type, status, created_at
+            FROM payments 
+            WHERE user_email = $1 
+            ORDER BY created_at DESC
+        `, [sessionUser.email]);
 
         res.json({ success: true, payments: payments });
     } catch (error) {
@@ -802,78 +356,103 @@ app.get('/api/payments', async (req, res) => {
     }
 });
 
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        database: 'connected',
-        version: '1.0.0'
-    });
+// Survey submission endpoints
+app.post('/api/submit-survey', async (req, res) => {
+    try {
+        const sessionUser = req.session.user;
+        if (!sessionUser || !sessionUser.paid) {
+            return res.status(401).json({ success: false, error: 'Authentication required' });
+        }
+        
+        const { responses } = req.body;
+        const responseId = uuidv4();
+        
+        await db.run(`
+            INSERT INTO survey_responses (id, user_email, responses) 
+            VALUES ($1, $2, $3)
+        `, [responseId, sessionUser.email, JSON.stringify(responses)]);
+        
+        res.json({ success: true, responseId });
+    } catch (error) {
+        console.error('Error submitting survey:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({ 
-        success: false, 
-        error: 'Internal server error' 
-    });
+app.post('/api/submit-first-survey', async (req, res) => {
+    try {
+        const sessionUser = req.session.user;
+        if (!sessionUser || !sessionUser.paid) {
+            return res.status(401).json({ success: false, error: 'Authentication required' });
+        }
+        
+        const { responses } = req.body;
+        const responseId = uuidv4();
+        
+        await db.run(`
+            INSERT INTO first_survey_responses (id, user_email, responses) 
+            VALUES ($1, $2, $3)
+        `, [responseId, sessionUser.email, JSON.stringify(responses)]);
+        
+        res.json({ success: true, responseId });
+    } catch (error) {
+        console.error('Error submitting first survey:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
 });
 
-// Handle static files for Vercel - serve from public directory
+// Page routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'home.html'));
+});
+
+app.get('/account', (req, res) => {
+    res.sendFile(path.join(__dirname, 'account.html'));
+});
+
+app.get('/evaluation', (req, res) => {
+    res.sendFile(path.join(__dirname, 'evaluation.html'));
+});
+
+app.get('/survey', (req, res) => {
+    if (!req.session.user || !req.session.user.paid) {
+        return res.redirect('/account');
+    }
+    const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
+    const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
+    res.sendFile(path.join(__dirname, surveyFile));
+});
+
+app.get('/first-survey', (req, res) => {
+    if (!req.session.user || !req.session.user.paid) {
+        return res.redirect('/account');
+    }
+    res.sendFile(path.join(__dirname, 'first-survey.html'));
+});
+
+// Static file routes for Vercel
 app.get('/styles.css', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'styles.css'));
-});
-
-app.get('/TurboNIW-name-italic.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'TurboNIW-name-italic.png'));
-});
-
-app.get('/hero-image.jpg', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'hero-image.jpg'));
+    res.sendFile(path.join(__dirname, 'public', 'styles.css'));
 });
 
 app.get('/script.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'script.js'));
+    res.sendFile(path.join(__dirname, 'script.js'));
 });
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ 
-        success: false, 
-        error: 'Route not found' 
-    });
+app.get('/TurboNIW-name-italic.png', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'TurboNIW-name-italic.png'));
 });
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\nShutting down server...');
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing database:', err.message);
-        } else {
-            console.log('Database connection closed.');
-        }
-        process.exit(0);
-    });
+app.get('/hero-image.jpg', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'hero-image.jpg'));
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`
-🚀 NIW Survey Server Running!
-📍 Local: http://localhost:${PORT}
-🌐 Network: http://0.0.0.0:${PORT}
-📊 Database: ${DB_NAME}
-
-API Endpoints:
-  POST /api/submit-survey - Submit survey data
-  GET  /api/survey/:email - Get survey by email
-  GET  /api/surveys - Get all surveys
-  GET  /api/health - Health check
-
-Press Ctrl+C to stop the server
-    `);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Database: PostgreSQL (via @vercel/postgres)`);
+    });
+}
 
 module.exports = app;
