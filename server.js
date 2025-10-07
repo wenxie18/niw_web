@@ -91,11 +91,10 @@ app.use(session({
         secure: config.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-        secure: config.NODE_ENV === 'production'
-    },
-    // For Vercel/production, we need to handle sessions differently
-    // Since we can't use memory store, we'll use a simple approach
-    store: config.NODE_ENV === 'production' ? undefined : undefined // Use default memory store for now
+        sameSite: 'lax'
+    }
+    // Using default memory store for both local and production
+    // Note: This will reset sessions on Vercel restarts, but it's fine for now
 }));
 
 // Serve static files from public directory first (for both local and Vercel)
@@ -187,7 +186,7 @@ app.get('/api/me', (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         success: true, 
-        message: 'Server is running - RATE LIMIT FIXED',
+        message: 'Server is running - WEBHOOK TEST',
         timestamp: new Date().toISOString(),
         database: db ? 'connected' : 'disconnected',
         postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing',

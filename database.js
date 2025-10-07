@@ -16,6 +16,8 @@ class Database {
             return result;
         } catch (error) {
             console.error('Database query error:', error);
+            console.error('Query was:', text);
+            console.error('Params were:', params);
             throw error;
         }
     }
