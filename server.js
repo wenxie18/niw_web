@@ -184,10 +184,11 @@ app.get('/api/me', (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         success: true, 
-        message: 'Server is running',
+        message: 'Server is running - UPDATED VERSION',
         timestamp: new Date().toISOString(),
         database: db ? 'connected' : 'disconnected',
-        postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing'
+        postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing',
+        version: '2.0.0'
     });
 });
 
