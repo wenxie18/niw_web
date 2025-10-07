@@ -689,13 +689,24 @@
           clearTimeout(timeoutId);
           console.log('API response status:', res.status);
           
-          if (!res.ok) {
-            console.error('API response not ok:', res.status, res.statusText);
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          }
-          
           const data = await res.json();
           console.log('API response data:', data);
+          
+          if (!res.ok) {
+            console.error('API response not ok:', res.status, res.statusText);
+            // Show the actual error message from the server
+            const msg = document.getElementById('loginMessage') || (() => {
+              const p = document.createElement('p');
+              p.id = 'loginMessage';
+              p.style.color = '#b91c1c';
+              p.style.marginTop = '8px';
+              loginBtn.parentElement.appendChild(p);
+              return p;
+            })();
+            msg.textContent = data.error || `HTTP ${res.status}: ${res.statusText}`;
+            return;
+          }
+          
           if (!data.success) {
             // Inline message near buttons instead of alert
             const msg = document.getElementById('loginMessage') || (() => {
