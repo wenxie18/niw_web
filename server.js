@@ -182,7 +182,7 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         database: db ? 'connected' : 'disconnected',
         postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing',
-        version: '2.0.0'
+        version: '2.0.1'
     });
 });
 
