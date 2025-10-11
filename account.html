@@ -373,7 +373,7 @@
                 // Hide Pay button when paid and add payment status
                 const payStatus = stepPay.querySelector('.step-status');
                 if (payStatus) {
-                  // Clear existing content
+                  // Clear ALL existing content first
                   payStatus.innerHTML = '';
                   
                   // Add payment status badge
@@ -398,19 +398,17 @@
                 stepPay.className = 'step-card';
                 const payStatus = stepPay.querySelector('.step-status');
                 if (payStatus) {
-                  // Remove Completed badge if present
-                  const completedBadge = payStatus.querySelector('.completed-badge');
-                  if (completedBadge) completedBadge.remove();
+                  // Clear all existing content first
+                  payStatus.innerHTML = '';
                   
-                  // Ensure Pay button exists
-                  if (!payStatus.querySelector('button')) {
-                    const payBtn = document.createElement('button');
-                    payBtn.id = 'payNowBtn';
-                    payBtn.className = 'btn btn-success';
-                    payBtn.type = 'button';
-                    payBtn.textContent = packageType === 'form-filling' ? 'Pay $299' : 'Pay $1,599';
-                    payStatus.appendChild(payBtn);
-                  }
+                  // Create Pay button
+                  const payBtn = document.createElement('button');
+                  payBtn.id = 'payNowBtn';
+                  payBtn.className = 'btn btn-success';
+                  payBtn.type = 'button';
+                  payBtn.textContent = packageType === 'form-filling' ? 'Pay $299' : 'Pay $1,599';
+                  payBtn.onclick = () => initiatePayment(packageType);
+                  payStatus.appendChild(payBtn);
                 }
                 
                 // Step 3: Survey - disabled when user hasn't paid
