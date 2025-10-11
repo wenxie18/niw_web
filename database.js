@@ -104,6 +104,9 @@ class Database {
                     amount_dollars REAL NOT NULL,
                     package_type TEXT NOT NULL,
                     payment_type TEXT NOT NULL,
+                    payment_method TEXT DEFAULT 'card',
+                    base_price_cents INTEGER DEFAULT 0,
+                    processing_fee_cents INTEGER DEFAULT 0,
                     status TEXT DEFAULT 'completed',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_email) REFERENCES users (email)

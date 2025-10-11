@@ -100,6 +100,21 @@
                             <p>Secure payment to unlock your services</p>
                         </div>
                         <div class="step-status">
+                            <div id="paymentOptions" style="display: none;">
+                                <div class="payment-method-selection">
+                                    <h4>Choose Payment Method</h4>
+                                    <div class="payment-options">
+                                        <button id="payACHBtn" class="btn btn-primary payment-option-btn" type="button">
+                                            <i class="fas fa-university"></i> Bank Transfer (ACH)
+                                            <small>Low fee: $0.25-$1.00</small>
+                                        </button>
+                                        <button id="payCardBtn" class="btn btn-secondary payment-option-btn" type="button">
+                                            <i class="fas fa-credit-card"></i> Credit Card
+                                            <small>+3% processing fee</small>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             <button id="payNowBtn" class="btn btn-success" type="button">Pay $1,599</button>
                         </div>
                     </div>
@@ -401,14 +416,31 @@
                   // Clear all existing content first
                   payStatus.innerHTML = '';
                   
-                  // Create Pay button
-                  const payBtn = document.createElement('button');
-                  payBtn.id = 'payNowBtn';
-                  payBtn.className = 'btn btn-success';
-                  payBtn.type = 'button';
-                  payBtn.textContent = packageType === 'form-filling' ? 'Pay $299' : 'Pay $1,599';
-                  payBtn.onclick = () => initiatePayment(packageType);
-                  payStatus.appendChild(payBtn);
+                  // Create payment options
+                  const paymentOptions = document.createElement('div');
+                  paymentOptions.id = 'paymentOptions';
+                  paymentOptions.innerHTML = `
+                    <div class="payment-method-selection">
+                      <h4>Choose Payment Method</h4>
+                      <div class="payment-options">
+                        <button id="payACHBtn" class="btn btn-primary payment-option-btn" type="button">
+                          <i class="fas fa-university"></i> Bank Transfer (ACH)
+                          <small>Low fee: $0.25-$1.00</small>
+                        </button>
+                        <button id="payCardBtn" class="btn btn-secondary payment-option-btn" type="button">
+                          <i class="fas fa-credit-card"></i> Credit Card
+                          <small>+3% processing fee</small>
+                        </button>
+                      </div>
+                      <div id="feeDisplay" class="fee-display" style="display: none;"></div>
+                    </div>
+                  `;
+                  payStatus.appendChild(paymentOptions);
+                  
+                  // Add event listeners for payment method selection
+                  setTimeout(() => {
+                    setupPaymentMethodSelection(packageType);
+                  }, 100);
                 }
                 
                 // Step 3: Survey - disabled when user hasn't paid
@@ -580,8 +612,222 @@
         }
       }
 
-      document.addEventListener('DOMContentLoaded', function() {
+      // Payment method selection functions
+      function setupPaymentMethodSelection(packageType) {
+        console.log('Setting up payment method selection for package:', packageType);
+        const payACHBtn = document.getElementById('payACHBtn');
+        const payCardBtn = document.getElementById('payCardBtn');
+        const feeDisplay = document.getElementById('feeDisplay');
+        
+        console.log('Found buttons:', { payACHBtn: !!payACHBtn, payCardBtn: !!payCardBtn, feeDisplay: !!feeDisplay });
+        
+        if (payACHBtn && payCardBtn) {
+          // Remove any existing event listeners
+          payACHBtn.replaceWith(payACHBtn.cloneNode(true));
+          payCardBtn.replaceWith(payCardBtn.cloneNode(true));
+          
+          // Get fresh references after cloning
+          const newPayACHBtn = document.getElementById('payACHBtn');
+          const newPayCardBtn = document.getElementById('payCardBtn');
+          
+          // ACH payment button
+          newPayACHBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('ACH button clicked');
+            selectPaymentMethod('ach', packageType);
+          });
+          
+          // Credit card payment button
+          newPayCardBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Card button clicked');
+            selectPaymentMethod('card', packageType);
+          });
+          
+          console.log('Event listeners attached successfully');
+        } else {
+          console.error('Payment buttons not found!', { payACHBtn, payCardBtn });
+        }
+      }
+      
+      function selectPaymentMethod(method, packageType) {
+        console.log('selectPaymentMethod called:', { method, packageType });
+        const payACHBtn = document.getElementById('payACHBtn');
+        const payCardBtn = document.getElementById('payCardBtn');
+        const feeDisplay = document.getElementById('feeDisplay');
+        
+        console.log('Elements found:', { payACHBtn: !!payACHBtn, payCardBtn: !!payCardBtn, feeDisplay: !!feeDisplay });
+        
+        // Update button states
+        if (payACHBtn && payCardBtn) {
+          payACHBtn.classList.remove('selected');
+          payCardBtn.classList.remove('selected');
+          
+          if (method === 'ach') {
+            payACHBtn.classList.add('selected');
+          } else {
+            payCardBtn.classList.add('selected');
+          }
+        }
+        
+        // Calculate and display fees
+        const baseAmount = packageType === 'form-filling' ? 299 : 1599;
+        const fees = calculateFees(baseAmount, method);
+        
+        if (feeDisplay) {
+          feeDisplay.innerHTML = `
+            <div class="fee-item">
+              <span>Package Price:</span>
+              <span>$${baseAmount.toFixed(2)}</span>
+            </div>
+            <div class="fee-item">
+              <span>Processing Fee:</span>
+              <span>$${fees.processingFee.toFixed(2)}</span>
+            </div>
+            <div class="fee-item fee-total">
+              <span>Total Amount:</span>
+              <span>$${fees.total.toFixed(2)}</span>
+            </div>
+            ${method === 'ach' ? '<div class="fee-savings">💡 Save $' + fees.savings.toFixed(2) + ' vs Credit Card</div>' : ''}
+          `;
+          feeDisplay.style.display = 'block';
+        }
+        
+        // Create or update the final payment button
+        createFinalPaymentButton(method, packageType, fees.total);
+      }
+      
+      function calculateFees(baseAmount, method) {
+        if (method === 'ach') {
+          // ACH: $0.25-$1.00 fee (we'll use $0.50 as average)
+          const processingFee = 0.50;
+          return {
+            processingFee: processingFee,
+            total: baseAmount + processingFee,
+            savings: (baseAmount * 0.03) - processingFee // 3% card fee minus ACH fee
+          };
+        } else {
+          // Credit Card: 3% processing fee
+          const processingFee = baseAmount * 0.03;
+          return {
+            processingFee: processingFee,
+            total: baseAmount + processingFee,
+            savings: 0
+          };
+        }
+      }
+      
+      function createFinalPaymentButton(method, packageType, totalAmount) {
+        // Remove existing payment button if any
+        const existingBtn = document.getElementById('finalPayBtn');
+        if (existingBtn) {
+          existingBtn.remove();
+        }
+        
+        // Create new payment button
+        const payStatus = document.querySelector('#step-pay .step-status');
+        if (payStatus) {
+          const finalPayBtn = document.createElement('button');
+          finalPayBtn.id = 'finalPayBtn';
+          finalPayBtn.className = 'btn btn-success';
+          finalPayBtn.type = 'button';
+          finalPayBtn.innerHTML = `
+            <i class="fas fa-${method === 'ach' ? 'university' : 'credit-card'}"></i>
+            Pay $${totalAmount.toFixed(2)} ${method.toUpperCase()}
+          `;
+          finalPayBtn.onclick = () => initiatePayment(packageType, method);
+          payStatus.appendChild(finalPayBtn);
+        }
+      }
+      
+      function initiatePayment(packageType, paymentMethod = 'card') {
+        // This will be called when the final payment button is clicked
+        console.log('Initiating payment:', packageType, paymentMethod);
+        // The existing payment logic will be updated to handle payment method
+        handlePayment(packageType, paymentMethod);
+      }
+      
+      async function handlePayment(packageType, paymentMethod) {
+        try {
+          console.log('Payment initiated:', packageType, paymentMethod);
+          
+          // Get JWT token from localStorage
+          const token = localStorage.getItem('niw_jwt_token');
+          const headers = {
+            'Content-Type': 'application/json',
+          };
+          
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+            console.log('Using JWT token for authentication');
+          } else {
+            console.log('No JWT token found, trying session authentication');
+          }
+          
+          const res = await fetch('/api/create-checkout-session', { 
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ 
+              packageType: packageType,
+              paymentMethod: paymentMethod
+            })
+          });
+          
+          const data = await res.json();
+          
+          if (!data.success || !data.url) { 
+            console.error('Payment failed:', data.error);
+            alert(data.error || 'Failed to start checkout'); 
+            return; 
+          }
+          
+          window.location.href = data.url;
+        } catch (error) {
+          console.error('Payment error:', error);
+          alert('Failed to start checkout: ' + error.message);
+        }
+      }
+
+      // Handle URL parameter authentication
+      async function handleUrlAuth() {
+        const params = new URLSearchParams(window.location.search);
+        const email = params.get('email');
+        
+        if (email) {
+          console.log('Email parameter found:', email);
+          // Try to get user data and create a JWT token
+          try {
+            const res = await fetch('/api/get-user-token', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email: email })
+            });
+            
+            const data = await res.json();
+            if (data.success && data.token) {
+              localStorage.setItem('niw_jwt_token', data.token);
+              localStorage.setItem('niw_account', JSON.stringify({
+                email: data.user.email,
+                paid: data.user.paid,
+                packageType: data.user.packageType
+              }));
+              console.log('JWT token created for URL parameter user:', email);
+              return true;
+            }
+          } catch (error) {
+            console.error('Error creating token for URL parameter user:', error);
+          }
+        }
+        return false;
+      }
+
+      document.addEventListener('DOMContentLoaded', async function() {
         checkConfiguration();
+        
+        // Handle URL parameter authentication first
+        const urlAuthSuccess = await handleUrlAuth();
         
         const authSection = document.getElementById('authSection');
         const emailInput = document.getElementById('accountEmail');
@@ -832,6 +1078,7 @@
       } else {
         console.error('Login button not found!');
       }
+
 
       document.getElementById('payNowBtn')?.addEventListener('click', async () => {
         try {

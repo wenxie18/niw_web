@@ -399,47 +399,96 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
     
     try {
-        const sessionUser = req.session.user;
+        // Try to get user from session first, then from JWT token
+        let sessionUser = req.session.user;
+        let userEmail = null;
+        
         if (!sessionUser) {
-            console.error('User not authenticated');
-            return res.status(401).json({ success: false, error: 'Not authenticated' });
+            // Try JWT token authentication as fallback
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                try {
+                    const token = authHeader.substring(7);
+                    const decoded = jwt.verify(token, config.JWT_SECRET);
+                    userEmail = decoded.email;
+                    console.log('JWT authentication successful for:', userEmail);
+                } catch (jwtError) {
+                    console.log('JWT authentication failed:', jwtError.message);
+                }
+            }
+            
+            if (!userEmail) {
+                console.error('User not authenticated via session or JWT');
+                return res.status(401).json({ success: false, error: 'Not authenticated' });
+            }
+            
+            // Create a minimal session user object for compatibility
+            sessionUser = { email: userEmail };
+        } else {
+            userEmail = sessionUser.email;
         }
         
-        const { packageType } = req.body;
+        const { packageType, paymentMethod = 'card' } = req.body;
         console.log('Package type received:', packageType);
+        console.log('Payment method received:', paymentMethod);
         if (!packageType) {
             console.error('Package type missing');
             return res.status(400).json({ success: false, error: 'Package type required' });
         }
         
-        // Determine pricing based on package type and current payment status
-        let priceInCents, productName;
+        // Determine base pricing based on package type and current payment status
+        let basePriceInCents, productName;
         
         if (packageType === 'form-filling') {
             if (sessionUser.paid) {
                 // User is upgrading from form-filling to full package
-                priceInCents = 130000; // $1,300 (difference)
+                basePriceInCents = 130000; // $1,300 (difference)
                 productName = 'Upgrade to Full Package';
             } else {
-                priceInCents = 29900; // $299
+                basePriceInCents = 29900; // $299
                 productName = 'Form Filling Package';
             }
         } else {
-            priceInCents = 159900; // $1,599
+            basePriceInCents = 159900; // $1,599
             productName = 'Full Package';
         }
         
-        console.log('Creating Stripe session with:', { packageType, priceInCents, productName });
+        // Calculate processing fee based on payment method
+        let processingFeeInCents = 0;
+        if (paymentMethod === 'card') {
+            // 3% processing fee for credit cards
+            processingFeeInCents = Math.round(basePriceInCents * 0.03);
+        } else if (paymentMethod === 'ach') {
+            // $0.50 processing fee for ACH (we'll use 50 cents as average)
+            processingFeeInCents = 50;
+        }
+        
+        const totalPriceInCents = basePriceInCents + processingFeeInCents;
+        
+        console.log('Pricing calculation:', {
+            basePrice: basePriceInCents,
+            processingFee: processingFeeInCents,
+            total: totalPriceInCents,
+            paymentMethod
+        });
+        
+        console.log('Creating Stripe session with:', { packageType, totalPriceInCents, productName, paymentMethod });
+        
+        // Determine payment method types based on selection
+        const paymentMethodTypes = paymentMethod === 'ach' ? ['us_bank_account'] : ['card'];
         
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
+            payment_method_types: paymentMethodTypes,
             line_items: [{
                 price_data: {
                     currency: 'usd',
                     product_data: {
                         name: productName,
+                        description: paymentMethod === 'ach' ? 
+                            `Base price: $${(basePriceInCents / 100).toFixed(2)} + ACH fee: $${(processingFeeInCents / 100).toFixed(2)}` :
+                            `Base price: $${(basePriceInCents / 100).toFixed(2)} + 3% processing fee: $${(processingFeeInCents / 100).toFixed(2)}`
                     },
-                    unit_amount: priceInCents,
+                    unit_amount: totalPriceInCents,
                 },
                 quantity: 1,
             }],
@@ -449,7 +498,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
             client_reference_id: sessionUser.email,
             metadata: {
                 email: sessionUser.email,
-                package_type: packageType
+                package_type: packageType,
+                payment_method: paymentMethod,
+                base_price: basePriceInCents.toString(),
+                processing_fee: processingFeeInCents.toString(),
+                total_price: totalPriceInCents.toString()
             }
         });
         
@@ -477,25 +530,38 @@ app.get('/api/checkout/confirm', async (req, res) => {
             if (paidEmail) {
                 const amountPaid = checkout.amount_total; // Amount in cents
                 const amountDollars = amountPaid / 100;
-                let packageType = 'full';
-                let paymentType = 'initial';
                 
-                if (amountPaid === 29900) { // $299.00
-                    packageType = 'form-filling';
+                // Get package type and payment method from metadata
+                const packageType = checkout.metadata?.package_type || 'full';
+                const paymentMethod = checkout.metadata?.payment_method || 'card';
+                const basePrice = parseInt(checkout.metadata?.base_price || '0');
+                const processingFee = parseInt(checkout.metadata?.processing_fee || '0');
+                
+                // Determine payment type based on amount
+                let paymentType = 'initial';
+                if (packageType === 'form-filling' && amountPaid === 29900 + processingFee) {
                     paymentType = 'initial';
-                } else if (amountPaid === 130000) { // $1,300.00 (upgrade)
-                    packageType = 'full';
+                } else if (packageType === 'full' && amountPaid === 159900 + processingFee) {
+                    paymentType = 'initial';
+                } else if (packageType === 'full' && amountPaid === 130000 + processingFee) {
                     paymentType = 'upgrade';
-                } else if (amountPaid === 159900) { // $1,599.00
-                    packageType = 'full';
-                    paymentType = 'initial';
                 }
+                
+                console.log('Payment confirmation:', {
+                    email: paidEmail,
+                    amountPaid,
+                    packageType,
+                    paymentMethod,
+                    basePrice,
+                    processingFee,
+                    paymentType
+                });
                 
                 // Record payment in payments table
                 await db.run(`
-                    INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
-                    VALUES ($1, $2, $3, $4, $5, $6, 'completed')
-                `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType]);
+                    INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents, status)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'completed')
+                `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType, paymentMethod, basePrice, processingFee]);
                 
                 // Update user's current package type and paid status
                 await db.run('UPDATE users SET paid = true, package_type = $1 WHERE email = $2', [packageType, paidEmail]);
@@ -525,6 +591,116 @@ app.get('/api/checkout/confirm', async (req, res) => {
     } catch (e) {
         console.error('Error confirming checkout session:', e);
         res.status(500).json({ success: false, error: 'Failed to confirm payment' });
+    }
+});
+
+// Record payment
+app.post('/api/record-payment', async (req, res) => {
+    try {
+        const { user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents } = req.body;
+        
+        await db.run(`
+            INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents, status)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'completed')
+        `, [user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents]);
+        
+        res.json({ success: true, message: 'Payment recorded' });
+    } catch (error) {
+        console.error('Error recording payment:', error);
+        res.status(500).json({ success: false, error: 'Record failed' });
+    }
+});
+
+// Update user payment status
+app.post('/api/update-user-payment', async (req, res) => {
+    try {
+        const { email, paid, packageType } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, error: 'Email required' });
+        }
+        
+        await db.run(`
+            UPDATE users 
+            SET paid = $1, package_type = $2 
+            WHERE email = $3
+        `, [paid, packageType, email]);
+        
+        res.json({ success: true, message: 'User payment status updated' });
+    } catch (error) {
+        console.error('Error updating user payment:', error);
+        res.status(500).json({ success: false, error: 'Update failed' });
+    }
+});
+
+// Database migration endpoint
+app.post('/api/migrate-database', async (req, res) => {
+    try {
+        console.log('Running database migration...');
+        
+        // Add new columns to payments table
+        await db.query(`
+            ALTER TABLE payments 
+            ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'card'
+        `);
+        
+        await db.query(`
+            ALTER TABLE payments 
+            ADD COLUMN IF NOT EXISTS base_price_cents INTEGER DEFAULT 0
+        `);
+        
+        await db.query(`
+            ALTER TABLE payments 
+            ADD COLUMN IF NOT EXISTS processing_fee_cents INTEGER DEFAULT 0
+        `);
+        
+        console.log('Database migration completed successfully');
+        res.json({ success: true, message: 'Database migration completed' });
+    } catch (error) {
+        console.error('Database migration error:', error);
+        res.status(500).json({ success: false, error: 'Migration failed' });
+    }
+});
+
+// Get user token for URL parameter authentication
+app.post('/api/get-user-token', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, error: 'Email required' });
+        }
+        
+        // Get user from database
+        const user = await db.get(`
+            SELECT email, paid, package_type FROM users WHERE email = $1
+        `, [email]);
+        
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        
+        // Create JWT token
+        const token = jwt.sign(
+            { 
+                email: user.email, 
+                paid: user.paid,
+                packageType: user.package_type
+            },
+            config.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        
+        res.json({ 
+            success: true, 
+            token: token,
+            user: {
+                email: user.email,
+                paid: user.paid,
+                packageType: user.package_type
+            }
+        });
+    } catch (error) {
+        console.error('Error creating user token:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 

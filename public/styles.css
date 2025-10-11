@@ -986,6 +986,159 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
+/* Payment method selection styling */
+.payment-method-selection {
+    margin-bottom: 20px;
+}
+
+.payment-method-selection h4 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+.payment-options {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.payment-option-btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 15px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.payment-option-btn:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.payment-option-btn.selected {
+    border-color: #007bff;
+    background: #f8f9ff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.payment-option-btn i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #007bff;
+}
+
+.payment-option-btn.btn-primary i {
+    color: #1976d2;
+}
+
+.payment-option-btn.btn-secondary i {
+    color: #6c757d;
+}
+
+.payment-option-btn.btn-primary:hover i {
+    color: #1976d2;
+}
+
+.payment-option-btn.btn-secondary:hover i {
+    color: #495057;
+}
+
+.payment-option-btn.btn-primary.selected i {
+    color: #1976d2;
+}
+
+.payment-option-btn.btn-secondary.selected i {
+    color: #495057;
+}
+
+.payment-option-btn small {
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.payment-option-btn.btn-primary {
+    border-color: #007bff;
+    color: #007bff;
+    background: #f8f9ff;
+}
+
+.payment-option-btn.btn-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+    background: #f8f9fa;
+}
+
+.payment-option-btn.btn-primary:hover {
+    background: #e3f2fd;
+    border-color: #1976d2;
+    color: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+}
+
+.payment-option-btn.btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #495057;
+    color: #495057;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(73, 80, 87, 0.15);
+}
+
+.payment-option-btn.btn-primary.selected {
+    background: #e3f2fd;
+    border-color: #1976d2;
+    color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.payment-option-btn.btn-secondary.selected {
+    background: #e9ecef;
+    border-color: #495057;
+    color: #495057;
+    box-shadow: 0 0 0 3px rgba(73, 80, 87, 0.1);
+}
+
+/* Fee display styling */
+.fee-display {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.fee-display .fee-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
+}
+
+.fee-display .fee-total {
+    border-top: 1px solid #dee2e6;
+    padding-top: 8px;
+    margin-top: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.fee-display .fee-savings {
+    color: #28a745;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
 .form-section {
     display: none;
     animation: fadeIn 0.5s ease-in-out;
