@@ -295,20 +295,29 @@ app.get('/api/stripe-config', (req, res) => {
 });
 
 // Set package type for user
-app.post('/api/set-package', async (req, res) => {
+app.post('/api/set-package', verifyJWT, async (req, res) => {
     try {
         const { packageType } = req.body;
-        const sessionUser = req.session.user;
         
-        if (!sessionUser) {
+        // Check for JWT user first, then session user
+        let userEmail = null;
+        if (req.user) {
+            userEmail = req.user.email;
+        } else if (req.session.user) {
+            userEmail = req.session.user.email;
+        }
+        
+        if (!userEmail) {
             return res.status(401).json({ success: false, error: 'Not authenticated' });
         }
         
         // Update user's package type in database
-        await db.run('UPDATE users SET package_type = $1 WHERE email = $2', [packageType, sessionUser.email]);
+        await db.run('UPDATE users SET package_type = $1 WHERE email = $2', [packageType, userEmail]);
         
-        // Update session
-        req.session.user.packageType = packageType;
+        // Update session if it exists
+        if (req.session.user) {
+            req.session.user.packageType = packageType;
+        }
         
         res.json({ success: true });
     } catch (error) {
