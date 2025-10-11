@@ -795,6 +795,14 @@
       document.getElementById('payNowBtn')?.addEventListener('click', async () => {
         try {
           console.log('Payment button clicked, package type:', currentPackageType);
+          
+          // Check if package type is valid
+          if (!currentPackageType) {
+            alert('Please select a package first');
+            return;
+          }
+          
+          console.log('Sending request to /api/create-checkout-session with packageType:', currentPackageType);
           const res = await fetch('/api/create-checkout-session', { 
             method: 'POST',
             headers: {
@@ -802,15 +810,22 @@
             },
             body: JSON.stringify({ packageType: currentPackageType })
           });
+          
+          console.log('Payment API response status:', res.status);
           const data = await res.json();
+          console.log('Payment API response data:', data);
+          
           if (!data.success || !data.url) { 
+            console.error('Payment failed:', data.error);
             alert(data.error || 'Failed to start checkout'); 
             return; 
           }
+          
+          console.log('Redirecting to checkout URL:', data.url);
           window.location.href = data.url;
         } catch (error) {
           console.error('Payment error:', error);
-          alert('Failed to start checkout');
+          alert('Failed to start checkout: ' + error.message);
         }
       });
 

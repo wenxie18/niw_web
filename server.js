@@ -235,18 +235,26 @@ app.post('/api/set-package', async (req, res) => {
 
 // Stripe checkout session creation
 app.post('/api/create-checkout-session', async (req, res) => {
+    console.log('Create checkout session request received');
+    console.log('Request body:', req.body);
+    console.log('Session user:', req.session.user);
+    
     if (!stripe) {
+        console.error('Stripe not configured');
         return res.status(500).json({ success: false, error: 'Stripe not configured' });
     }
     
     try {
         const sessionUser = req.session.user;
         if (!sessionUser) {
+            console.error('User not authenticated');
             return res.status(401).json({ success: false, error: 'Not authenticated' });
         }
         
         const { packageType } = req.body;
+        console.log('Package type received:', packageType);
         if (!packageType) {
+            console.error('Package type missing');
             return res.status(400).json({ success: false, error: 'Package type required' });
         }
         
@@ -266,6 +274,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
             priceInCents = 159900; // $1,599
             productName = 'Full Package';
         }
+        
+        console.log('Creating Stripe session with:', { packageType, priceInCents, productName });
         
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
