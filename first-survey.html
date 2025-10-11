@@ -29,6 +29,8 @@
             </a>
             <div class="nav-right">
                 <a class="nav-link" href="/account">Account</a>
+                <a class="btn btn-outline" href="/evaluation" id="evaluationBtn" style="display:none;">Free Evaluation</a>
+                <button class="btn btn-outline" id="logoutBtn" style="display:none;">Logout</button>
             </div>
         </div>
     </nav>
@@ -54,7 +56,7 @@
         <!-- Survey Form -->
         <form id="surveyForm" class="survey-form">
             <!-- Section 1: Personal Information -->
-            <div class="survey-section" id="section-2" style="display: none;">
+            <div class="survey-section" id="section-1" data-section="1" style="display: block;">
                 <h2>Personal Information </h2>
                 
                 <div class="form-group">
@@ -122,7 +124,7 @@
                 
             </div>
             <!-- Section 2: Mailing Contact Information -->
-            <div class="survey-section" id="section-3" style="display: none;">
+            <div class="survey-section" id="section-2" data-section="2" style="display: none;">
                 <h2>Mailing Contact Information</h2>
                 
                 <div class="form-group">
@@ -166,7 +168,7 @@
                 </div>
             </div>
             <!-- Section 3: Immigration Information -->
-            <div class="survey-section" id="section-4" style="display: none;">
+            <div class="survey-section" id="section-3" data-section="3" style="display: none;">
                 <h2>Immigration Information</h2>
                 
                 <div class="form-group">
@@ -236,7 +238,7 @@
                 </div>
             </div>
             <!-- Section 4: Education-->
-            <div class="survey-section" id="section-5" style="display: none;">
+            <div class="survey-section" id="section-4" data-section="4" style="display: none;">
                 <h2>Education</h2>
                 
                 <div class="form-group">
@@ -324,7 +326,7 @@
                 </div>
             </div>
             <!-- Section 5: Employment Information -->
-            <div class="survey-section" id="section-6" style="display: none;">
+            <div class="survey-section" id="section-5" data-section="5" style="display: none;">
                 <h2> Employment Information</h2>
                 
                 <div class="form-group">
@@ -501,7 +503,7 @@
                 </div>
             </div>
             <!-- Section 6: Travel Information -->
-            <div class="survey-section" id="section-7" style="display: none;">
+            <div class="survey-section" id="section-6" data-section="6" style="display: none;">
                 <h2>Travel Information</h2>
                 
                 <div class="form-group">
@@ -543,7 +545,7 @@
                 </div>
             </div>
             <!-- Section 7: Application Information -->
-            <div class="survey-section" id="section-8" style="display: none;">
+            <div class="survey-section" id="section-7" data-section="7" style="display: none;">
                 <h2>Application Information</h2>
                 
                 <div class="form-group">
@@ -679,7 +681,7 @@
                 </div>
             </div>
             <!-- Section 8: Additional Information -->
-            <div class="survey-section" id="section-9" style="display: none;">
+            <div class="survey-section" id="section-8" data-section="8" style="display: none;">
                 <h2>Additional Information</h2>
                 
                 <div class="form-group">
@@ -739,6 +741,95 @@
             const totalSections = sections.length;
             totalStepsSpan.textContent = totalSections;
 
+            // Auto-save functionality
+            function saveFormData() {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                data.currentSection = currentSection;
+                localStorage.setItem('firstSurveyData', JSON.stringify(data));
+                showAutoSaveIndicator();
+            }
+
+            function showAutoSaveIndicator() {
+                // Remove existing indicator
+                const existingIndicator = document.getElementById('auto-save-indicator');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                
+                // Create indicator
+                const indicator = document.createElement('div');
+                indicator.id = 'auto-save-indicator';
+                indicator.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                indicator.textContent = 'Auto-saved';
+                
+                document.body.appendChild(indicator);
+                
+                // Show indicator
+                setTimeout(() => {
+                    indicator.style.opacity = '1';
+                }, 10);
+                
+                // Hide indicator after 2 seconds
+                setTimeout(() => {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => {
+                        if (indicator.parentNode) {
+                            indicator.parentNode.removeChild(indicator);
+                        }
+                    }, 300);
+                }, 2000);
+            }
+
+            function loadFormData() {
+                const savedData = localStorage.getItem('firstSurveyData');
+                if (savedData) {
+                    try {
+                        const data = JSON.parse(savedData);
+                        
+                        // Restore form values
+                        Object.keys(data).forEach(key => {
+                            if (key !== 'currentSection') {
+                                const field = document.querySelector(`[name="${key}"]`);
+                                if (field) {
+                                    if (field.type === 'checkbox' || field.type === 'radio') {
+                                        field.checked = data[key] === 'on' || field.value === data[key];
+                                    } else {
+                                        field.value = data[key];
+                                    }
+                                }
+                            }
+                        });
+                        
+                        // Restore current section
+                        if (data.currentSection !== undefined) {
+                            currentSection = data.currentSection;
+                            showSection(currentSection);
+                        }
+                        
+                        console.log('Form data restored from localStorage');
+                    } catch (error) {
+                        console.error('Error loading saved form data:', error);
+                    }
+                }
+            }
+
+            function clearSavedData() {
+                localStorage.removeItem('firstSurveyData');
+            }
+
             function updateProgress() {
                 const progress = ((currentSection + 1) / totalSections) * 100;
                 progressFill.style.width = progress + '%';
@@ -755,22 +846,85 @@
                 submitBtn.style.display = index === totalSections - 1 ? 'inline-block' : 'none';
                 
                 updateProgress();
+                saveFormData(); // Save when section changes
             }
 
             function validateCurrentSection() {
-                // All fields are now optional, so always return true
-                return true;
+                const currentSectionElement = sections[currentSection];
+                const requiredFields = currentSectionElement.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+                let missingFields = [];
+
+                // Clear previous error styling
+                requiredFields.forEach(field => {
+                    field.classList.remove('error');
+                });
+
+                // Check each required field
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('error');
+                        
+                        // Get field label for error message
+                        const label = currentSectionElement.querySelector(`label[for="${field.id}"]`);
+                        const fieldName = label ? label.textContent.replace('*', '').trim() : field.name;
+                        missingFields.push(fieldName);
+                    }
+                });
+
+                // Show error message if validation fails
+                if (!isValid) {
+                    showValidationError(missingFields);
+                } else {
+                    hideValidationError();
+                }
+
+                return isValid;
+            }
+
+            function showValidationError(missingFields) {
+                // Remove existing error message
+                hideValidationError();
+                
+                // Create error message
+                const errorDiv = document.createElement('div');
+                errorDiv.id = 'validation-error';
+                errorDiv.className = 'validation-error';
+                errorDiv.innerHTML = `
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Please complete all required fields</h3>
+                        <p>The following fields are required before proceeding:</p>
+                        <ul>
+                            ${missingFields.map(field => `<li>${field}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                // Insert error message after the current section
+                const currentSectionElement = sections[currentSection];
+                if (currentSectionElement) {
+                    currentSectionElement.insertAdjacentElement('afterend', errorDiv);
+                    
+                    // Scroll to error message
+                    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            function hideValidationError() {
+                const existingError = document.getElementById('validation-error');
+                if (existingError) {
+                    existingError.remove();
+                }
             }
 
             nextBtn.addEventListener('click', function() {
                 if (validateCurrentSection()) {
                     currentSection++;
                     showSection(currentSection);
-                } else {
-                    // Fields are optional, so this shouldn't happen
-                    currentSection++;
-                    showSection(currentSection);
                 }
+                // If validation fails, don't proceed to next section
             });
 
             prevBtn.addEventListener('click', function() {
@@ -798,6 +952,7 @@
                     const result = await response.json();
                     
                     if (result.success) {
+                        clearSavedData(); // Clear saved data after successful submission
                         form.style.display = 'none';
                         successMessage.style.display = 'block';
                     } else {
@@ -809,8 +964,75 @@
                 }
             });
 
+            // Add event listeners for auto-save
+            form.addEventListener('input', saveFormData);
+            form.addEventListener('change', saveFormData);
+            
+            // Save data before page unload
+            window.addEventListener('beforeunload', saveFormData);
+            
+            // Load saved data on page load
+            loadFormData();
+            
+            // Add logout functionality
+            function logout() {
+                // Clear all stored data
+                localStorage.removeItem('niw_account');
+                localStorage.removeItem('selectedPackage');
+                localStorage.removeItem('niw_jwt_token');
+                localStorage.removeItem('firstSurveyData');
+                
+                // Redirect to home page
+                window.location.href = '/';
+            }
+            
+            // Add logout button event listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+            
+            // Check login status for logout button
+            async function checkLoginStatus() {
+                try {
+                    const token = localStorage.getItem('niw_jwt_token');
+                    const headers = {};
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    const response = await fetch('/api/me', { headers });
+                    const data = await response.json();
+                    
+                    if (data.success && data.user) {
+                        document.getElementById('logoutBtn').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('logoutBtn').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error checking login status:', error);
+                    document.getElementById('logoutBtn').style.display = 'none';
+                }
+            }
+            
+            // Check configuration for evaluation button
+            async function checkConfiguration() {
+                try {
+                    const response = await fetch('/api/config');
+                    const config = await response.json();
+                    
+                    const evaluationBtn = document.getElementById('evaluationBtn');
+                    if (evaluationBtn) {
+                        evaluationBtn.style.display = config.showEvaluation ? 'inline-block' : 'none';
+                    }
+                } catch (error) {
+                    console.error('Error checking configuration:', error);
+                }
+            }
+            
             // Initialize
-            showSection(0);
+            checkConfiguration();
+            checkLoginStatus();
+            showSection(currentSection);
         });
     </script>
 </body>

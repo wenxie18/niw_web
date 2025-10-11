@@ -24,7 +24,8 @@ class SurveyForm {
         // Form input changes
         document.getElementById('surveyForm').addEventListener('input', (e) => {
             this.saveFormData();
-            this.validateCurrentStep();
+            // Only clear errors on input, don't validate until navigation
+            this.clearFieldErrors();
         });
 
         // Form submission
@@ -36,19 +37,22 @@ class SurveyForm {
 
     showStep(step) {
         // Hide all sections
-        const sections = document.querySelectorAll('.form-section');
-        sections.forEach(section => section.classList.remove('active'));
+        const sections = document.querySelectorAll('.form-section, .survey-section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+            section.style.display = 'none';
+        });
 
         // Show current section
         const currentSection = document.querySelector(`[data-section="${step}"]`);
         if (currentSection) {
             currentSection.classList.add('active');
+            currentSection.style.display = 'block';
         }
 
         // Update navigation buttons
         this.updateNavigationButtons();
         this.updateProgress();
-        this.validateCurrentStep();
     }
 
     nextStep() {
@@ -98,15 +102,30 @@ class SurveyForm {
 
     validateCurrentStep() {
         const currentSection = document.querySelector(`[data-section="${this.currentStep}"]`);
+        if (!currentSection) {
+            console.error('Current section not found for step:', this.currentStep);
+            return false;
+        }
+        
         const requiredFields = currentSection.querySelectorAll('input[required], select[required], textarea[required]');
         let isValid = true;
+        let missingFields = [];
 
+        // Clear previous error styling
+        requiredFields.forEach(field => {
+            field.classList.remove('error');
+        });
+
+        // Check each required field
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 isValid = false;
                 field.classList.add('error');
-            } else {
-                field.classList.remove('error');
+                
+                // Get field label for error message
+                const label = currentSection.querySelector(`label[for="${field.id}"]`);
+                const fieldName = label ? label.textContent.replace('*', '').trim() : field.name;
+                missingFields.push(fieldName);
             }
         });
 
@@ -116,12 +135,14 @@ class SurveyForm {
             if (email.value && !this.isValidEmail(email.value)) {
                 isValid = false;
                 email.classList.add('error');
+                missingFields.push('Valid email address');
             }
 
             const state = document.getElementById('PERSONAL_STATE');
             if (state.value && state.value.length !== 2) {
                 isValid = false;
                 state.classList.add('error');
+                missingFields.push('2-letter state code');
             }
         }
 
@@ -130,16 +151,67 @@ class SurveyForm {
             if (uscisState.value && uscisState.value.length !== 2) {
                 isValid = false;
                 uscisState.classList.add('error');
+                missingFields.push('2-letter state code');
             }
         }
 
-        // For testing: always return true to allow submission without required fields
-        return true;
+        // Show error message if validation fails
+        if (!isValid) {
+            this.showValidationError(missingFields);
+        } else {
+            this.hideValidationError();
+        }
+
+        return isValid;
     }
 
     isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
+    }
+
+    showValidationError(missingFields) {
+        // Remove existing error message
+        this.hideValidationError();
+        
+        // Create error message
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'validation-error';
+        errorDiv.className = 'validation-error';
+        errorDiv.innerHTML = `
+            <div class="error-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Please complete all required fields</h3>
+                <p>The following fields are required before proceeding:</p>
+                <ul>
+                    ${missingFields.map(field => `<li>${field}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        
+        // Insert error message after the current section
+        const currentSection = document.querySelector(`[data-section="${this.currentStep}"]`);
+        if (currentSection) {
+            currentSection.insertAdjacentElement('afterend', errorDiv);
+            
+            // Scroll to error message
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    hideValidationError() {
+        const existingError = document.getElementById('validation-error');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    clearFieldErrors() {
+        // Clear error styling from all fields
+        const errorFields = document.querySelectorAll('.form-group input.error, .form-group select.error, .form-group textarea.error');
+        errorFields.forEach(field => {
+            field.classList.remove('error');
+        });
     }
 
     saveFormData() {
@@ -151,16 +223,38 @@ class SurveyForm {
             this.formData[key] = value;
         }
 
+        // Determine which survey this is and use appropriate key
+        const isSecondSurvey = window.location.pathname.includes('second-survey');
+        const storageKey = isSecondSurvey ? 'secondSurveyData' : 'niwSurveyData';
+        
+        // Add current section to saved data
+        this.formData.currentSection = this.currentStep;
+        
         // Save to localStorage
-        localStorage.setItem('niwSurveyData', JSON.stringify(this.formData));
+        localStorage.setItem(storageKey, JSON.stringify(this.formData));
+        
+        // Show auto-save indicator
+        this.showAutoSaveIndicator();
     }
 
     loadSavedData() {
-        const savedData = localStorage.getItem('niwSurveyData');
+        // Determine which survey this is and use appropriate key
+        const isSecondSurvey = window.location.pathname.includes('second-survey');
+        const storageKey = isSecondSurvey ? 'secondSurveyData' : 'niwSurveyData';
+        
+        const savedData = localStorage.getItem(storageKey);
         if (savedData) {
             try {
                 this.formData = JSON.parse(savedData);
+                
+                // Restore current section if available
+                if (this.formData.currentSection !== undefined) {
+                    this.currentStep = this.formData.currentSection;
+                    this.showStep(this.currentStep);
+                }
+                
                 this.populateForm();
+                console.log('Form data restored from localStorage');
             } catch (e) {
                 console.error('Error loading saved data:', e);
             }
@@ -199,7 +293,9 @@ class SurveyForm {
             await this.submitToAPI();
             
             // Clear saved data
-            localStorage.removeItem('niwSurveyData');
+            const isSecondSurvey = window.location.pathname.includes('second-survey');
+            const storageKey = isSecondSurvey ? 'secondSurveyData' : 'niwSurveyData';
+            localStorage.removeItem(storageKey);
             
             // Show success message
             this.showSuccessMessage();
@@ -285,6 +381,49 @@ class SurveyForm {
                 }
             }, 300);
         }, 5000);
+    }
+
+    showAutoSaveIndicator() {
+        // Remove existing indicator
+        const existingIndicator = document.getElementById('auto-save-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
+        // Create indicator
+        const indicator = document.createElement('div');
+        indicator.id = 'auto-save-indicator';
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+        indicator.textContent = 'Auto-saved';
+        
+        document.body.appendChild(indicator);
+        
+        // Show indicator
+        setTimeout(() => {
+            indicator.style.opacity = '1';
+        }, 10);
+        
+        // Hide indicator after 2 seconds
+        setTimeout(() => {
+            indicator.style.opacity = '0';
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.parentNode.removeChild(indicator);
+                }
+            }, 300);
+        }, 2000);
     }
 }
 
@@ -378,3 +517,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+

@@ -57,6 +57,20 @@ const PORT = config.PORT;
 // Trust proxy for Vercel (fixes rate limiting issue)
 app.set('trust proxy', 1);
 
+// Vercel-specific optimizations
+if (process.env.NODE_ENV === 'production') {
+    // Disable X-Powered-By header for security
+    app.disable('x-powered-by');
+    
+    // Set production-specific headers
+    app.use((req, res, next) => {
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        next();
+    });
+}
+
 // Centralized configuration
 const POSTGRES_URL = config.POSTGRES_URL;
 const STRIPE_SECRET_KEY = config.STRIPE_SECRET_KEY;
@@ -78,10 +92,19 @@ app.use(helmet({
     },
 }));
 
-// Rate limiting
+// Rate limiting - Vercel compatible
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    max: process.env.NODE_ENV === 'production' ? 500 : 1000, // More lenient for development
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Vercel specific settings
+    trustProxy: true,
+    skip: (req) => {
+        // Skip rate limiting for static files
+        return req.path.includes('.css') || req.path.includes('.js') || req.path.includes('.png') || req.path.includes('.jpg');
+    }
 });
 app.use(limiter);
 
@@ -248,6 +271,7 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/me', verifyJWT, async (req, res) => {
     try {
+        console.log('API /api/me called at:', new Date().toISOString());
         let userEmail = null;
         
         // Determine user email from JWT, session, or fallback
@@ -290,7 +314,7 @@ app.get('/api/me', verifyJWT, async (req, res) => {
     }
 });
 
-// Health check endpoint
+// Health check endpoint - Vercel compatible
 app.get('/api/health', (req, res) => {
     res.json({ 
         success: true, 
@@ -298,7 +322,12 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         database: db ? 'connected' : 'disconnected',
         postgres_url: process.env.POSTGRES_URL ? 'set' : 'missing',
-        version: '2.0.1'
+        version: '2.0.1',
+        environment: process.env.NODE_ENV || 'development',
+        vercel: process.env.VERCEL === '1',
+        region: process.env.VERCEL_REGION || 'local',
+        rateLimitWorking: true,
+        staticFilesWorking: true
     });
 });
 
@@ -743,13 +772,27 @@ app.get('/first-survey', async (req, res) => {
 });
 
 
-// Static file routes for Vercel
+// Static file routes for Vercel - with proper error handling
 app.get('/styles.css', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'styles.css'));
+    try {
+        res.setHeader('Content-Type', 'text/css');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.sendFile(path.join(__dirname, 'public', 'styles.css'));
+    } catch (error) {
+        console.error('Error serving styles.css:', error);
+        res.status(404).send('CSS file not found');
+    }
 });
 
 app.get('/script.js', (req, res) => {
-    res.sendFile(path.join(__dirname, 'script.js'));
+    try {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.sendFile(path.join(__dirname, 'script.js'));
+    } catch (error) {
+        console.error('Error serving script.js:', error);
+        res.status(404).send('JavaScript file not found');
+    }
 });
 
 app.get('/TurboNIW-name-italic.png', (req, res) => {

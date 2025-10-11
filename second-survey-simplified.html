@@ -29,6 +29,8 @@
             </a>
             <div class="nav-right">
                 <a class="nav-link" href="/account">Account</a>
+                <a class="btn btn-outline" href="/evaluation" id="evaluationBtn" style="display:none;">Free Evaluation</a>
+                <button class="btn btn-outline" id="logoutBtn" style="display:none;">Logout</button>
             </div>
         </div>
     </nav>
@@ -112,8 +114,8 @@
         </select>
                     </div>
                     <div class="form-group">
-                        <label for="LETTER_DATE">What date should appear on the petition letter? (e.g., July 20, 2025)</label>
-                        <input type="text" id="LETTER_DATE" name="LETTER_DATE" required>
+                        <label for="LETTER_DATE">What date should appear on the petition letter?</label>
+                        <input type="date" id="LETTER_DATE" name="LETTER_DATE" required>
                     </div>
                 </div>
             </div>
@@ -492,5 +494,63 @@
     </div>
 
     <script src="/script.js"></script>
+    <script>
+        // Check configuration and login status
+        async function checkConfiguration() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const evaluationBtn = document.getElementById('evaluationBtn');
+                if (evaluationBtn) {
+                    evaluationBtn.style.display = config.showEvaluation ? 'inline-block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error checking configuration:', error);
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const token = localStorage.getItem('niw_jwt_token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                const response = await fetch('/api/me', { headers });
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    document.getElementById('logoutBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('logoutBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        function logout() {
+            // Clear all stored data
+            localStorage.removeItem('niw_account');
+            localStorage.removeItem('selectedPackage');
+            localStorage.removeItem('niw_jwt_token');
+            
+            // Redirect to home page
+            window.location.href = '/';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkConfiguration();
+            checkLoginStatus();
+            
+            // Add logout button event listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+        });
+    </script>
 </body>
 </html>
