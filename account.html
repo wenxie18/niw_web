@@ -254,9 +254,25 @@
                 const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
                 const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
                 
-                if (firstSurveyLinkForm) firstSurveyLinkForm.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
-                if (firstSurveyLinkFull) firstSurveyLinkFull.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
-                if (secondSurveyLinkFull) secondSurveyLinkFull.href = `/survey?email=${encodeURIComponent(user.email)}`;
+                const surveyUrl = `/first-survey?email=${encodeURIComponent(user.email)}`;
+                const secondSurveyUrl = `/survey?email=${encodeURIComponent(user.email)}`;
+                
+                console.log('Updating survey links with email:', user.email);
+                console.log('First survey URL:', surveyUrl);
+                console.log('Second survey URL:', secondSurveyUrl);
+                
+                if (firstSurveyLinkForm) {
+                  firstSurveyLinkForm.href = surveyUrl;
+                  console.log('Updated firstSurveyLinkForm href:', firstSurveyLinkForm.href);
+                }
+                if (firstSurveyLinkFull) {
+                  firstSurveyLinkFull.href = surveyUrl;
+                  console.log('Updated firstSurveyLinkFull href:', firstSurveyLinkFull.href);
+                }
+                if (secondSurveyLinkFull) {
+                  secondSurveyLinkFull.href = secondSurveyUrl;
+                  console.log('Updated secondSurveyLinkFull href:', secondSurveyLinkFull.href);
+                }
               } else {
                 if (planName) planName.textContent = 'Complete NIW Preparation';
                 if (planPrice) planPrice.textContent = '$1,599';
@@ -281,9 +297,25 @@
                 const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
                 const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
                 
-                if (firstSurveyLinkForm) firstSurveyLinkForm.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
-                if (firstSurveyLinkFull) firstSurveyLinkFull.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
-                if (secondSurveyLinkFull) secondSurveyLinkFull.href = `/survey?email=${encodeURIComponent(user.email)}`;
+                const surveyUrl = `/first-survey?email=${encodeURIComponent(user.email)}`;
+                const secondSurveyUrl = `/survey?email=${encodeURIComponent(user.email)}`;
+                
+                console.log('Updating survey links with email (full package):', user.email);
+                console.log('First survey URL:', surveyUrl);
+                console.log('Second survey URL:', secondSurveyUrl);
+                
+                if (firstSurveyLinkForm) {
+                  firstSurveyLinkForm.href = surveyUrl;
+                  console.log('Updated firstSurveyLinkForm href:', firstSurveyLinkForm.href);
+                }
+                if (firstSurveyLinkFull) {
+                  firstSurveyLinkFull.href = surveyUrl;
+                  console.log('Updated firstSurveyLinkFull href:', firstSurveyLinkFull.href);
+                }
+                if (secondSurveyLinkFull) {
+                  secondSurveyLinkFull.href = secondSurveyUrl;
+                  console.log('Updated secondSurveyLinkFull href:', secondSurveyLinkFull.href);
+                }
               }
               
               // Update payment button text based on package type
@@ -398,12 +430,19 @@
 
         // Global setSurveyEnabled function
         function setSurveyEnabled(enabled, packageType = 'full') {
+          console.log('setSurveyEnabled called with:', { enabled, packageType });
           const formFillingButtons = document.getElementById('formFillingButtons');
           const fullPackageButtons = document.getElementById('fullPackageButtons');
+          
+          console.log('Survey button elements found:', {
+            formFillingButtons: !!formFillingButtons,
+            fullPackageButtons: !!fullPackageButtons
+          });
           
           if (packageType === 'form-filling') {
             if (formFillingButtons) {
               formFillingButtons.style.display = enabled ? 'flex' : 'none';
+              console.log('Form filling buttons display set to:', formFillingButtons.style.display);
             }
             if (fullPackageButtons) {
               fullPackageButtons.style.display = 'none';
@@ -411,6 +450,7 @@
           } else {
             if (fullPackageButtons) {
               fullPackageButtons.style.display = enabled ? 'flex' : 'none';
+              console.log('Full package buttons display set to:', fullPackageButtons.style.display);
             }
             if (formFillingButtons) {
               formFillingButtons.style.display = 'none';
@@ -575,43 +615,7 @@
         return data.user || null;
       }
 
-      function setSurveyEnabled(enabled, packageType = 'full') {
-        const formFillingButtons = document.getElementById('formFillingButtons');
-        const fullPackageButtons = document.getElementById('fullPackageButtons');
-        
-        if (packageType === 'form-filling') {
-          // Show only form filling buttons
-          if (formFillingButtons) {
-            formFillingButtons.style.display = enabled ? 'flex' : 'none';
-            const firstSurveyLink = document.getElementById('firstSurveyLinkForm');
-            if (firstSurveyLink) {
-              firstSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
-              firstSurveyLink.style.opacity = enabled ? '1' : '0.6';
-            }
-          }
-          if (fullPackageButtons) {
-            fullPackageButtons.style.display = 'none';
-          }
-        } else {
-          // Show full package buttons (both surveys)
-          if (fullPackageButtons) {
-            fullPackageButtons.style.display = enabled ? 'flex' : 'none';
-            const firstSurveyLink = document.getElementById('firstSurveyLinkFull');
-            const secondSurveyLink = document.getElementById('secondSurveyLinkFull');
-            if (firstSurveyLink) {
-              firstSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
-              firstSurveyLink.style.opacity = enabled ? '1' : '0.6';
-            }
-            if (secondSurveyLink) {
-              secondSurveyLink.style.pointerEvents = enabled ? 'auto' : 'none';
-              secondSurveyLink.style.opacity = enabled ? '1' : '0.6';
-            }
-          }
-          if (formFillingButtons) {
-            formFillingButtons.style.display = 'none';
-          }
-        }
-      }
+      // Duplicate function removed - using the global one above
 
       // Duplicate refreshUI function removed - using global one above
 
