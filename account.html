@@ -171,9 +171,37 @@
               dashboard.style.display = 'block';
               logoutBtn.style.display = 'inline-block';
               
+              // Check for selected package in localStorage (from main page selection)
+              const selectedPackage = localStorage.getItem('selectedPackage');
+              let packageType = user.packageType || 'full';
               
-              // Determine package type (default to 'full' for now, can be enhanced later)
-              const packageType = user.packageType || 'full';
+              // If user has a selected package in localStorage and hasn't paid yet, use that
+              if (selectedPackage && !user.paid) {
+                console.log('Found selected package in localStorage:', selectedPackage);
+                packageType = selectedPackage;
+                
+                // Set the package type on the server
+                try {
+                  const response = await fetch('/api/set-package', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ packageType: selectedPackage })
+                  });
+                  
+                  const result = await response.json();
+                  if (result.success) {
+                    console.log('Package type set successfully:', selectedPackage);
+                    // Clear localStorage after successful setting
+                    localStorage.removeItem('selectedPackage');
+                  } else {
+                    console.error('Failed to set package type:', result.error);
+                  }
+                } catch (error) {
+                  console.error('Error setting package type:', error);
+                }
+              }
               
               // Update plan information based on package type
               const planName = document.getElementById('planName');
