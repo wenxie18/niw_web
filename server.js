@@ -611,8 +611,15 @@ app.post('/api/submit-survey', async (req, res) => {
             return res.status(401).json({ success: false, error: 'Authentication required' });
         }
         
-        const { responses } = req.body;
+        // Get all form data from request body (excluding email if it exists)
+        const { email, ...responses } = req.body;
         const responseId = uuidv4();
+        
+        console.log('Survey submission received:', {
+            userEmail: sessionUser.email,
+            responseCount: Object.keys(responses).length,
+            sampleFields: Object.keys(responses).slice(0, 5)
+        });
         
         await db.run(`
             INSERT INTO survey_responses (id, user_email, responses) 
