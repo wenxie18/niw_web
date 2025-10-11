@@ -132,7 +132,7 @@ app.post('/api/register', async (req, res) => {
         if (e.code === '23505') { // Unique constraint violation
             res.status(400).json({ success: false, error: 'Email already registered' });
         } else {
-            res.status(500).json({ success: false, error: 'Internal server error' });
+        res.status(500).json({ success: false, error: 'Internal server error' });
         }
     }
 });
@@ -528,11 +528,24 @@ app.get('/first-survey', async (req, res) => {
     }
 });
 
+// Simple test route
+app.get('/test-route', (req, res) => {
+    console.log('=== TEST ROUTE ACCESSED ===');
+    res.json({ message: 'Test route working', timestamp: new Date().toISOString() });
+});
+
 // Temporary bypass route for testing - serves survey without authentication
 app.get('/first-survey-test', (req, res) => {
     console.log('=== FIRST SURVEY TEST ROUTE ACCESSED ===');
     console.log('Serving first-survey.html without authentication check');
-    res.sendFile(path.join(__dirname, 'first-survey.html'));
+    console.log('File path:', path.join(__dirname, 'first-survey.html'));
+    
+    try {
+        res.sendFile(path.join(__dirname, 'first-survey.html'));
+    } catch (error) {
+        console.error('Error serving first-survey.html:', error);
+        res.status(500).json({ error: 'Failed to serve file', details: error.message });
+    }
 });
 
 // Static file routes for Vercel
@@ -554,7 +567,7 @@ app.get('/hero-image.jpg', (req, res) => {
 
 // Start server
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
+app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
         console.log(`Database: PostgreSQL (via @vercel/postgres)`);
     });
