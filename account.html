@@ -179,6 +179,14 @@
             
             const user = data.user;
             if (user) {
+              // Store user data in localStorage for survey pages
+              localStorage.setItem('niw_account', JSON.stringify({
+                  email: user.email,
+                  paid: user.paid,
+                  packageType: user.packageType
+              }));
+              console.log('Stored user data in localStorage:', { email: user.email, paid: user.paid, packageType: user.packageType });
+              
               authSection.style.display = 'none';
               dashboard.style.display = 'block';
               logoutBtn.style.display = 'inline-block';
@@ -856,6 +864,10 @@
         logoutBtn.addEventListener('click', async () => {
             try {
               await fetch('/api/logout', { method: 'POST' });
+              // Clear localStorage
+              localStorage.removeItem('niw_account');
+              localStorage.removeItem('selectedPackage');
+              console.log('Cleared localStorage on logout');
               // Clear URL parameters and redirect to clean account page
               window.history.replaceState({}, document.title, '/account');
               await refreshUI();
