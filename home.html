@@ -17,7 +17,7 @@
             </a>
             <div class="nav-right">
                 <a class="nav-link" href="/account" id="accountNavLink">Account</a>
-                <a class="btn btn-outline" href="/evaluation">Free Evaluation</a>
+                <a class="btn btn-outline" href="/evaluation" id="evaluationBtn" style="display:none;">Free Evaluation</a>
                 <button id="logoutBtn" class="btn btn-secondary" type="button" style="display:none;">Logout</button>
             </div>
         </div>
@@ -162,6 +162,21 @@
     </div>
 
     <script>
+        // Check configuration and show/hide evaluation button
+        async function checkConfiguration() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const evaluationBtn = document.getElementById('evaluationBtn');
+                if (evaluationBtn) {
+                    evaluationBtn.style.display = config.showEvaluation ? 'inline-block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error checking configuration:', error);
+            }
+        }
+
         // Check login status and show/hide logout button
         async function checkLoginStatus() {
             try {
@@ -261,6 +276,7 @@
 
         // Check login status on page load
         document.addEventListener('DOMContentLoaded', function() {
+            checkConfiguration();
             checkLoginStatus();
             
             // Logout functionality

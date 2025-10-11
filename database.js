@@ -110,6 +110,30 @@ class Database {
                 )
             `);
 
+            // Create evaluation_responses table
+            await this.query(`
+                CREATE TABLE IF NOT EXISTS evaluation_responses (
+                    id SERIAL PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    education TEXT NOT NULL,
+                    publications INTEGER NOT NULL,
+                    citations INTEGER NOT NULL,
+                    research_field TEXT NOT NULL,
+                    work_experience INTEGER NOT NULL,
+                    current_position TEXT NOT NULL,
+                    awards TEXT NOT NULL,
+                    grants TEXT NOT NULL,
+                    patents TEXT NOT NULL,
+                    research_description TEXT,
+                    timeline TEXT,
+                    evaluation_score INTEGER,
+                    evaluation_recommendations TEXT,
+                    status TEXT DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+
             console.log('Database tables initialized successfully');
         } catch (error) {
             console.error('Error initializing database:', error);

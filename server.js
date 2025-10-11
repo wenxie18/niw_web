@@ -16,27 +16,8 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const Stripe = require('stripe');
 
-// Load configuration
-let config;
-try {
-    config = require('./config.js');
-} catch (e) {
-    console.log('⚠️  config.js not found, using environment variables');
-    config = {
-        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
-        STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
-        DB_NAME: process.env.DB_NAME || 'niw_database.db',
-        SESSION_SECRET: process.env.SESSION_SECRET || 'niw_survey_2025_secure_session_key_xyz789',
-        JWT_SECRET: process.env.JWT_SECRET || 'niw_jwt_secret_key_2025_xyz789',
-        NODE_ENV: process.env.NODE_ENV || 'development',
-        PORT: process.env.PORT || 3000,
-        SURVEY_TYPE: process.env.SURVEY_TYPE || 'simplified',
-        SURVEY_TITLE: {
-            full: process.env.SURVEY_TITLE_FULL || 'NIW Application Survey',
-            simplified: process.env.SURVEY_TITLE_SIMPLIFIED || 'Simplified NIW Application Survey'
-        }
-    };
-}
+// Load configuration from config.js
+const config = require('./config.js');
 
 const app = express();
 const PORT = config.PORT;
@@ -278,6 +259,14 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Configuration endpoint
+app.get('/api/config', (req, res) => {
+    res.json({
+        showEvaluation: config.SHOW_EVALUATION,
+        surveyType: config.SURVEY_TYPE
+    });
+});
+
 // Test endpoint to verify code updates
 app.get('/api/test', (req, res) => {
     res.json({ 
@@ -486,6 +475,98 @@ app.get('/api/payments', async (req, res) => {
     } catch (error) {
         console.error('Error fetching payments:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// Evaluation submission endpoint
+app.post('/api/submit-evaluation', async (req, res) => {
+    try {
+        const {
+            email,
+            name,
+            education,
+            publications,
+            citations,
+            research_field,
+            work_experience,
+            current_position,
+            awards,
+            grants,
+            patents,
+            research_description,
+            timeline
+        } = req.body;
+
+        // Basic validation
+        if (!email || !name || !education || !publications || !citations || !research_field || !work_experience || !current_position || !awards || !grants || !patents) {
+            return res.status(400).json({ success: false, error: 'Missing required fields' });
+        }
+
+        // Calculate evaluation score (basic scoring algorithm)
+        let score = 0;
+        
+        // Education scoring
+        if (education === 'phd') score += 30;
+        else if (education === 'masters') score += 20;
+        else if (education === 'bachelors') score += 10;
+        
+        // Publications scoring
+        const pubCount = parseInt(publications);
+        if (pubCount >= 10) score += 25;
+        else if (pubCount >= 5) score += 20;
+        else if (pubCount >= 3) score += 15;
+        else score += 5;
+        
+        // Citations scoring
+        const citCount = parseInt(citations);
+        if (citCount >= 100) score += 25;
+        else if (citCount >= 50) score += 20;
+        else if (citCount >= 15) score += 15;
+        else score += 5;
+        
+        // Research field bonus
+        if (research_field === 'yes') score += 10;
+        
+        // Awards and recognition
+        if (awards === 'yes') score += 5;
+        if (grants === 'yes') score += 5;
+        if (patents === 'yes') score += 5;
+        
+        // Generate recommendations based on score
+        let recommendations = [];
+        if (score < 50) {
+            recommendations.push("Consider pursuing additional publications to strengthen your case");
+            recommendations.push("Focus on building citation count through high-impact research");
+        } else if (score < 70) {
+            recommendations.push("Your profile shows promise - consider highlighting specific achievements");
+            recommendations.push("Focus on demonstrating national importance of your work");
+        } else {
+            recommendations.push("You have a strong NIW case - consider proceeding with application");
+            recommendations.push("Highlight your research impact and national importance");
+        }
+
+        // Store evaluation response
+        await db.run(`
+            INSERT INTO evaluation_responses (
+                email, name, education, publications, citations, research_field,
+                work_experience, current_position, awards, grants, patents,
+                research_description, timeline, evaluation_score, evaluation_recommendations
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        `, [
+            email, name, education, parseInt(publications), parseInt(citations), research_field,
+            parseInt(work_experience), current_position, awards, grants, patents,
+            research_description || null, timeline || null, score, recommendations.join('; ')
+        ]);
+
+        res.json({
+            success: true,
+            message: 'Evaluation submitted successfully',
+            score: score,
+            recommendations: recommendations
+        });
+    } catch (error) {
+        console.error('Error submitting evaluation:', error);
+        res.status(500).json({ success: false, error: 'Failed to submit evaluation' });
     }
 });
 
