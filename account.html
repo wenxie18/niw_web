@@ -661,7 +661,13 @@
           
           if (!res.ok) {
             console.error('Registration API response not ok:', res.status, res.statusText);
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            // Try to parse the error message from the response
+            try {
+              const errorData = await res.json();
+              throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+            } catch (parseError) {
+              throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
           }
           
           const data = await res.json();

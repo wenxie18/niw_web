@@ -140,9 +140,9 @@ app.post('/api/register', async (req, res) => {
     } catch (e) {
         console.error(e);
         if (e.code === '23505') { // Unique constraint violation
-            res.status(400).json({ success: false, error: 'Email already registered' });
+            res.status(400).json({ success: false, error: 'Email already registered. Please login instead.' });
         } else {
-        res.status(500).json({ success: false, error: 'Internal server error' });
+            res.status(500).json({ success: false, error: 'Internal server error' });
         }
     }
 });
