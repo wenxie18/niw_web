@@ -123,7 +123,7 @@ app.post('/api/register', async (req, res) => {
         req.session.user = { 
             email: email.toLowerCase(), 
             paid: false, 
-            packageType: 'full' // Default package type
+            packageType: null // No package selected yet
         };
         
         res.json({ success: true });

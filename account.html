@@ -148,6 +148,15 @@
         // Global variable to store current package type
         let currentPackageType = 'full';
 
+        // Function to show package selection interface
+        function showPackageSelection() {
+          const dashboard = document.getElementById('dashboard');
+          const packageSelection = document.getElementById('packageSelection');
+          
+          if (dashboard) dashboard.style.display = 'none';
+          if (packageSelection) packageSelection.style.display = 'block';
+        }
+
         async function refreshUI() {
           console.log('refreshUI called');
           try {
@@ -176,7 +185,7 @@
               
               // Check for selected package in localStorage (from main page selection)
               const selectedPackage = localStorage.getItem('selectedPackage');
-              let packageType = user.packageType || 'full';
+              let packageType = user.packageType;
               
               // If user has a selected package in localStorage and hasn't paid yet, use that
               if (selectedPackage && !user.paid) {
@@ -204,6 +213,13 @@
                 } catch (error) {
                   console.error('Error setting package type:', error);
                 }
+              }
+              
+              // If no package is selected yet, show package selection interface
+              if (!packageType && !user.paid) {
+                console.log('No package selected yet, showing package selection');
+                showPackageSelection();
+                return;
               }
               
               // Set global package type for payment button
