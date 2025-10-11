@@ -483,9 +483,11 @@ app.get('/survey', async (req, res) => {
 });
 
 app.get('/first-survey', async (req, res) => {
-    console.log('First survey route accessed');
+    console.log('=== FIRST SURVEY ROUTE ACCESSED ===');
+    console.log('Request URL:', req.url);
     console.log('Session user:', req.session.user);
     console.log('Query params:', req.query);
+    console.log('Headers:', req.headers);
     
     try {
         let userEmail = null;
@@ -502,22 +504,26 @@ app.get('/first-survey', async (req, res) => {
         }
         
         if (!userEmail) {
-            console.log('No email found in session or query params, redirecting to account');
+            console.log('❌ No email found in session or query params, redirecting to account');
             return res.redirect('/account');
         }
         
+        console.log('🔍 Checking database for user:', userEmail);
         // Check user payment status in database
         const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
+        console.log('📊 Database query result:', user);
         
         if (!user || !user.paid) {
-            console.log('User not found in database or not paid, redirecting to account');
+            console.log('❌ User not found in database or not paid, redirecting to account');
+            console.log('User found:', !!user);
+            console.log('User paid status:', user?.paid);
             return res.redirect('/account');
         }
         
-        console.log('User verified in database, serving first-survey.html');
+        console.log('✅ User verified in database, serving first-survey.html');
         res.sendFile(path.join(__dirname, 'first-survey.html'));
     } catch (error) {
-        console.error('Error checking user status:', error);
+        console.error('💥 Error checking user status:', error);
         res.redirect('/account');
     }
 });
