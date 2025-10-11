@@ -299,7 +299,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
             }
         });
         
-        res.json({ success: true, sessionId: session.id });
+        console.log('Stripe session created successfully:', session.id);
+        console.log('Checkout URL:', session.url);
+        
+        res.json({ success: true, url: session.url, sessionId: session.id });
     } catch (error) {
         console.error('Error creating checkout session:', error);
         res.status(500).json({ success: false, error: 'Failed to create checkout session' });
