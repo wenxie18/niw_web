@@ -12,8 +12,8 @@ const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const Stripe = require('stripe');
 
 // Load configuration
@@ -27,6 +27,7 @@ try {
         STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
         DB_NAME: process.env.DB_NAME || 'niw_database.db',
         SESSION_SECRET: process.env.SESSION_SECRET || 'niw_survey_2025_secure_session_key_xyz789',
+        JWT_SECRET: process.env.JWT_SECRET || 'niw_jwt_secret_key_2025_xyz789',
         NODE_ENV: process.env.NODE_ENV || 'development',
         PORT: process.env.PORT || 3000,
         SURVEY_TYPE: process.env.SURVEY_TYPE || 'simplified',
@@ -95,6 +96,24 @@ app.use(session({
     }
 }));
 
+// JWT verification middleware
+function verifyJWT(req, res, next) {
+    const token = req.headers.authorization?.replace('Bearer ', '') || req.query.token;
+    
+    if (!token) {
+        return next();
+    }
+    
+    try {
+        const decoded = jwt.verify(token, config.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        console.error('JWT verification failed:', error.message);
+        next();
+    }
+}
+
 // Middleware to handle session fallback for Vercel
 app.use((req, res, next) => {
     // If no session user but we have email in query params, try to restore session
@@ -129,20 +148,31 @@ app.post('/api/register', async (req, res) => {
         
         await db.run('INSERT INTO users (email, password_hash) VALUES ($1, $2)', [email.toLowerCase(), hashedPassword]);
         
-        // Automatically log the user in after successful registration
+        // Create JWT token
+        const token = jwt.sign(
+            { 
+                email: email.toLowerCase(), 
+                paid: false, 
+                packageType: null 
+            },
+            config.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        
+        // Also set session for backward compatibility
         req.session.user = { 
             email: email.toLowerCase(), 
             paid: false, 
-            packageType: null // No package selected yet
+            packageType: null
         };
         
-        res.json({ success: true });
+        res.json({ success: true, token });
     } catch (e) {
         console.error(e);
         if (e.code === '23505') { // Unique constraint violation
             res.status(400).json({ success: false, error: 'Email already registered. Please login instead.' });
         } else {
-            res.status(500).json({ success: false, error: 'Internal server error' });
+        res.status(500).json({ success: false, error: 'Internal server error' });
         }
     }
 });
@@ -172,12 +202,26 @@ app.post('/api/login', async (req, res) => {
         }
         
         console.log('Login successful, setting session for user:', email);
+        
+        // Create JWT token
+        const token = jwt.sign(
+            { 
+                email: user.email, 
+                paid: user.paid === true,
+                packageType: user.package_type || 'full'
+            },
+            config.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        
+        // Also set session for backward compatibility
         req.session.user = { 
             email: user.email, 
             paid: user.paid === true,
             packageType: user.package_type || 'full'
         };
-        res.json({ success: true });
+        
+        res.json({ success: true, token });
     } catch (e) {
         console.error('Login error:', e);
         res.status(500).json({ success: false, error: 'Internal server error' });
@@ -188,8 +232,13 @@ app.post('/api/logout', (req, res) => {
     req.session.destroy(() => res.json({ success: true }));
 });
 
-app.get('/api/me', async (req, res) => {
+app.get('/api/me', verifyJWT, async (req, res) => {
     try {
+        // If we have a JWT user, return it
+        if (req.user) {
+            return res.json({ success: true, user: req.user });
+        }
+        
         // If we have a session user, return it
         if (req.session.user) {
             return res.json({ success: true, user: req.session.user });

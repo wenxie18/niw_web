@@ -159,7 +159,14 @@
 
         async function refreshUI() {
           try {
-            const res = await fetch('/api/me');
+            // Get JWT token from localStorage
+            const token = localStorage.getItem('niw_jwt_token');
+            const headers = {};
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const res = await fetch('/api/me', { headers });
             const data = await res.json();
             
             const authSection = document.getElementById('authSection');
@@ -678,6 +685,12 @@
             return; 
           }
           
+          // Store JWT token if provided
+          if (data.token) {
+            localStorage.setItem('niw_jwt_token', data.token);
+            console.log('JWT token stored for registration');
+          }
+          
           console.log('Registration successful, calling refreshUI');
           await refreshUI();
         } catch (error) {
@@ -771,6 +784,12 @@
             msg.textContent = data.error || 'Login failed';
             return;
           }
+          // Store JWT token if provided
+          if (data.token) {
+            localStorage.setItem('niw_jwt_token', data.token);
+            console.log('JWT token stored for login');
+          }
+          
           // Clear any error text on success
           const msg = document.getElementById('loginMessage');
           if (msg) msg.textContent = '';
@@ -838,6 +857,7 @@
               // Clear localStorage
               localStorage.removeItem('niw_account');
               localStorage.removeItem('selectedPackage');
+              localStorage.removeItem('niw_jwt_token');
               // Clear URL parameters and redirect to clean account page
               window.history.replaceState({}, document.title, '/account');
               await refreshUI();
