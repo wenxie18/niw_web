@@ -248,32 +248,42 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/me', verifyJWT, async (req, res) => {
     try {
-        // If we have a JWT user, return it
+        let userEmail = null;
+        
+        // Determine user email from JWT, session, or fallback
         if (req.user) {
-            return res.json({ success: true, user: req.user });
+            userEmail = req.user.email;
+        } else if (req.session.user) {
+            userEmail = req.session.user.email;
+        } else if (req.sessionFallback && req.sessionFallback.email) {
+            userEmail = req.sessionFallback.email;
         }
         
-        // If we have a session user, return it
+        if (!userEmail) {
+            return res.json({ success: true, user: null });
+        }
+        
+        // Always fetch fresh data from database for accurate payment status
+        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
+        if (!user) {
+            return res.json({ success: true, user: null });
+        }
+        
+        // Update session with fresh data
         if (req.session.user) {
-            return res.json({ success: true, user: req.session.user });
+            req.session.user.paid = user.paid;
+            req.session.user.packageType = user.package_type;
         }
         
-        // If no session but we have session fallback, try to restore user from database
-        if (req.sessionFallback && req.sessionFallback.email) {
-            const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [req.sessionFallback.email]);
-            if (user) {
-                // Restore session
-                req.session.user = {
-                    email: user.email,
-                    paid: user.paid,
-                    packageType: user.package_type
-                };
-                return res.json({ success: true, user: req.session.user });
+        // Return fresh user data
+        res.json({ 
+            success: true, 
+            user: {
+                email: user.email,
+                paid: user.paid === true,
+                packageType: user.package_type || 'full'
             }
-        }
-        
-        // No user found
-        res.json({ success: true, user: null });
+        });
     } catch (error) {
         console.error('Error in /api/me:', error);
         res.json({ success: false, user: null });
