@@ -443,16 +443,29 @@ app.get('/evaluation', (req, res) => {
 app.get('/survey', async (req, res) => {
     console.log('Second survey route accessed');
     console.log('Session user:', req.session.user);
+    console.log('Query params:', req.query);
     
     try {
-        // Check if user is authenticated via session
-        if (!req.session.user) {
-            console.log('No session user, redirecting to account');
+        let userEmail = null;
+        
+        // Try to get email from session first
+        if (req.session.user && req.session.user.email) {
+            userEmail = req.session.user.email;
+            console.log('Using email from session:', userEmail);
+        }
+        // If no session, try to get email from query parameter
+        else if (req.query.email) {
+            userEmail = req.query.email;
+            console.log('Using email from query param:', userEmail);
+        }
+        
+        if (!userEmail) {
+            console.log('No email found in session or query params, redirecting to account');
             return res.redirect('/account');
         }
         
-        // Double-check user payment status in database (more reliable than session)
-        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [req.session.user.email]);
+        // Check user payment status in database
+        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
         
         if (!user || !user.paid) {
             console.log('User not found in database or not paid, redirecting to account');
@@ -472,16 +485,29 @@ app.get('/survey', async (req, res) => {
 app.get('/first-survey', async (req, res) => {
     console.log('First survey route accessed');
     console.log('Session user:', req.session.user);
+    console.log('Query params:', req.query);
     
     try {
-        // Check if user is authenticated via session
-        if (!req.session.user) {
-            console.log('No session user, redirecting to account');
+        let userEmail = null;
+        
+        // Try to get email from session first
+        if (req.session.user && req.session.user.email) {
+            userEmail = req.session.user.email;
+            console.log('Using email from session:', userEmail);
+        }
+        // If no session, try to get email from query parameter
+        else if (req.query.email) {
+            userEmail = req.query.email;
+            console.log('Using email from query param:', userEmail);
+        }
+        
+        if (!userEmail) {
+            console.log('No email found in session or query params, redirecting to account');
             return res.redirect('/account');
         }
         
-        // Double-check user payment status in database (more reliable than session)
-        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [req.session.user.email]);
+        // Check user payment status in database
+        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
         
         if (!user || !user.paid) {
             console.log('User not found in database or not paid, redirecting to account');

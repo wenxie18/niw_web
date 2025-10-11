@@ -248,6 +248,15 @@
                 if (formFillingBtn) formFillingBtn.style.color = 'white';
                 if (fullPackageBtn) fullPackageBtn.style.background = 'transparent';
                 if (fullPackageBtn) fullPackageBtn.style.color = '#2563eb';
+                
+                // Update survey links with user email for session fallback
+                const firstSurveyLinkForm = document.getElementById('firstSurveyLinkForm');
+                const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
+                const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
+                
+                if (firstSurveyLinkForm) firstSurveyLinkForm.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
+                if (firstSurveyLinkFull) firstSurveyLinkFull.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
+                if (secondSurveyLinkFull) secondSurveyLinkFull.href = `/survey?email=${encodeURIComponent(user.email)}`;
               } else {
                 if (planName) planName.textContent = 'Complete NIW Preparation';
                 if (planPrice) planPrice.textContent = '$1,599';
@@ -266,6 +275,15 @@
                 if (fullPackageBtn) fullPackageBtn.style.color = 'white';
                 if (formFillingBtn) formFillingBtn.style.background = 'transparent';
                 if (formFillingBtn) formFillingBtn.style.color = '#2563eb';
+                
+                // Update survey links with user email for session fallback
+                const firstSurveyLinkForm = document.getElementById('firstSurveyLinkForm');
+                const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
+                const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
+                
+                if (firstSurveyLinkForm) firstSurveyLinkForm.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
+                if (firstSurveyLinkFull) firstSurveyLinkFull.href = `/first-survey?email=${encodeURIComponent(user.email)}`;
+                if (secondSurveyLinkFull) secondSurveyLinkFull.href = `/survey?email=${encodeURIComponent(user.email)}`;
               }
               
               // Update payment button text based on package type
