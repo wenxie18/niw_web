@@ -16,8 +16,42 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const Stripe = require('stripe');
 
-// Load configuration from config.js
-const config = require('./config.js');
+// Load configuration
+let config;
+if (process.env.NODE_ENV === 'production') {
+    // Production configuration (Vercel)
+    config = {
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+        STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
+        DB_NAME: process.env.DB_NAME || 'niw_database.db',
+        SESSION_SECRET: process.env.SESSION_SECRET || 'niw_survey_2025_secure_session_key_xyz789',
+        JWT_SECRET: process.env.JWT_SECRET || 'niw_jwt_secret_key_2025_xyz789',
+        NODE_ENV: process.env.NODE_ENV || 'production',
+        PORT: process.env.PORT || 3000,
+        SURVEY_TYPE: process.env.SURVEY_TYPE || 'simplified',
+        SHOW_EVALUATION: process.env.SHOW_EVALUATION === 'true',
+        SURVEY_TITLE: {
+            full: process.env.SURVEY_TITLE_FULL || 'Complete NIW Application Survey',
+            simplified: process.env.SURVEY_TITLE_SIMPLIFIED || 'Simplified NIW Application Survey'
+        },
+        SURVEY_DESCRIPTION: {
+            full: process.env.SURVEY_DESCRIPTION_FULL || 'Comprehensive survey covering all aspects of your NIW application',
+            simplified: process.env.SURVEY_DESCRIPTION_SIMPLIFIED || 'Streamlined survey focusing on essential NIW application details'
+        },
+        PAYMENT_AMOUNT: parseInt(process.env.PAYMENT_AMOUNT) || 159900,
+        PAYMENT_CURRENCY: process.env.PAYMENT_CURRENCY || 'usd',
+        PAYMENT_PRODUCT_NAME: process.env.PAYMENT_PRODUCT_NAME || 'Complete NIW Prep',
+        FEATURES: {
+            PAYMENT_REQUIRED: process.env.PAYMENT_REQUIRED !== 'false',
+            SURVEY_AUTO_SAVE: process.env.SURVEY_AUTO_SAVE !== 'false',
+            EMAIL_NOTIFICATIONS: process.env.EMAIL_NOTIFICATIONS === 'true',
+            ADMIN_DASHBOARD: process.env.ADMIN_DASHBOARD === 'true'
+        }
+    };
+} else {
+    // Development configuration - load from config.js
+    config = require('./config.js');
+}
 
 const app = express();
 const PORT = config.PORT;
