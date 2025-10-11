@@ -1,7 +1,5 @@
 // Load environment variables for local development
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -60,7 +58,7 @@ const PORT = config.PORT;
 app.set('trust proxy', 1);
 
 // Centralized configuration
-const DB_NAME = config.DB_NAME;
+const POSTGRES_URL = config.POSTGRES_URL;
 const STRIPE_SECRET_KEY = config.STRIPE_SECRET_KEY;
 const stripe = STRIPE_SECRET_KEY ? Stripe(STRIPE_SECRET_KEY) : null;
 
