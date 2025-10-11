@@ -158,13 +158,9 @@
         }
 
         async function refreshUI() {
-          console.log('refreshUI called');
           try {
-            console.log('Fetching /api/me');
             const res = await fetch('/api/me');
-            console.log('API /me response status:', res.status);
             const data = await res.json();
-            console.log('API /me response data:', data);
             
             const authSection = document.getElementById('authSection');
             const dashboard = document.getElementById('dashboard');
@@ -185,7 +181,6 @@
                   paid: user.paid,
                   packageType: user.packageType
               }));
-              console.log('Stored user data in localStorage:', { email: user.email, paid: user.paid, packageType: user.packageType });
               
               authSection.style.display = 'none';
               dashboard.style.display = 'block';
@@ -197,7 +192,6 @@
               
               // If user has a selected package in localStorage and hasn't paid yet, use that
               if (selectedPackage && !user.paid) {
-                console.log('Found selected package in localStorage:', selectedPackage);
                 packageType = selectedPackage;
                 
                 // Set the package type on the server
@@ -212,11 +206,8 @@
                   
                   const result = await response.json();
                   if (result.success) {
-                    console.log('Package type set successfully:', selectedPackage);
                     // Clear localStorage after successful setting
                     localStorage.removeItem('selectedPackage');
-                  } else {
-                    console.error('Failed to set package type:', result.error);
                   }
                 } catch (error) {
                   console.error('Error setting package type:', error);
@@ -225,7 +216,6 @@
               
               // If no package is selected yet, show package selection interface
               if (!packageType && !user.paid) {
-                console.log('No package selected yet, showing package selection');
                 showPackageSelection();
                 return;
               }
@@ -300,30 +290,23 @@
                 if (formFillingBtn) formFillingBtn.style.background = 'transparent';
                 if (formFillingBtn) formFillingBtn.style.color = '#2563eb';
                 
-                // Update survey links with user email for session fallback
-                const firstSurveyLinkForm = document.getElementById('firstSurveyLinkForm');
-                const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
-                const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
-                
-                const surveyUrl = `/first-survey?email=${encodeURIComponent(user.email)}`;
-                const secondSurveyUrl = `/survey?email=${encodeURIComponent(user.email)}`;
-                
-                console.log('Updating survey links with email (full package):', user.email);
-                console.log('First survey URL:', surveyUrl);
-                console.log('Second survey URL:', secondSurveyUrl);
-                
-                if (firstSurveyLinkForm) {
-                  firstSurveyLinkForm.href = surveyUrl;
-                  console.log('Updated firstSurveyLinkForm href:', firstSurveyLinkForm.href);
-                }
-                if (firstSurveyLinkFull) {
-                  firstSurveyLinkFull.href = surveyUrl;
-                  console.log('Updated firstSurveyLinkFull href:', firstSurveyLinkFull.href);
-                }
-                if (secondSurveyLinkFull) {
-                  secondSurveyLinkFull.href = secondSurveyUrl;
-                  console.log('Updated secondSurveyLinkFull href:', secondSurveyLinkFull.href);
-                }
+              // Update survey links with user email for session fallback
+              const firstSurveyLinkForm = document.getElementById('firstSurveyLinkForm');
+              const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
+              const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
+              
+              const surveyUrl = `/first-survey?email=${encodeURIComponent(user.email)}`;
+              const secondSurveyUrl = `/survey?email=${encodeURIComponent(user.email)}`;
+              
+              if (firstSurveyLinkForm) {
+                firstSurveyLinkForm.href = surveyUrl;
+              }
+              if (firstSurveyLinkFull) {
+                firstSurveyLinkFull.href = surveyUrl;
+              }
+              if (secondSurveyLinkFull) {
+                secondSurveyLinkFull.href = secondSurveyUrl;
+              }
               }
               
               // Update payment button text based on package type
@@ -438,19 +421,12 @@
 
         // Global setSurveyEnabled function
         function setSurveyEnabled(enabled, packageType = 'full') {
-          console.log('setSurveyEnabled called with:', { enabled, packageType });
           const formFillingButtons = document.getElementById('formFillingButtons');
           const fullPackageButtons = document.getElementById('fullPackageButtons');
-          
-          console.log('Survey button elements found:', {
-            formFillingButtons: !!formFillingButtons,
-            fullPackageButtons: !!fullPackageButtons
-          });
           
           if (packageType === 'form-filling') {
             if (formFillingButtons) {
               formFillingButtons.style.display = enabled ? 'flex' : 'none';
-              console.log('Form filling buttons display set to:', formFillingButtons.style.display);
             }
             if (fullPackageButtons) {
               fullPackageButtons.style.display = 'none';
@@ -458,7 +434,6 @@
           } else {
             if (fullPackageButtons) {
               fullPackageButtons.style.display = enabled ? 'flex' : 'none';
-              console.log('Full package buttons display set to:', fullPackageButtons.style.display);
             }
             if (formFillingButtons) {
               formFillingButtons.style.display = 'none';
@@ -567,34 +542,12 @@
         }
 
       document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded - Account page script starting');
-        
         const authSection = document.getElementById('authSection');
         const emailInput = document.getElementById('accountEmail');
         const passwordInput = document.getElementById('accountPassword');
         const registerBtn = document.getElementById('registerBtn');
         const loginBtn = document.getElementById('loginBtn');
         const dashboard = document.getElementById('dashboard');
-        
-        // Debug: Check if elements are found
-        console.log('Auth elements found:', {
-          authSection: !!authSection,
-          emailInput: !!emailInput,
-          passwordInput: !!passwordInput,
-          registerBtn: !!registerBtn,
-          loginBtn: !!loginBtn,
-          dashboard: !!dashboard
-        });
-        
-        // Test: Add a simple click handler to see if JavaScript is working
-        if (loginBtn) {
-          console.log('Adding test click handler to login button');
-          // Remove the test handler - it was interfering with the real login
-          // loginBtn.addEventListener('click', function() {
-          //   console.log('Login button clicked!');
-          //   alert('Login button clicked - JavaScript is working!');
-          // });
-        }
         
       
       // payNowBtn declaration moved to global scope
@@ -671,12 +624,10 @@
         }
         
         try {
-          console.log('Making API call to /api/register');
           
           // Add timeout to prevent hanging
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
-            console.log('Registration API call timed out after 10 seconds');
             controller.abort();
           }, 10000);
           
@@ -726,11 +677,9 @@
         let isLoggingIn = false;
         loginBtn.addEventListener('click', async () => {
         if (isLoggingIn) {
-          console.log('Login already in progress, ignoring click');
           return;
         }
         
-        console.log('Real login button clicked!');
         isLoggingIn = true;
         loginBtn.disabled = true;
         loginBtn.textContent = 'Signing In...';
@@ -750,12 +699,10 @@
         }
         
         try {
-          console.log('Making API call to /api/login');
           
           // Add timeout to prevent hanging
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
-            console.log('API call timed out after 10 seconds');
             controller.abort();
           }, 10000);
           
@@ -867,7 +814,6 @@
               // Clear localStorage
               localStorage.removeItem('niw_account');
               localStorage.removeItem('selectedPackage');
-              console.log('Cleared localStorage on logout');
               // Clear URL parameters and redirect to clean account page
               window.history.replaceState({}, document.title, '/account');
               await refreshUI();

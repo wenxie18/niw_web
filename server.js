@@ -441,26 +441,19 @@ app.get('/evaluation', (req, res) => {
 });
 
 app.get('/survey', async (req, res) => {
-    console.log('Second survey route accessed');
-    console.log('Session user:', req.session.user);
-    console.log('Query params:', req.query);
-    
     try {
         let userEmail = null;
         
         // Try to get email from session first
         if (req.session.user && req.session.user.email) {
             userEmail = req.session.user.email;
-            console.log('Using email from session:', userEmail);
         }
         // If no session, try to get email from query parameter
         else if (req.query.email) {
             userEmail = req.query.email;
-            console.log('Using email from query param:', userEmail);
         }
         
         if (!userEmail) {
-            console.log('No email found in session or query params, redirecting to account');
             return res.redirect('/account');
         }
         
@@ -468,11 +461,9 @@ app.get('/survey', async (req, res) => {
         const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
         
         if (!user || !user.paid) {
-            console.log('User not found in database or not paid, redirecting to account');
             return res.redirect('/account');
         }
         
-        console.log('User verified in database, serving second survey');
         const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
         const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
         res.sendFile(path.join(__dirname, surveyFile));
@@ -483,70 +474,36 @@ app.get('/survey', async (req, res) => {
 });
 
 app.get('/first-survey', async (req, res) => {
-    console.log('=== FIRST SURVEY ROUTE ACCESSED ===');
-    console.log('Request URL:', req.url);
-    console.log('Session user:', req.session.user);
-    console.log('Query params:', req.query);
-    console.log('Headers:', req.headers);
-    
     try {
         let userEmail = null;
         
         // Try to get email from session first
         if (req.session.user && req.session.user.email) {
             userEmail = req.session.user.email;
-            console.log('Using email from session:', userEmail);
         }
         // If no session, try to get email from query parameter
         else if (req.query.email) {
             userEmail = req.query.email;
-            console.log('Using email from query param:', userEmail);
         }
         
         if (!userEmail) {
-            console.log('❌ No email found in session or query params, redirecting to account');
             return res.redirect('/account');
         }
         
-        console.log('🔍 Checking database for user:', userEmail);
         // Check user payment status in database
         const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
-        console.log('📊 Database query result:', user);
         
         if (!user || !user.paid) {
-            console.log('❌ User not found in database or not paid, redirecting to account');
-            console.log('User found:', !!user);
-            console.log('User paid status:', user?.paid);
             return res.redirect('/account');
         }
         
-        console.log('✅ User verified in database, serving first-survey.html');
         res.sendFile(path.join(__dirname, 'first-survey.html'));
     } catch (error) {
-        console.error('💥 Error checking user status:', error);
+        console.error('Error checking user status:', error);
         res.redirect('/account');
     }
 });
 
-// Simple test route
-app.get('/test-route', (req, res) => {
-    console.log('=== TEST ROUTE ACCESSED ===');
-    res.json({ message: 'Test route working', timestamp: new Date().toISOString() });
-});
-
-// Temporary bypass route for testing - serves survey without authentication
-app.get('/first-survey-test', (req, res) => {
-    console.log('=== FIRST SURVEY TEST ROUTE ACCESSED ===');
-    console.log('Serving first-survey.html without authentication check');
-    console.log('File path:', path.join(__dirname, 'first-survey.html'));
-    
-    try {
-        res.sendFile(path.join(__dirname, 'first-survey.html'));
-    } catch (error) {
-        console.error('Error serving first-survey.html:', error);
-        res.status(500).json({ error: 'Failed to serve file', details: error.message });
-    }
-});
 
 // Static file routes for Vercel
 app.get('/styles.css', (req, res) => {
