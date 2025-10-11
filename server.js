@@ -528,6 +528,13 @@ app.get('/first-survey', async (req, res) => {
     }
 });
 
+// Temporary bypass route for testing - serves survey without authentication
+app.get('/first-survey-test', (req, res) => {
+    console.log('=== FIRST SURVEY TEST ROUTE ACCESSED ===');
+    console.log('Serving first-survey.html without authentication check');
+    res.sendFile(path.join(__dirname, 'first-survey.html'));
+});
+
 // Static file routes for Vercel
 app.get('/styles.css', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'styles.css'));
