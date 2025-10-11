@@ -440,20 +440,60 @@ app.get('/evaluation', (req, res) => {
     res.sendFile(path.join(__dirname, 'evaluation.html'));
 });
 
-app.get('/survey', (req, res) => {
-    if (!req.session.user || !req.session.user.paid) {
-        return res.redirect('/account');
+app.get('/survey', async (req, res) => {
+    console.log('Second survey route accessed');
+    console.log('Session user:', req.session.user);
+    
+    try {
+        // Check if user is authenticated via session
+        if (!req.session.user) {
+            console.log('No session user, redirecting to account');
+            return res.redirect('/account');
+        }
+        
+        // Double-check user payment status in database (more reliable than session)
+        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [req.session.user.email]);
+        
+        if (!user || !user.paid) {
+            console.log('User not found in database or not paid, redirecting to account');
+            return res.redirect('/account');
+        }
+        
+        console.log('User verified in database, serving second survey');
+        const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
+        const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
+        res.sendFile(path.join(__dirname, surveyFile));
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        res.redirect('/account');
     }
-    const surveyType = (config && config.SURVEY_TYPE) ? config.SURVEY_TYPE : 'full';
-    const surveyFile = surveyType === 'simplified' ? 'second-survey-simplified.html' : 'second-survey.html';
-    res.sendFile(path.join(__dirname, surveyFile));
 });
 
-app.get('/first-survey', (req, res) => {
-    if (!req.session.user || !req.session.user.paid) {
-        return res.redirect('/account');
+app.get('/first-survey', async (req, res) => {
+    console.log('First survey route accessed');
+    console.log('Session user:', req.session.user);
+    
+    try {
+        // Check if user is authenticated via session
+        if (!req.session.user) {
+            console.log('No session user, redirecting to account');
+            return res.redirect('/account');
+        }
+        
+        // Double-check user payment status in database (more reliable than session)
+        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [req.session.user.email]);
+        
+        if (!user || !user.paid) {
+            console.log('User not found in database or not paid, redirecting to account');
+            return res.redirect('/account');
+        }
+        
+        console.log('User verified in database, serving first-survey.html');
+        res.sendFile(path.join(__dirname, 'first-survey.html'));
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        res.redirect('/account');
     }
-    res.sendFile(path.join(__dirname, 'first-survey.html'));
 });
 
 // Static file routes for Vercel
