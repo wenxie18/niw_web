@@ -182,6 +182,9 @@
                   packageType: user.packageType
               }));
               
+              // Update navigation links to include email parameter for Vercel session fallback
+              updateNavigationLinks(user.email);
+              
               authSection.style.display = 'none';
               dashboard.style.display = 'block';
               logoutBtn.style.display = 'inline-block';
@@ -417,6 +420,21 @@
           } catch (error) {
             console.error('Error refreshing UI:', error);
           }
+        }
+
+        // Function to update navigation links with email parameter for Vercel session fallback
+        function updateNavigationLinks(email) {
+          // Update all account links in the current page
+          const accountLinks = document.querySelectorAll('a[href="/account"]');
+          accountLinks.forEach(link => {
+            link.href = `/account?email=${encodeURIComponent(email)}`;
+          });
+          
+          // Update any other navigation links that might need the email parameter
+          const homeLinks = document.querySelectorAll('a[href="/"]');
+          homeLinks.forEach(link => {
+            link.href = `/?email=${encodeURIComponent(email)}`;
+          });
         }
 
         // Global setSurveyEnabled function

@@ -16,7 +16,7 @@
                 <img src="/TurboNIW-name-italic.png" alt="TurboNIW" class="brand-logo-text">
             </a>
             <div class="nav-right">
-                <a class="nav-link" href="/account">Account</a>
+                <a class="nav-link" href="/account" id="accountNavLink">Account</a>
                 <a class="btn btn-outline" href="/evaluation">Free Evaluation</a>
                 <button id="logoutBtn" class="btn btn-secondary" type="button" style="display:none;">Logout</button>
             </div>
@@ -170,6 +170,12 @@
                 
                 if (data.success && data.user) {
                     document.getElementById('logoutBtn').style.display = 'inline-block';
+                    
+                    // Update navigation links with email parameter for Vercel session fallback
+                    const accountNavLink = document.getElementById('accountNavLink');
+                    if (accountNavLink) {
+                        accountNavLink.href = `/account?email=${encodeURIComponent(data.user.email)}`;
+                    }
                     
                     // If user has already paid, disable package selection buttons
                     if (data.user.paid) {

@@ -93,9 +93,19 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         sameSite: 'lax'
     }
-    // Using default memory store for both local and production
-    // Note: This will reset sessions on Vercel restarts, but it's fine for now
 }));
+
+// Middleware to handle session fallback for Vercel
+app.use((req, res, next) => {
+    // If no session user but we have email in query params, try to restore session
+    if (!req.session.user && req.query.email) {
+        // This will be handled by individual routes that need authentication
+        req.sessionFallback = {
+            email: req.query.email
+        };
+    }
+    next();
+});
 
 // Serve static files from public directory first (for both local and Vercel)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -178,8 +188,33 @@ app.post('/api/logout', (req, res) => {
     req.session.destroy(() => res.json({ success: true }));
 });
 
-app.get('/api/me', (req, res) => {
-    res.json({ success: true, user: req.session.user || null });
+app.get('/api/me', async (req, res) => {
+    try {
+        // If we have a session user, return it
+        if (req.session.user) {
+            return res.json({ success: true, user: req.session.user });
+        }
+        
+        // If no session but we have session fallback, try to restore user from database
+        if (req.sessionFallback && req.sessionFallback.email) {
+            const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [req.sessionFallback.email]);
+            if (user) {
+                // Restore session
+                req.session.user = {
+                    email: user.email,
+                    paid: user.paid,
+                    packageType: user.package_type
+                };
+                return res.json({ success: true, user: req.session.user });
+            }
+        }
+        
+        // No user found
+        res.json({ success: true, user: null });
+    } catch (error) {
+        console.error('Error in /api/me:', error);
+        res.json({ success: false, user: null });
+    }
 });
 
 // Health check endpoint
