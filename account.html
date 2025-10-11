@@ -875,8 +875,24 @@
             const r = await fetch(`/api/checkout/confirm?session_id=${encodeURIComponent(params.get('session_id'))}`);
             const d = await r.json();
             if (d && d.success && d.paid) {
+              // Store JWT token if provided
+              if (d.token) {
+                localStorage.setItem('niw_jwt_token', d.token);
+                console.log('JWT token stored after payment');
+              }
+              
+              // Store user data in localStorage for survey pages
+              if (d.user) {
+                localStorage.setItem('niw_account', JSON.stringify(d.user));
+                console.log('User data stored after payment:', d.user);
+              }
+              
               // Clear URL parameters first
               window.history.replaceState({}, document.title, '/account');
+              
+              // Refresh UI to show updated payment status
+              await refreshUI();
+              
               // Show success message
               alert('Payment successful. Survey unlocked.');
             }

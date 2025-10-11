@@ -430,10 +430,24 @@ app.get('/api/checkout/confirm', async (req, res) => {
                 // Update user's current package type and paid status
                 await db.run('UPDATE users SET paid = true, package_type = $1 WHERE email = $2', [packageType, paidEmail]);
                 
+                // Create JWT token for the paid user
+                const token = jwt.sign(
+                    { 
+                        email: paidEmail, 
+                        paid: true,
+                        packageType: packageType
+                    },
+                    config.JWT_SECRET,
+                    { expiresIn: '7d' }
+                );
+                
+                // Also update session if user is logged in
                 if (req.session.user && req.session.user.email === paidEmail) {
                     req.session.user.paid = true;
                     req.session.user.packageType = packageType;
                 }
+                
+                return res.json({ success: true, paid: true, token, user: { email: paidEmail, paid: true, packageType } });
             }
             return res.json({ success: true, paid: true });
         }
