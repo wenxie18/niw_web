@@ -203,6 +203,7 @@ app.post('/api/login', async (req, res) => {
         
         console.log('Querying database for user:', email);
         const user = await db.get('SELECT email, password_hash, paid, package_type FROM users WHERE email = $1', [email.toLowerCase()]);
+        console.log('Database user data:', user);
         
         if (!user) {
             console.log('User not found in database');

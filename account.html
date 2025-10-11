@@ -366,6 +366,7 @@
               const progressFill = document.getElementById('progressFill');
               const progressText = document.getElementById('progressText');
               
+              console.log('User payment status:', user.paid, 'Package type:', packageType);
               if (user.paid) {
                 // Step 2: Payment - completed when user has paid
                 stepPay.className = 'step-card completed';
@@ -715,7 +716,12 @@
           if (error.name === 'AbortError') {
             alert('Registration request timed out. Please try again.');
           } else {
-            alert('Registration failed: ' + error.message);
+            // Try to parse error message from response
+            let errorMessage = error.message;
+            if (error.message.includes('HTTP 400')) {
+              errorMessage = 'Email already registered. Please login instead.';
+            }
+            alert('Registration failed: ' + errorMessage);
           }
         } finally {
           isRegistering = false;
