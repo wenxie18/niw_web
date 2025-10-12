@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - TurboNIW</title>
+    <link rel="stylesheet" href="public/styles.css">
+    <style>
+        .management-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .management-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .management-header h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .management-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .controls-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .filter-select {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .users-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-header {
+            background: #f8fafc;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table-header h3 {
+            margin: 0;
+            color: #1e293b;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-none {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .select-all-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .bulk-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .bulk-actions.visible {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+            
+            .user-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="management-container">
+        <div class="management-header">
+            <h1>📊 Data Management</h1>
+            <p>Download and manage survey data from your NIW application</p>
+        </div>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">-</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedSurveys">-</div>
+                <div class="stat-label">Completed Both Surveys</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="partialSurveys">-</div>
+                <div class="stat-label">Partial Surveys</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="noSurveys">-</div>
+                <div class="stat-label">No Surveys</div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="controls-row">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by email address...">
+                </div>
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Users</option>
+                    <option value="completed">Completed Both</option>
+                    <option value="partial">Partial Surveys</option>
+                    <option value="none">No Surveys</option>
+                </select>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="refreshBtn">🔄 Refresh</button>
+                    <button class="btn btn-success" id="downloadAllCsvBtn">📥 Download All (CSV)</button>
+                    <button class="btn btn-warning" id="downloadAllJsonBtn">📥 Download All (JSON)</button>
+                </div>
+            </div>
+            
+            <div class="select-all-container">
+                <input type="checkbox" id="selectAllCheckbox">
+                <label for="selectAllCheckbox">Select All Visible Users</label>
+            </div>
+            
+            <div class="bulk-actions" id="bulkActions">
+                <button class="btn btn-success btn-small" id="downloadSelectedCsvBtn">📥 Download Selected (CSV)</button>
+                <button class="btn btn-warning btn-small" id="downloadSelectedJsonBtn">📥 Download Selected (JSON)</button>
+                <button class="btn btn-secondary btn-small" id="clearSelectionBtn">Clear Selection</button>
+            </div>
+        </div>
+
+        <div class="users-table">
+            <div class="table-header">
+                <h3>Users & Survey Status</h3>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="50">Select</th>
+                            <th>Email</th>
+                            <th>Payment Status</th>
+                            <th>Package</th>
+                            <th>First Survey</th>
+                            <th>Second Survey</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DataManager {
+            constructor() {
+                this.users = [];
+                this.filteredUsers = [];
+                this.selectedUsers = new Set();
+                this.adminKey = this.getAdminKey();
+                this.init();
+            }
+
+            getAdminKey() {
+                // Get admin key from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('key') || 'admin123'; // fallback for development
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadUsers();
+            }
+
+            bindEvents() {
+                // Search and filter
+                document.getElementById('searchInput').addEventListener('input', () => this.filterUsers());
+                document.getElementById('statusFilter').addEventListener('change', () => this.filterUsers());
+                
+                // Refresh
+                document.getElementById('refreshBtn').addEventListener('click', () => this.loadUsers());
+                
+                // Download all
+                document.getElementById('downloadAllCsvBtn').addEventListener('click', () => this.downloadAll('csv'));
+                document.getElementById('downloadAllJsonBtn').addEventListener('click', () => this.downloadAll('json'));
+                
+                // Select all
+                document.getElementById('selectAllCheckbox').addEventListener('change', (e) => this.toggleSelectAll(e.target.checked));
+                
+                // Bulk actions
+                document.getElementById('downloadSelectedCsvBtn').addEventListener('click', () => this.downloadSelected('csv'));
+                document.getElementById('downloadSelectedJsonBtn').addEventListener('click', () => this.downloadSelected('json'));
+                document.getElementById('clearSelectionBtn').addEventListener('click', () => this.clearSelection());
+            }
+
+            async loadUsers() {
+                try {
+                    this.showLoading();
+                    const response = await fetch(`/api/admin/users?key=${this.adminKey}`);
+                    if (!response.ok) throw new Error('Failed to load users');
+                    
+                    this.users = await response.json();
+                    this.filterUsers();
+                    this.updateStats();
+                } catch (error) {
+                    this.showError('Failed to load users: ' + error.message);
+                }
+            }
+
+            filterUsers() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const statusFilter = document.getElementById('statusFilter').value;
+                
+                this.filteredUsers = this.users.filter(user => {
+                    const matchesSearch = user.email.toLowerCase().includes(searchTerm);
+                    const matchesStatus = this.getUserStatus(user) === statusFilter || statusFilter === 'all';
+                    return matchesSearch && matchesStatus;
+                });
+                
+                this.renderUsers();
+                this.updateBulkActions();
+            }
+
+            getUserStatus(user) {
+                const hasFirst = user.first_survey_completed;
+                const hasSecond = user.second_survey_completed;
+                
+                if (hasFirst && hasSecond) return 'completed';
+                if (hasFirst || hasSecond) return 'partial';
+                return 'none';
+            }
+
+            renderUsers() {
+                const tbody = document.getElementById('usersTableBody');
+                
+                if (this.filteredUsers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="loading">No users found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = this.filteredUsers.map(user => {
+                    const status = this.getUserStatus(user);
+                    const statusClass = `status-${status}`;
+                    const statusText = status === 'completed' ? 'Both Complete' : 
+                                     status === 'partial' ? 'Partial' : 'None';
+                    
+                    return `
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="user-checkbox" 
+                                       data-email="${user.email}" 
+                                       ${this.selectedUsers.has(user.email) ? 'checked' : ''}>
+                            </td>
+                            <td>${user.email}</td>
+                            <td>${user.paid ? '✅ Paid' : '❌ Unpaid'}</td>
+                            <td>${user.package_type || 'N/A'}</td>
+                            <td>${user.first_survey_completed ? '✅ Complete' : '❌ Not Started'}</td>
+                            <td>${user.second_survey_completed ? '✅ Complete' : '❌ Not Started'}</td>
+                            <td>
+                                <div class="user-actions">
+                                    <button class="btn btn-primary btn-small" onclick="dataManager.downloadUser('${user.email}', 'csv')">
+                                        📥 CSV
+                                    </button>
+                                    <button class="btn btn-warning btn-small" onclick="dataManager.downloadUser('${user.email}', 'json')">
+                                        📄 JSON
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                // Bind checkbox events
+                document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => this.toggleUserSelection(e.target));
+                });
+            }
+
+            toggleUserSelection(checkbox) {
+                const email = checkbox.dataset.email;
+                if (checkbox.checked) {
+                    this.selectedUsers.add(email);
+                } else {
+                    this.selectedUsers.delete(email);
+                }
+                this.updateBulkActions();
+            }
+
+            toggleSelectAll(checked) {
+                this.filteredUsers.forEach(user => {
+                    if (checked) {
+                        this.selectedUsers.add(user.email);
+                    } else {
+                        this.selectedUsers.delete(user.email);
+                    }
+                });
+                this.renderUsers();
+                this.updateBulkActions();
+            }
+
+            updateBulkActions() {
+                const bulkActions = document.getElementById('bulkActions');
+                const hasSelection = this.selectedUsers.size > 0;
+                bulkActions.classList.toggle('visible', hasSelection);
+            }
+
+            clearSelection() {
+                this.selectedUsers.clear();
+                document.getElementById('selectAllCheckbox').checked = false;
+                this.renderUsers();
+                this.updateBulkActions();
+            }
+
+            updateStats() {
+                const total = this.users.length;
+                const completed = this.users.filter(u => this.getUserStatus(u) === 'completed').length;
+                const partial = this.users.filter(u => this.getUserStatus(u) === 'partial').length;
+                const none = this.users.filter(u => this.getUserStatus(u) === 'none').length;
+                
+                document.getElementById('totalUsers').textContent = total;
+                document.getElementById('completedSurveys').textContent = completed;
+                document.getElementById('partialSurveys').textContent = partial;
+                document.getElementById('noSurveys').textContent = none;
+            }
+
+            async downloadUser(email, format) {
+                try {
+                    const response = await fetch(`/api/admin/user-data/${email}?format=${format}&key=${this.adminKey}`);
+                    if (!response.ok) throw new Error('Failed to download user data');
+                    
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `niw-survey-${email}-${format === 'csv' ? 'data.csv' : 'data.json'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    this.showError('Failed to download user data: ' + error.message);
+                }
+            }
+
+            async downloadSelected(format) {
+                if (this.selectedUsers.size === 0) {
+                    this.showError('Please select at least one user');
+                    return;
+                }
+                
+                const emails = Array.from(this.selectedUsers);
+                await this.downloadBulk(emails, format);
+            }
+
+            async downloadAll(format) {
+                const emails = this.filteredUsers.map(u => u.email);
+                await this.downloadBulk(emails, format);
+            }
+
+            async downloadBulk(emails, format) {
+                try {
+                    const response = await fetch(`/api/admin/bulk-download?key=${this.adminKey}`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'X-Admin-Key': this.adminKey
+                        },
+                        body: JSON.stringify({ emails, format })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to download bulk data');
+                    
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `niw-survey-bulk-${emails.length}-users-${format === 'csv' ? 'data.csv' : 'data.json'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    this.showError('Failed to download bulk data: ' + error.message);
+                }
+            }
+
+            showLoading() {
+                document.getElementById('usersTableBody').innerHTML = 
+                    '<tr><td colspan="7" class="loading">Loading users...</td></tr>';
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Initialize the data manager
+        const dataManager = new DataManager();
+    </script>
+</body>
+</html>

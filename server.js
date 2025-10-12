@@ -1111,6 +1111,345 @@ app.get('/first-survey', async (req, res) => {
     }
 });
 
+// ==================== DATA MANAGEMENT API ENDPOINTS ====================
+
+// Middleware to check admin access
+const checkAdminAccess = (req, res, next) => {
+    const adminKey = req.query.key || req.headers['x-admin-key'];
+    const expectedKey = process.env.ADMIN_KEY;
+    
+    // In production, require ADMIN_KEY to be set
+    if (!expectedKey) {
+        console.error('ADMIN_KEY environment variable not set');
+        return res.status(500).json({ error: 'Admin access not configured' });
+    }
+    
+    if (adminKey !== expectedKey) {
+        console.log('Admin access denied - invalid key');
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+    next();
+};
+
+// Get all users with survey completion status
+app.get('/api/admin/users', checkAdminAccess, async (req, res) => {
+    try {
+        const users = await db.query(`
+            SELECT 
+                u.email,
+                u.paid,
+                u.package_type,
+                CASE WHEN EXISTS(SELECT 1 FROM first_survey_responses WHERE user_email = u.email) THEN true ELSE false END as first_survey_completed,
+                CASE WHEN EXISTS(SELECT 1 FROM second_survey_responses WHERE user_email = u.email) THEN true ELSE false END as second_survey_completed
+            FROM users u
+            ORDER BY u.email
+        `);
+        
+        res.json(users.rows);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+// Get individual user data for download
+app.get('/api/admin/user-data/:email', checkAdminAccess, async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { format = 'json' } = req.query;
+        
+        // Get user info
+        const user = await db.get('SELECT * FROM users WHERE email = $1', [email]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Get first survey data
+        const firstSurvey = await db.get(
+            'SELECT * FROM first_survey_responses WHERE user_email = $1', 
+            [email]
+        );
+        
+        // Get second survey data
+        const secondSurvey = await db.get(
+            'SELECT * FROM second_survey_responses WHERE user_email = $1', 
+            [email]
+        );
+        
+        // Get payment data
+        const payments = await db.query(
+            'SELECT * FROM payments WHERE user_email = $1 ORDER BY created_at DESC', 
+            [email]
+        );
+        
+        const userData = {
+            user: {
+                email: user.email,
+                paid: user.paid,
+                package_type: user.package_type,
+                created_at: user.created_at
+            },
+            first_survey: firstSurvey ? {
+                id: firstSurvey.id,
+                responses: firstSurvey.responses,
+                created_at: firstSurvey.created_at
+            } : null,
+            second_survey: secondSurvey ? {
+                id: secondSurvey.id,
+                responses: secondSurvey.responses,
+                created_at: secondSurvey.created_at
+            } : null,
+            payments: payments.rows
+        };
+        
+        if (format === 'csv') {
+            const csv = convertToCSV(userData);
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', `attachment; filename="niw-survey-${email}-data.csv"`);
+            res.send(csv);
+        } else {
+            res.json(userData);
+        }
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ error: 'Failed to fetch user data' });
+    }
+});
+
+// Bulk download endpoint
+app.post('/api/admin/bulk-download', checkAdminAccess, async (req, res) => {
+    try {
+        const { emails, format = 'json' } = req.body;
+        
+        if (!emails || !Array.isArray(emails) || emails.length === 0) {
+            return res.status(400).json({ error: 'No emails provided' });
+        }
+        
+        const userDataArray = [];
+        
+        for (const email of emails) {
+            const user = await db.get('SELECT * FROM users WHERE email = $1', [email]);
+            if (!user) continue;
+            
+            const firstSurvey = await db.get(
+                'SELECT * FROM first_survey_responses WHERE user_email = $1', 
+                [email]
+            );
+            
+            const secondSurvey = await db.get(
+                'SELECT * FROM second_survey_responses WHERE user_email = $1', 
+                [email]
+            );
+            
+            const payments = await db.query(
+                'SELECT * FROM payments WHERE user_email = $1 ORDER BY created_at DESC', 
+                [email]
+            );
+            
+            userDataArray.push({
+                user: {
+                    email: user.email,
+                    paid: user.paid,
+                    package_type: user.package_type,
+                    created_at: user.created_at
+                },
+                first_survey: firstSurvey ? {
+                    id: firstSurvey.id,
+                    responses: firstSurvey.responses,
+                    created_at: firstSurvey.created_at
+                } : null,
+                second_survey: secondSurvey ? {
+                    id: secondSurvey.id,
+                    responses: secondSurvey.responses,
+                    created_at: secondSurvey.created_at
+                } : null,
+                payments: payments.rows
+            });
+        }
+        
+        if (format === 'csv') {
+            const csv = convertBulkToCSV(userDataArray);
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', `attachment; filename="niw-survey-bulk-${userDataArray.length}-users-data.csv"`);
+            res.send(csv);
+        } else {
+            res.json(userDataArray);
+        }
+    } catch (error) {
+        console.error('Error fetching bulk data:', error);
+        res.status(500).json({ error: 'Failed to fetch bulk data' });
+    }
+});
+
+// Helper function to convert user data to CSV
+function convertToCSV(userData) {
+    const rows = [];
+    
+    // Header row
+    rows.push([
+        'Field', 'Value', 'Survey_Type', 'Question_ID', 'Response'
+    ]);
+    
+    // User info
+    rows.push(['user', 'email', '', '', userData.user.email]);
+    rows.push(['user', 'paid', '', '', userData.user.paid]);
+    rows.push(['user', 'package_type', '', '', userData.user.package_type]);
+    rows.push(['user', 'created_at', '', '', userData.user.created_at]);
+    
+    // First survey responses
+    if (userData.first_survey && userData.first_survey.responses) {
+        const responses = typeof userData.first_survey.responses === 'string' 
+            ? JSON.parse(userData.first_survey.responses) 
+            : userData.first_survey.responses;
+        
+        Object.entries(responses).forEach(([questionId, response]) => {
+            rows.push([
+                'first_survey',
+                'response',
+                'first',
+                questionId,
+                Array.isArray(response) ? response.join('; ') : String(response)
+            ]);
+        });
+    }
+    
+    // Second survey responses
+    if (userData.second_survey && userData.second_survey.responses) {
+        const responses = typeof userData.second_survey.responses === 'string' 
+            ? JSON.parse(userData.second_survey.responses) 
+            : userData.second_survey.responses;
+        
+        Object.entries(responses).forEach(([questionId, response]) => {
+            rows.push([
+                'second_survey',
+                'response',
+                'second',
+                questionId,
+                Array.isArray(response) ? response.join('; ') : String(response)
+            ]);
+        });
+    }
+    
+    // Payment info
+    userData.payments.forEach((payment, index) => {
+        rows.push(['payment', 'amount_dollars', '', `payment_${index}`, payment.amount_dollars]);
+        rows.push(['payment', 'package_type', '', `payment_${index}`, payment.package_type]);
+        rows.push(['payment', 'payment_method', '', `payment_${index}`, payment.payment_method]);
+        rows.push(['payment', 'status', '', `payment_${index}`, payment.status]);
+        rows.push(['payment', 'created_at', '', `payment_${index}`, payment.created_at]);
+    });
+    
+    return rows.map(row => 
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+}
+
+// Helper function to convert bulk data to CSV
+function convertBulkToCSV(userDataArray) {
+    const rows = [];
+    
+    // Header row
+    rows.push([
+        'User_Email', 'Field', 'Value', 'Survey_Type', 'Question_ID', 'Response'
+    ]);
+    
+    userDataArray.forEach(userData => {
+        const email = userData.user.email;
+        
+        // User info
+        rows.push([email, 'user', 'email', '', '', userData.user.email]);
+        rows.push([email, 'user', 'paid', '', '', userData.user.paid]);
+        rows.push([email, 'user', 'package_type', '', '', userData.user.package_type]);
+        rows.push([email, 'user', 'created_at', '', '', userData.user.created_at]);
+        
+        // First survey responses
+        if (userData.first_survey && userData.first_survey.responses) {
+            const responses = typeof userData.first_survey.responses === 'string' 
+                ? JSON.parse(userData.first_survey.responses) 
+                : userData.first_survey.responses;
+            
+            Object.entries(responses).forEach(([questionId, response]) => {
+                rows.push([
+                    email,
+                    'first_survey',
+                    'response',
+                    'first',
+                    questionId,
+                    Array.isArray(response) ? response.join('; ') : String(response)
+                ]);
+            });
+        }
+        
+        // Second survey responses
+        if (userData.second_survey && userData.second_survey.responses) {
+            const responses = typeof userData.second_survey.responses === 'string' 
+                ? JSON.parse(userData.second_survey.responses) 
+                : userData.second_survey.responses;
+            
+            Object.entries(responses).forEach(([questionId, response]) => {
+                rows.push([
+                    email,
+                    'second_survey',
+                    'response',
+                    'second',
+                    questionId,
+                    Array.isArray(response) ? response.join('; ') : String(response)
+                ]);
+            });
+        }
+        
+        // Payment info
+        userData.payments.forEach((payment, index) => {
+            rows.push([email, 'payment', 'amount_dollars', '', `payment_${index}`, payment.amount_dollars]);
+            rows.push([email, 'payment', 'package_type', '', `payment_${index}`, payment.package_type]);
+            rows.push([email, 'payment', 'payment_method', '', `payment_${index}`, payment.payment_method]);
+            rows.push([email, 'payment', 'status', '', `payment_${index}`, payment.status]);
+            rows.push([email, 'payment', 'created_at', '', `payment_${index}`, payment.created_at]);
+        });
+    });
+    
+    return rows.map(row => 
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+}
+
+// Data management page route - Basic admin protection
+app.get('/data-management', (req, res) => {
+    const adminKey = req.query.key;
+    const expectedKey = process.env.ADMIN_KEY;
+    
+    // In production, require ADMIN_KEY to be set
+    if (!expectedKey) {
+        return res.status(500).send(`
+            <html>
+                <head><title>Configuration Error</title></head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+                    <h1>⚠️ Configuration Error</h1>
+                    <p>Admin access is not properly configured.</p>
+                    <p>Please contact your administrator.</p>
+                    <a href="/" style="color: #3b82f6;">← Back to Home</a>
+                </body>
+            </html>
+        `);
+    }
+    
+    if (adminKey !== expectedKey) {
+        return res.status(403).send(`
+            <html>
+                <head><title>Access Denied</title></head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+                    <h1>🔒 Access Denied</h1>
+                    <p>This page requires admin access.</p>
+                    <p>Please contact your administrator for access.</p>
+                    <a href="/" style="color: #3b82f6;">← Back to Home</a>
+                </body>
+            </html>
+        `);
+    }
+    
+    res.sendFile(path.join(__dirname, 'data-management.html'));
+});
+
 
 // Static file routes for Vercel - with proper error handling
 app.get('/styles.css', (req, res) => {
