@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 
 const { Pool } = require('pg');
+require('dotenv').config();
 
-// Your PostgreSQL connection string
-const connectionString = 'postgresql://neondb_owner:npg_o2WP3jeFUZEc@ep-rapid-frost-ad3gjqzc-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+// Get PostgreSQL connection string from environment variable
+const connectionString = process.env.POSTGRES_URL || 'YOUR_CONNECTION_STRING_HERE';
+
+if (connectionString === 'YOUR_CONNECTION_STRING_HERE') {
+    console.error('Error: POSTGRES_URL environment variable not set');
+    console.error('Please set POSTGRES_URL in your .env file or environment variables');
+    process.exit(1);
+}
 
 const pool = new Pool({
     connectionString: connectionString
