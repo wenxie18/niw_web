@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - TurboNIW</title>
+    <link rel="stylesheet" href="public/styles.css">
+    <style>
+        .docs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .docs-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        
+        .docs-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .docs-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .endpoint {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .method {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .method.get { background: #dcfce7; color: #166534; }
+        .method.post { background: #dbeafe; color: #1e40af; }
+        .method.put { background: #fef3c7; color: #92400e; }
+        .method.delete { background: #fee2e2; color: #991b1b; }
+        
+        .url {
+            font-family: 'Courier New', monospace;
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .description {
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .params {
+            margin-top: 8px;
+        }
+        
+        .param {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .param-name {
+            font-weight: 600;
+            color: #374151;
+            min-width: 120px;
+        }
+        
+        .param-type {
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .param-desc {
+            color: #64748b;
+        }
+        
+        .example {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 8px;
+            overflow-x: auto;
+        }
+        
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .quick-link {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.2s;
+        }
+        
+        .quick-link:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .quick-link h3 {
+            margin: 0 0 8px 0;
+            color: #3b82f6;
+        }
+        
+        .quick-link p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .environment-info {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .environment-info h3 {
+            color: #0c4a6e;
+            margin: 0 0 8px 0;
+        }
+        
+        .environment-info p {
+            margin: 4px 0;
+            color: #0c4a6e;
+        }
+        
+        .copy-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+        
+        @media (max-width: 768px) {
+            .docs-container {
+                padding: 10px;
+            }
+            
+            .docs-header h1 {
+                font-size: 2rem;
+            }
+            
+            .endpoint-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .url {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="docs-container">
+        <div class="docs-header">
+            <h1>📚 API Documentation</h1>
+            <p>Complete reference for TurboNIW application endpoints and URLs</p>
+        </div>
+
+        <div class="environment-info">
+            <h3>🌍 Environment Information</h3>
+            <p><span class="status-indicator status-online"></span><strong>Local Development:</strong> http://localhost:3000</p>
+            <p><span class="status-indicator status-online"></span><strong>Production:</strong> https://your-app-name.vercel.app</p>
+            <p><strong>Admin Key:</strong> xie123</p>
+        </div>
+
+        <div class="quick-links">
+            <a href="/" class="quick-link">
+                <h3>🏠 Home Page</h3>
+                <p>Main application homepage</p>
+            </a>
+            <a href="/account" class="quick-link">
+                <h3>👤 Account Dashboard</h3>
+                <p>User account management</p>
+            </a>
+            <a href="/data-management?key=xie123" class="quick-link">
+                <h3>📊 Data Management</h3>
+                <p>Admin data export interface</p>
+            </a>
+            <a href="/first-survey" class="quick-link">
+                <h3>📝 First Survey</h3>
+                <p>Personal information survey</p>
+            </a>
+            <a href="/second-survey" class="quick-link">
+                <h3>📋 Second Survey</h3>
+                <p>Professional information survey</p>
+            </a>
+        </div>
+
+        <div class="section">
+            <h2>🔐 Authentication APIs</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/register</span>
+                </div>
+                <div class="description">Register a new user account</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">email:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User email address</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">password:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User password</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/login</span>
+                </div>
+                <div class="description">Authenticate user login</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">email:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User email address</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">password:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User password</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/me</span>
+                </div>
+                <div class="description">Get current user information</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">Session:</span>
+                        <span class="param-type">required</span>
+                        <span class="param-desc">Valid user session</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/logout</span>
+                </div>
+                <div class="description">Logout current user</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💳 Payment APIs</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/create-checkout-session</span>
+                </div>
+                <div class="description">Create Stripe checkout session for payment</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">package_type:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">'full' or 'basic' package</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">payment_type:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">'card' or 'ach' payment method</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/checkout/confirm</span>
+                </div>
+                <div class="description">Confirm payment and unlock surveys</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">session_id:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">Stripe session ID</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/stripe-webhook</span>
+                </div>
+                <div class="description">Handle Stripe webhook events (ACH payments)</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Survey APIs</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/submit-first-survey</span>
+                </div>
+                <div class="description">Submit first survey responses</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">email:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User email address</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">responses:</span>
+                        <span class="param-type">object</span>
+                        <span class="param-desc">Survey response data</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/submit-survey</span>
+                </div>
+                <div class="description">Submit second survey responses</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">email:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User email address</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">responses:</span>
+                        <span class="param-type">object</span>
+                        <span class="param-desc">Survey response data</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Data Management APIs (Admin Only)</h2>
+            <p><strong>Note:</strong> All admin endpoints require <code>?key=xie123</code> parameter</p>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/admin/users?key=xie123</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/api/admin/users?key=xie123')">Copy</button>
+                </div>
+                <div class="description">Get all users with survey completion status</div>
+                <div class="example">
+GET /api/admin/users?key=xie123
+Response: Array of user objects with completion flags
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/admin/user-data/:email?format=csv&key=xie123</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/api/admin/user-data/:email?format=csv&key=xie123')">Copy</button>
+                </div>
+                <div class="description">Download individual user data</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">email:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">User email address</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">format:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">'csv' or 'json' (default: json)</span>
+                    </div>
+                </div>
+                <div class="example">
+GET /api/admin/user-data/test@gmail.com?format=csv&key=xie123
+Response: CSV file download
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/admin/bulk-download?key=xie123</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/api/admin/bulk-download?key=xie123')">Copy</button>
+                </div>
+                <div class="description">Download multiple users' data</div>
+                <div class="params">
+                    <div class="param">
+                        <span class="param-name">emails:</span>
+                        <span class="param-type">array</span>
+                        <span class="param-desc">Array of email addresses</span>
+                    </div>
+                    <div class="param">
+                        <span class="param-name">format:</span>
+                        <span class="param-type">string</span>
+                        <span class="param-desc">'csv' or 'json' (default: json)</span>
+                    </div>
+                </div>
+                <div class="example">
+POST /api/admin/bulk-download?key=xie123
+Body: {"emails": ["user1@example.com", "user2@example.com"], "format": "csv"}
+Response: CSV file download
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔗 Quick Access URLs</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/data-management?key=xie123</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/data-management?key=xie123')">Copy</button>
+                </div>
+                <div class="description">📊 Data Management Dashboard - Main admin interface</div>
+                <div class="example">
+http://localhost:3000/data-management?key=xie123
+https://your-app.vercel.app/data-management?key=xie123
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/account</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/account')">Copy</button>
+                </div>
+                <div class="description">👤 User Account Dashboard</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/first-survey</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/first-survey')">Copy</button>
+                </div>
+                <div class="description">📝 First Survey Page</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/second-survey</span>
+                    <button class="copy-btn" onclick="copyToClipboard('/second-survey')">Copy</button>
+                </div>
+                <div class="description">📋 Second Survey Page</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ Utility APIs</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/first-survey-responses</span>
+                </div>
+                <div class="description">Get recent first survey responses (debug)</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/second-survey-responses</span>
+                </div>
+                <div class="description">Get recent second survey responses (debug)</div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/clean-database</span>
+                </div>
+                <div class="description">Clean all user data from database (debug)</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Environment Variables</h2>
+            <div class="description">Required environment variables for production deployment:</div>
+            <div class="example">
+# Database
+POSTGRES_URL=your_postgres_connection_string
+
+# Stripe
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Admin Access
+ADMIN_KEY=xie123
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            const fullUrl = window.location.origin + text;
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                // Show a brief success message
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#3b82f6';
+                }, 1000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Auto-update environment info based on current location
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const currentUrl = window.location.origin;
+            
+            // Update environment info
+            const envInfo = document.querySelector('.environment-info p:last-child');
+            if (envInfo) {
+                envInfo.innerHTML = `<strong>Current Environment:</strong> ${isLocal ? 'Local Development' : 'Production'}`;
+            }
+            
+            // Update quick links to use current URL
+            document.querySelectorAll('.quick-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('/')) {
+                    link.href = currentUrl + href;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1413,6 +1413,11 @@ function convertBulkToCSV(userDataArray) {
     ).join('\n');
 }
 
+// API Documentation page
+app.get('/api-docs', (req, res) => {
+    res.sendFile(path.join(__dirname, 'api-docs.html'));
+});
+
 // Data management page route - Basic admin protection
 app.get('/data-management', (req, res) => {
     const adminKey = req.query.key;
