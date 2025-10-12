@@ -429,10 +429,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         }
         
         const { packageType, paymentMethod = 'card' } = req.body;
-        console.log('Package type received:', packageType);
-        console.log('Payment method received:', paymentMethod);
         if (!packageType) {
-            console.error('Package type missing');
             return res.status(400).json({ success: false, error: 'Package type required' });
         }
         
@@ -464,15 +461,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
         }
         
         const totalPriceInCents = basePriceInCents + processingFeeInCents;
-        
-        console.log('Pricing calculation:', {
-            basePrice: basePriceInCents,
-            processingFee: processingFeeInCents,
-            total: totalPriceInCents,
-            paymentMethod
-        });
-        
-        console.log('Creating Stripe session with:', { packageType, totalPriceInCents, productName, paymentMethod });
         
         // Determine payment method types based on selection
         const paymentMethodTypes = paymentMethod === 'ach' ? ['us_bank_account'] : ['card'];
@@ -506,9 +494,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
             }
         });
         
-        console.log('Stripe session created successfully:', session.id);
-        console.log('Checkout URL:', session.url);
-        
         res.json({ success: true, url: session.url, sessionId: session.id });
     } catch (error) {
         console.error('Error creating checkout session:', error);
@@ -525,7 +510,16 @@ app.get('/api/checkout/confirm', async (req, res) => {
         }
         
         const checkout = await stripe.checkout.sessions.retrieve(session_id);
-        if (checkout && checkout.payment_status === 'paid') {
+        
+        // Check if payment should be processed:
+        // - Credit cards: 'paid' status
+        // - ACH payments: 'paid', 'processing', or 'unpaid' (successful initiation)
+        const isAchPayment = checkout.payment_method_types?.includes('us_bank_account');
+        const isPaid = checkout.payment_status === 'paid';
+        const isAchProcessing = isAchPayment && checkout.payment_status === 'processing';
+        const isAchUnpaid = isAchPayment && checkout.payment_status === 'unpaid';
+        
+        if (checkout && (isPaid || isAchProcessing || isAchUnpaid)) {
             const paidEmail = (checkout.client_reference_id) || (checkout.metadata && checkout.metadata.email);
             if (paidEmail) {
                 const amountPaid = checkout.amount_total; // Amount in cents
@@ -540,6 +534,7 @@ app.get('/api/checkout/confirm', async (req, res) => {
                 // Determine payment type based on amount and metadata
                 let paymentType = 'initial';
                 const expectedTotal = basePrice + processingFee;
+                const paymentStatus = (isAchProcessing || isAchUnpaid) ? 'processing' : 'completed';
                 
                 if (packageType === 'form-filling' && amountPaid === expectedTotal) {
                     paymentType = 'initial';
@@ -549,41 +544,44 @@ app.get('/api/checkout/confirm', async (req, res) => {
                     paymentType = 'upgrade';
                 } else {
                     // Fallback: if amounts don't match exactly, still process as initial payment
-                    console.log('Amount mismatch, processing as initial payment:', {
-                        expectedTotal,
-                        amountPaid,
-                        difference: amountPaid - expectedTotal
-                    });
                     paymentType = 'initial';
                 }
                 
-                console.log('Payment confirmation:', {
+                console.log('Payment confirmed:', {
                     email: paidEmail,
-                    amountPaid,
-                    packageType,
-                    paymentMethod,
-                    basePrice,
-                    processingFee,
-                    paymentType
+                    amount: `$${(amountPaid / 100).toFixed(2)}`,
+                    package: packageType,
+                    method: paymentMethod,
+                    status: paymentStatus
                 });
                 
-                // Record payment in payments table
+                // Record payment in payments table (handle duplicates gracefully)
+                let paymentRecorded = false;
                 try {
                     await db.run(`
                         INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents, status)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'completed')
-                    `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType, paymentMethod, basePrice, processingFee]);
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                    `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType, paymentMethod, basePrice, processingFee, paymentStatus]);
+                    paymentRecorded = true;
                 } catch (dbError) {
                     console.error('Database insert error:', dbError);
-                    // If the new columns don't exist, try with the old schema
-                    if (dbError.message.includes('payment_method')) {
-                        console.log('Falling back to old payment schema');
-                        await db.run(`
-                            INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
-                            VALUES ($1, $2, $3, $4, $5, $6, 'completed')
-                        `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType]);
-                    } else {
-                        throw dbError;
+                    
+                    // Handle duplicate key error gracefully
+                    if (dbError.code === '23505' && dbError.message.includes('stripe_session_id')) {
+                        paymentRecorded = true;
+                    } else if (dbError.message.includes('payment_method')) {
+                        // Fallback to old payment schema
+                        try {
+                            await db.run(`
+                                INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                            `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType, paymentStatus]);
+                            paymentRecorded = true;
+                        } catch (fallbackError) {
+                            if (fallbackError.code === '23505') {
+                                paymentRecorded = true;
+                            }
+                        }
                     }
                 }
                 
@@ -616,6 +614,48 @@ app.get('/api/checkout/confirm', async (req, res) => {
         console.error('Error confirming checkout session:', e);
         res.status(500).json({ success: false, error: 'Failed to confirm payment' });
     }
+});
+
+// Stripe webhook handler for payment status updates (especially ACH payments)
+app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_webhook_secret');
+    } catch (err) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+        case 'checkout.session.completed':
+            const session = event.data.object;
+            
+            // Handle ACH payments that transition from processing to paid
+            if (session.payment_status === 'paid' && 
+                session.payment_method_types?.includes('us_bank_account')) {
+                
+                const paidEmail = session.client_reference_id || session.metadata?.email;
+                if (paidEmail) {
+                    const packageType = session.metadata?.package_type || 'full';
+                    
+                    console.log('ACH payment completed:', { email: paidEmail, package: packageType });
+                    
+                    // Update user's paid status
+                    await db.run('UPDATE users SET paid = true, package_type = $1 WHERE email = $2', [packageType, paidEmail]);
+                    
+                    // Update payment record status
+                    await db.run('UPDATE payments SET status = $1 WHERE stripe_session_id = $2', ['completed', session.id]);
+                }
+            }
+            break;
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({received: true});
 });
 
 // Record payment
@@ -845,8 +885,25 @@ app.post('/api/submit-evaluation', async (req, res) => {
 // Survey submission endpoints
 app.post('/api/submit-survey', async (req, res) => {
     try {
-        const sessionUser = req.session.user;
-        if (!sessionUser || !sessionUser.paid) {
+        let userEmail = null;
+        let isPaid = false;
+        
+        // Try to get email from session first
+        if (req.session.user && req.session.user.email) {
+            userEmail = req.session.user.email;
+            isPaid = req.session.user.paid;
+        }
+        // If no session, try to get email from request body
+        else if (req.body.email) {
+            userEmail = req.body.email;
+            // Check payment status in database
+            const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
+            if (user) {
+                isPaid = user.paid;
+            }
+        }
+        
+        if (!userEmail || !isPaid) {
             return res.status(401).json({ success: false, error: 'Authentication required' });
         }
         
@@ -855,15 +912,15 @@ app.post('/api/submit-survey', async (req, res) => {
         const responseId = uuidv4();
         
         console.log('Survey submission received:', {
-            userEmail: sessionUser.email,
+            userEmail: userEmail,
             responseCount: Object.keys(responses).length,
             sampleFields: Object.keys(responses).slice(0, 5)
         });
         
         await db.run(`
-            INSERT INTO survey_responses (id, user_email, responses) 
+            INSERT INTO second_survey_responses (id, user_email, responses) 
             VALUES ($1, $2, $3)
-        `, [responseId, sessionUser.email, JSON.stringify(responses)]);
+        `, [responseId, userEmail, JSON.stringify(responses)]);
         
         res.json({ success: true, responseId });
     } catch (error) {
@@ -874,23 +931,106 @@ app.post('/api/submit-survey', async (req, res) => {
 
 app.post('/api/submit-first-survey', async (req, res) => {
     try {
-        const sessionUser = req.session.user;
-        if (!sessionUser || !sessionUser.paid) {
+        let userEmail = null;
+        let isPaid = false;
+        
+        // Try to get email from session first
+        if (req.session.user && req.session.user.email) {
+            userEmail = req.session.user.email;
+            isPaid = req.session.user.paid;
+        }
+        // If no session, try to get email from request body
+        else if (req.body.email) {
+            userEmail = req.body.email;
+            // Check payment status in database
+            const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
+            if (user) {
+                isPaid = user.paid;
+            }
+        }
+        
+        if (!userEmail || !isPaid) {
             return res.status(401).json({ success: false, error: 'Authentication required' });
         }
         
-        const { responses } = req.body;
+        // Get all form data from request body (excluding email if it exists)
+        const { email, ...responses } = req.body;
         const responseId = uuidv4();
+        
+        console.log('First survey submission received:', {
+            userEmail: userEmail,
+            responseCount: Object.keys(responses).length,
+            sampleFields: Object.keys(responses).slice(0, 5)
+        });
         
         await db.run(`
             INSERT INTO first_survey_responses (id, user_email, responses) 
             VALUES ($1, $2, $3)
-        `, [responseId, sessionUser.email, JSON.stringify(responses)]);
+        `, [responseId, userEmail, JSON.stringify(responses)]);
         
         res.json({ success: true, responseId });
     } catch (error) {
         console.error('Error submitting first survey:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// Admin endpoint to check first survey responses
+app.get('/api/first-survey-responses', async (req, res) => {
+    try {
+        const responses = await db.all('SELECT id, user_email, responses, created_at FROM first_survey_responses ORDER BY created_at DESC LIMIT 5');
+        res.json({ success: true, responses });
+    } catch (error) {
+        console.error('Error fetching first survey responses:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch responses' });
+    }
+});
+
+// Admin endpoint to check second survey responses
+app.get('/api/survey-responses', async (req, res) => {
+    try {
+        const responses = await db.all('SELECT id, user_email, responses, created_at FROM second_survey_responses ORDER BY created_at DESC LIMIT 5');
+        res.json({ success: true, responses });
+    } catch (error) {
+        console.error('Error fetching survey responses:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch responses' });
+    }
+});
+
+// Admin endpoint to clean all database data
+app.post('/api/clean-database', async (req, res) => {
+    try {
+        console.log('Cleaning database...');
+        
+        // Delete all second survey responses
+        await db.run('DELETE FROM second_survey_responses');
+        console.log('✓ Cleared second_survey_responses table');
+        
+        // Delete all first survey responses  
+        await db.run('DELETE FROM first_survey_responses');
+        console.log('✓ Cleared first_survey_responses table');
+        
+        // Delete all payments
+        await db.run('DELETE FROM payments');
+        console.log('✓ Cleared payments table');
+        
+        // Delete all users
+        await db.run('DELETE FROM users');
+        console.log('✓ Cleared users table');
+        
+        // Delete all evaluation responses
+        await db.run('DELETE FROM evaluation_responses');
+        console.log('✓ Cleared evaluation_responses table');
+        
+        console.log('🎉 Database cleaned successfully!');
+        
+        res.json({ 
+            success: true, 
+            message: 'Database cleaned successfully! All user data, surveys, and payments have been removed.' 
+        });
+    } catch (error) {
+        console.error('Error cleaning database:', error);
+        res.status(500).json({ success: false, error: 'Failed to clean database' });
     }
 });
 

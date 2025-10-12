@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Account</title>
+</head>
+<body>
+    <h1>Debug Account Page</h1>
+    <button onclick="testDirectAPI()">Test Direct API Call</button>
+    <button onclick="testWithJWT()">Test with JWT Token</button>
+    <button onclick="clearStorage()">Clear Storage</button>
+    <div id="result"></div>
+
+    <script>
+        async function testDirectAPI() {
+            try {
+                console.log('Testing direct /api/me call...');
+                const response = await fetch('/api/me');
+                const data = await response.json();
+                console.log('Direct /api/me response:', data);
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>Direct API Call Result</h2>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Direct API call failed:', error);
+                document.getElementById('result').innerHTML = `<h2>Error: ${error.message}</h2>`;
+            }
+        }
+
+        async function testWithJWT() {
+            try {
+                // First, get a JWT token for test8@gmail.com
+                console.log('Getting JWT token for test8@gmail.com...');
+                const tokenResponse = await fetch('/api/get-user-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test8@gmail.com' })
+                });
+                const tokenData = await tokenResponse.json();
+                console.log('Token response:', tokenData);
+                
+                if (tokenData.token) {
+                    localStorage.setItem('niw_jwt_token', tokenData.token);
+                    console.log('JWT token stored');
+                    
+                    // Now test /api/me with JWT token
+                    console.log('Testing /api/me with JWT token...');
+                    const response = await fetch('/api/me', {
+                        headers: { 'Authorization': `Bearer ${tokenData.token}` }
+                    });
+                    const data = await response.json();
+                    console.log('/api/me with JWT response:', data);
+                    
+                    document.getElementById('result').innerHTML = `
+                        <h2>JWT Token Test Result</h2>
+                        <p>Token: ${tokenData.token.substring(0, 50)}...</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    document.getElementById('result').innerHTML = `<h2>Failed to get JWT token: ${JSON.stringify(tokenData)}</h2>`;
+                }
+            } catch (error) {
+                console.error('JWT test failed:', error);
+                document.getElementById('result').innerHTML = `<h2>Error: ${error.message}</h2>`;
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('niw_jwt_token');
+            localStorage.removeItem('niw_account');
+            console.log('Storage cleared');
+            document.getElementById('result').innerHTML = '<h2>Storage cleared</h2>';
+        }
+    </script>
+</body>
+</html>
+

@@ -52,6 +52,10 @@
         </section>
 
         <section id="dashboard" class="dashboard-container" style="display:none;">
+            <div class="user-greeting">
+                <h2>Hi <span id="userEmailDisplay">Loading...</span></h2>
+            </div>
+            
             <div class="dashboard-header">
                 <h2>Your NIW Journey</h2>
                 <p>Complete your tasks in order to progress through your NIW application materials preparation.</p>
@@ -176,13 +180,16 @@
           try {
             // Get JWT token from localStorage
             const token = localStorage.getItem('niw_jwt_token');
+            console.log('refreshUI - JWT token:', token ? 'present' : 'missing');
             const headers = {};
             if (token) {
               headers['Authorization'] = `Bearer ${token}`;
             }
             
+            console.log('refreshUI - making /api/me request with headers:', headers);
             const res = await fetch('/api/me', { headers });
             const data = await res.json();
+            console.log('refreshUI - /api/me response:', data);
             
             const authSection = document.getElementById('authSection');
             const dashboard = document.getElementById('dashboard');
@@ -196,6 +203,7 @@
             }
             
             const user = data.user;
+            console.log('refreshUI - user data received:', user);
             if (user) {
               // Store user data in localStorage for survey pages
               localStorage.setItem('niw_account', JSON.stringify({
@@ -206,6 +214,12 @@
               
               // Update navigation links to include email parameter for Vercel session fallback
               updateNavigationLinks(user.email);
+              
+              // Update user email display
+              const userEmailDisplay = document.getElementById('userEmailDisplay');
+              if (userEmailDisplay) {
+                userEmailDisplay.textContent = user.email;
+              }
               
               authSection.style.display = 'none';
               dashboard.style.display = 'block';
@@ -829,6 +843,70 @@
         // Handle URL parameter authentication first
         const urlAuthSuccess = await handleUrlAuth();
         
+        // Handle payment success parameters
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('success') === '1' && params.get('session_id')) {
+          console.log('Processing payment confirmation...');
+          try {
+            const r = await fetch(`/api/checkout/confirm?session_id=${encodeURIComponent(params.get('session_id'))}`);
+            const d = await r.json();
+            console.log('Payment confirmation response:', d);
+            console.log('Response details:', {
+              success: d?.success,
+              paid: d?.paid,
+              hasToken: !!d?.token,
+              hasUser: !!d?.user
+            });
+            console.log('Full response object:', JSON.stringify(d, null, 2));
+            
+            console.log('Condition check:', {
+              hasResponse: !!d,
+              success: d?.success,
+              successType: typeof d?.success,
+              paid: d?.paid,
+              paidType: typeof d?.paid,
+              conditionMet: !!(d && d.success && d.paid)
+            });
+            
+            if (d && d.success && d.paid) {
+              console.log('Payment confirmed successfully, updating UI...');
+              
+              // Store JWT token if provided
+              if (d.token) {
+                localStorage.setItem('niw_jwt_token', d.token);
+                console.log('JWT token stored after payment');
+              }
+              
+              // Store user data in localStorage for survey pages
+              if (d.user) {
+                localStorage.setItem('niw_account', JSON.stringify(d.user));
+                console.log('User data stored after payment:', d.user);
+              }
+              
+              // Clear URL parameters first
+              window.history.replaceState({}, document.title, '/account');
+              
+              // Wait a moment for localStorage to be updated
+              await new Promise(resolve => setTimeout(resolve, 100));
+              
+              // Refresh UI to show updated payment status
+              console.log('About to call refreshUI after payment...');
+              await refreshUI();
+              
+              // Show success message
+              alert('Payment successful. Survey unlocked.');
+            } else {
+              console.log('Payment confirmation failed - condition not met:', {
+                success: d?.success,
+                paid: d?.paid,
+                fullResponse: d
+              });
+            }
+          } catch (error) {
+            console.error('Payment confirmation failed:', error);
+          }
+        }
+        
         const authSection = document.getElementById('authSection');
         const emailInput = document.getElementById('accountEmail');
         const passwordInput = document.getElementById('accountPassword');
@@ -1137,38 +1215,66 @@
 
       // Handle Stripe redirect results
       (async () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('success') === '1' && params.get('session_id')) {
-          try {
-            const r = await fetch(`/api/checkout/confirm?session_id=${encodeURIComponent(params.get('session_id'))}`);
-            const d = await r.json();
-            if (d && d.success && d.paid) {
-              // Store JWT token if provided
-              if (d.token) {
-                localStorage.setItem('niw_jwt_token', d.token);
-                console.log('JWT token stored after payment');
-              }
-              
-              // Store user data in localStorage for survey pages
-              if (d.user) {
-                localStorage.setItem('niw_account', JSON.stringify(d.user));
-                console.log('User data stored after payment:', d.user);
-              }
-              
-              // Clear URL parameters first
-              window.history.replaceState({}, document.title, '/account');
-              
-              // Refresh UI to show updated payment status
-              await refreshUI();
-              
-              // Show success message
-              alert('Payment successful. Survey unlocked.');
-            }
-          } catch (error) {
-            console.error('Payment confirmation failed:', error);
-          }
-        }
+        // DUPLICATE REMOVED - payment confirmation now handled earlier in the flow
+        // const params = new URLSearchParams(window.location.search);
+        // console.log('Checking payment success params:', {
+        //   success: params.get('success'),
+        //   session_id: params.get('session_id')
+        // });
+        
+        // if (params.get('success') === '1' && params.get('session_id')) {
+        //   console.log('Processing payment confirmation...');
+        //   try {
+        //     const r = await fetch(`/api/checkout/confirm?session_id=${encodeURIComponent(params.get('session_id'))}`);
+        //     const d = await r.json();
+        //     console.log('Payment confirmation response:', d);
+        //     console.log('Response details:', {
+        //       success: d?.success,
+        //       paid: d?.paid,
+        //       hasToken: !!d?.token,
+        //       hasUser: !!d?.user
+        //     });
+        //     
+        //     if (d && d.success && d.paid) {
+        //       console.log('Payment confirmed successfully, updating UI...');
+        //       
+        //       // Store JWT token if provided
+        //       if (d.token) {
+        //         localStorage.setItem('niw_jwt_token', d.token);
+        //         console.log('JWT token stored after payment');
+        //       }
+        //       
+        //       // Store user data in localStorage for survey pages
+        //       if (d.user) {
+        //         localStorage.setItem('niw_account', JSON.stringify(d.user));
+        //         console.log('User data stored after payment:', d.user);
+        //       }
+        //       
+        //       // Clear URL parameters first
+        //       window.history.replaceState({}, document.title, '/account');
+        //       
+        //       // Wait a moment for localStorage to be updated
+        //       await new Promise(resolve => setTimeout(resolve, 100));
+        //       
+        //       // Refresh UI to show updated payment status
+        //       console.log('About to call refreshUI after payment...');
+        //       await refreshUI();
+        //       
+        //       // Show success message
+        //       alert('Payment successful. Survey unlocked.');
+        //     } else {
+        //       console.log('Payment confirmation failed - condition not met:', {
+        //         success: d?.success,
+        //         paid: d?.paid,
+        //         fullResponse: d
+        //       });
+        //     }
+        //   } catch (error) {
+        //     console.error('Payment confirmation failed:', error);
+        //   }
+        // }
         // Always refresh UI after handling payment or on normal page load
+        console.log('Calling refreshUI after payment handling...');
         await refreshUI();
       })();
 

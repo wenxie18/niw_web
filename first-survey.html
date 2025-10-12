@@ -55,6 +55,9 @@
 
         <!-- Survey Form -->
         <form id="surveyForm" class="survey-form">
+            <!-- Hidden email field for authentication -->
+            <input type="hidden" id="email" name="email" value="">
+            
             <!-- Section 1: Personal Information -->
             <div class="survey-section" id="section-1" data-section="1" style="display: block;">
                 <h2>Personal Information </h2>
@@ -794,6 +797,16 @@
             }
 
             function loadFormData() {
+                // Set the hidden email field from localStorage
+                try {
+                    const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+                    if (accountData.email) {
+                        document.getElementById('email').value = accountData.email;
+                    }
+                } catch (e) {
+                    console.error('Error loading account data:', e);
+                }
+                
                 const savedData = localStorage.getItem('firstSurveyData');
                 if (savedData) {
                     try {

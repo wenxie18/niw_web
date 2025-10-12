@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Test</title>
+</head>
+<body>
+    <h1>Payment Test</h1>
+    <button onclick="testPayment()">Test Payment Confirmation</button>
+    <div id="result"></div>
+
+    <script>
+        async function testPayment() {
+            const sessionId = 'cs_test_a1AFY0YLSBxNqiKPpbCq4zRxSDlpUCMLjgFla7gDDU9q8nTaZILkVR4gOR';
+            
+            try {
+                console.log('Testing payment confirmation...');
+                const response = await fetch(`/api/checkout/confirm?session_id=${sessionId}`);
+                const data = await response.json();
+                
+                console.log('Payment confirmation response:', data);
+                
+                if (data && data.success && data.paid) {
+                    console.log('Payment confirmed successfully!');
+                    
+                    // Store JWT token
+                    if (data.token) {
+                        localStorage.setItem('niw_jwt_token', data.token);
+                        console.log('JWT token stored');
+                    }
+                    
+                    // Store user data
+                    if (data.user) {
+                        localStorage.setItem('niw_account', JSON.stringify(data.user));
+                        console.log('User data stored:', data.user);
+                    }
+                    
+                    // Test /api/me with JWT token
+                    const token = localStorage.getItem('niw_jwt_token');
+                    const headers = {};
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
+                    console.log('Testing /api/me with JWT token...');
+                    const meResponse = await fetch('/api/me', { headers });
+                    const meData = await meResponse.json();
+                    console.log('/api/me response:', meData);
+                    
+                    document.getElementById('result').innerHTML = `
+                        <h2>Success!</h2>
+                        <p>Payment confirmed: ${data.success}</p>
+                        <p>Paid: ${data.paid}</p>
+                        <p>User email: ${data.user?.email}</p>
+                        <p>Package: ${data.user?.packageType}</p>
+                        <p>JWT token stored: ${!!data.token}</p>
+                        <p>/api/me result: ${JSON.stringify(meData)}</p>
+                    `;
+                } else {
+                    document.getElementById('result').innerHTML = `
+                        <h2>Failed!</h2>
+                        <p>Response: ${JSON.stringify(data)}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Test failed:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>Error!</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -311,14 +311,32 @@ class SurveyForm {
     }
 
     async submitToAPI() {
-        // Submit to the actual API
+        // Get the registered user's email from localStorage instead of form data
+        let registeredEmail = null;
+        try {
+            const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+            registeredEmail = accountData.email;
+        } catch (e) {
+            console.error('Error loading account data:', e);
+        }
+        
+        // Debug: Log form data to see what we have
+        console.log('Form data before submission:', {
+            hasPersonalEmail: !!this.formData.PERSONAL_EMAIL,
+            personalEmailValue: this.formData.PERSONAL_EMAIL,
+            registeredEmail: registeredEmail,
+            usingRegisteredEmail: !!registeredEmail,
+            formDataKeys: Object.keys(this.formData).slice(0, 10)
+        });
+        
+        // Submit to the actual API using registered email, not form email
         const response = await fetch('/api/submit-survey', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email: this.formData.PERSONAL_EMAIL,
+                email: registeredEmail || this.formData.PERSONAL_EMAIL, // Fallback to form email if no registered email
                 ...this.formData
             })
         });
