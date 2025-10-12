@@ -137,6 +137,28 @@ class Database {
                 )
             `);
 
+            // Check if payments table has new columns, if not add them
+            try {
+                await this.query(`
+                    ALTER TABLE payments 
+                    ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'card'
+                `);
+                
+                await this.query(`
+                    ALTER TABLE payments 
+                    ADD COLUMN IF NOT EXISTS base_price_cents INTEGER DEFAULT 0
+                `);
+                
+                await this.query(`
+                    ALTER TABLE payments 
+                    ADD COLUMN IF NOT EXISTS processing_fee_cents INTEGER DEFAULT 0
+                `);
+                
+                console.log('Payment table schema updated successfully');
+            } catch (migrationError) {
+                console.log('Payment table schema already up to date or migration failed:', migrationError.message);
+            }
+
             console.log('Database tables initialized successfully');
         } catch (error) {
             console.error('Error initializing database:', error);

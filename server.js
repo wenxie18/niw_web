@@ -537,14 +537,24 @@ app.get('/api/checkout/confirm', async (req, res) => {
                 const basePrice = parseInt(checkout.metadata?.base_price || '0');
                 const processingFee = parseInt(checkout.metadata?.processing_fee || '0');
                 
-                // Determine payment type based on amount
+                // Determine payment type based on amount and metadata
                 let paymentType = 'initial';
-                if (packageType === 'form-filling' && amountPaid === 29900 + processingFee) {
+                const expectedTotal = basePrice + processingFee;
+                
+                if (packageType === 'form-filling' && amountPaid === expectedTotal) {
                     paymentType = 'initial';
-                } else if (packageType === 'full' && amountPaid === 159900 + processingFee) {
+                } else if (packageType === 'full' && amountPaid === expectedTotal) {
                     paymentType = 'initial';
-                } else if (packageType === 'full' && amountPaid === 130000 + processingFee) {
+                } else if (packageType === 'full' && amountPaid === (130000 + processingFee)) {
                     paymentType = 'upgrade';
+                } else {
+                    // Fallback: if amounts don't match exactly, still process as initial payment
+                    console.log('Amount mismatch, processing as initial payment:', {
+                        expectedTotal,
+                        amountPaid,
+                        difference: amountPaid - expectedTotal
+                    });
+                    paymentType = 'initial';
                 }
                 
                 console.log('Payment confirmation:', {
@@ -558,10 +568,24 @@ app.get('/api/checkout/confirm', async (req, res) => {
                 });
                 
                 // Record payment in payments table
-                await db.run(`
-                    INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents, status)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'completed')
-                `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType, paymentMethod, basePrice, processingFee]);
+                try {
+                    await db.run(`
+                        INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, payment_method, base_price_cents, processing_fee_cents, status)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'completed')
+                    `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType, paymentMethod, basePrice, processingFee]);
+                } catch (dbError) {
+                    console.error('Database insert error:', dbError);
+                    // If the new columns don't exist, try with the old schema
+                    if (dbError.message.includes('payment_method')) {
+                        console.log('Falling back to old payment schema');
+                        await db.run(`
+                            INSERT INTO payments (user_email, stripe_session_id, amount_cents, amount_dollars, package_type, payment_type, status)
+                            VALUES ($1, $2, $3, $4, $5, $6, 'completed')
+                        `, [paidEmail, session_id, amountPaid, amountDollars, packageType, paymentType]);
+                    } else {
+                        throw dbError;
+                    }
+                }
                 
                 // Update user's current package type and paid status
                 await db.run('UPDATE users SET paid = true, package_type = $1 WHERE email = $2', [packageType, paidEmail]);
@@ -688,9 +712,9 @@ app.post('/api/get-user-token', async (req, res) => {
             config.JWT_SECRET,
             { expiresIn: '7d' }
         );
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             token: token,
             user: {
                 email: user.email,
