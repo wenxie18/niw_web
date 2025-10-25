@@ -1080,7 +1080,89 @@ app.get('/survey', async (req, res) => {
     }
 });
 
-app.get('/first-survey', async (req, res) => {
+// Public survey routes (for team access via API docs) - Password protected
+app.get('/first-survey', (req, res) => {
+    const password = req.query.password || req.headers['x-password'];
+    const expectedPassword = process.env.TEAM_PASSWORD || 'niw2025team';
+    
+    if (password !== expectedPassword) {
+        return res.status(401).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Access Required - TurboNIW</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+                    .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                    h1 { color: #e74c3c; margin-bottom: 20px; }
+                    p { color: #666; margin-bottom: 30px; }
+                    .password-form { margin: 20px 0; }
+                    input[type="password"] { padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
+                    button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+                    button:hover { background: #2980b9; }
+                    .error { color: #e74c3c; margin-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🔒 Access Required</h1>
+                    <p>This page is restricted to team members only.</p>
+                    <form class="password-form" method="get">
+                        <input type="password" name="password" placeholder="Enter team password" required>
+                        <button type="submit">Access</button>
+                    </form>
+                    <div class="error">Invalid password. Please contact your administrator.</div>
+                </div>
+            </body>
+            </html>
+        `);
+    }
+    
+    res.sendFile(path.join(__dirname, 'first-survey-team.html'));
+});
+
+app.get('/second-survey', (req, res) => {
+    const password = req.query.password || req.headers['x-password'];
+    const expectedPassword = process.env.TEAM_PASSWORD || 'niw2025team';
+    
+    if (password !== expectedPassword) {
+        return res.status(401).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Access Required - TurboNIW</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+                    .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                    h1 { color: #e74c3c; margin-bottom: 20px; }
+                    p { color: #666; margin-bottom: 30px; }
+                    .password-form { margin: 20px 0; }
+                    input[type="password"] { padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
+                    button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+                    button:hover { background: #2980b9; }
+                    .error { color: #e74c3c; margin-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🔒 Access Required</h1>
+                    <p>This page is restricted to team members only.</p>
+                    <form class="password-form" method="get">
+                        <input type="password" name="password" placeholder="Enter team password" required>
+                        <button type="submit">Access</button>
+                    </form>
+                    <div class="error">Invalid password. Please contact your administrator.</div>
+                </div>
+            </body>
+            </html>
+        `);
+    }
+    
+    res.sendFile(path.join(__dirname, 'second-survey-team.html'));
+});
+
+// Authenticated survey routes (for actual users)
+app.get('/survey/first', async (req, res) => {
     try {
         let userEmail = null;
         
@@ -1105,6 +1187,37 @@ app.get('/first-survey', async (req, res) => {
         }
         
         res.sendFile(path.join(__dirname, 'first-survey.html'));
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        res.redirect('/account');
+    }
+});
+
+app.get('/survey/second', async (req, res) => {
+    try {
+        let userEmail = null;
+        
+        // Try to get email from session first
+        if (req.session.user && req.session.user.email) {
+            userEmail = req.session.user.email;
+        }
+        // If no session, try to get email from query parameter
+        else if (req.query.email) {
+            userEmail = req.query.email;
+        }
+        
+        if (!userEmail) {
+            return res.redirect('/account');
+        }
+        
+        // Check user payment status in database
+        const user = await db.get('SELECT email, paid, package_type FROM users WHERE email = $1', [userEmail]);
+        
+        if (!user || !user.paid) {
+            return res.redirect('/account');
+        }
+        
+        res.sendFile(path.join(__dirname, 'second-survey-simplified.html'));
     } catch (error) {
         console.error('Error checking user status:', error);
         res.redirect('/account');
@@ -1407,8 +1520,44 @@ function convertBulkToCSV(userDataArray) {
     ).join('\n');
 }
 
-// API Documentation page
+// API Documentation page (password protected)
 app.get('/api-docs', (req, res) => {
+    const password = req.query.password || req.headers['x-password'];
+    const expectedPassword = process.env.TEAM_PASSWORD || 'niw2025team';
+    
+    if (password !== expectedPassword) {
+        return res.status(401).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Access Required - TurboNIW</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+                    .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                    h1 { color: #e74c3c; margin-bottom: 20px; }
+                    p { color: #666; margin-bottom: 30px; }
+                    .password-form { margin: 20px 0; }
+                    input[type="password"] { padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
+                    button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+                    button:hover { background: #2980b9; }
+                    .error { color: #e74c3c; margin-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🔒 Access Required</h1>
+                    <p>This page is restricted to team members only.</p>
+                    <form class="password-form" method="get">
+                        <input type="password" name="password" placeholder="Enter team password" required>
+                        <button type="submit">Access</button>
+                    </form>
+                    <div class="error">Invalid password. Please contact your administrator.</div>
+                </div>
+            </body>
+            </html>
+        `);
+    }
+    
     res.sendFile(path.join(__dirname, 'api-docs.html'));
 });
 

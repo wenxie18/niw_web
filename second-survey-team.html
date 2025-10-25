@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified NIW Application Survey - Professional Consulting</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+      // Team access - no authentication required
+      console.log('Team access to second survey - no authentication required');
+    </script>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="nav-left"></div>
+            <a class="site-brand" href="/">
+                <img src="/TurboNIW-name-italic.png" alt="TurboNIW" class="brand-logo-text">
+            </a>
+            <div class="nav-right">
+                <a class="nav-link" href="/account">Account</a>
+                <a class="btn btn-outline" href="/evaluation" id="evaluationBtn" style="display:none;">Free Evaluation</a>
+                <button class="btn btn-outline" id="logoutBtn" style="display:none;">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>Research & Impact Survey</h1>
+                <p class="subtitle">This survey gathers your research background, achievements, and impact to craft a petition letter draft that clearly demonstrates your advanced degree, substantial merit, and national importance for NIW application.</p>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="currentStep">1</span> of <span id="totalSteps">6</span> sections
+            </div>
+        </div>
+
+        <!-- Survey Form -->
+        <form id="surveyForm" class="survey-form">
+            <!-- ===== Section 1: Personal Information ===== -->
+                        <div class="form-section active" data-section="1">
+                <div class="section-header">
+                    <h2></i> Personal Information</h2>
+                    <p>Basic personal and contact information</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="PERSONAL_EMAIL">What is your email address?</label>
+                        <input type="email" id="PERSONAL_EMAIL" name="PERSONAL_EMAIL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_FULL_NAME">What is your full legal name?</label>
+                        <input type="text" id="PERSONAL_FULL_NAME" name="PERSONAL_FULL_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_LAST_NAME">What is your last name (surname)?</label>
+                        <input type="text" id="PERSONAL_LAST_NAME" name="PERSONAL_LAST_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_FIRST_NAME">What is your first name (given name)?</label>
+                        <input type="text" id="PERSONAL_FIRST_NAME" name="PERSONAL_FIRST_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_COUNTRY_ORIGIN">What is your country of origin?</label>
+                        <input type="text" id="PERSONAL_COUNTRY_ORIGIN" name="PERSONAL_COUNTRY_ORIGIN" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_ADDRESS_LINE1">What is your current street address?</label>
+                        <input type="text" id="PERSONAL_ADDRESS_LINE1" name="PERSONAL_ADDRESS_LINE1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_CITY">What city do you currently live in?</label>
+                        <input type="text" id="PERSONAL_CITY" name="PERSONAL_CITY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_STATE">What state do you currently live in? (Use 2-letter abbreviation)</label>
+                        <input type="text" id="PERSONAL_STATE" name="PERSONAL_STATE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_ZIP">What is your ZIP/postal code?</label>
+                        <input type="text" id="PERSONAL_ZIP" name="PERSONAL_ZIP" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PERSONAL_PHONE">What is your phone number? (Include area code, no spaces or dashes)</label>
+                        <input type="tel" id="PERSONAL_PHONE" name="PERSONAL_PHONE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="TITLE">What is your professional title? (Dr., Mr., Ms., etc.)</label>
+                        <select id="TITLE" name="TITLE" required>
+            <option value="">Select Title</option>
+            <option value="Dr.">Dr.</option>
+            <option value="Mr.">Mr.</option>
+            <option value="Ms.">Ms.</option>
+            <option value="Mrs.">Mrs.</option>
+            <option value="Prof.">Prof.</option>
+        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="LETTER_DATE">What date should appear on the petition letter?</label>
+                        <input type="date" id="LETTER_DATE" name="LETTER_DATE" required>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== Section 2: USCIS Information ===== -->
+            <div class="form-section" data-section="2">
+                <div class="section-header">
+                    <h2></i> USCIS Information</h2>
+                    <p>USCIS service center details</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="USCIS_ADDRESS_LINE1">What is the USCIS service center address line 1?</label>
+                        <input type="text" id="USCIS_ADDRESS_LINE1" name="USCIS_ADDRESS_LINE1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="USCIS_CITY">What is the USCIS service center city?</label>
+                        <input type="text" id="USCIS_CITY" name="USCIS_CITY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="USCIS_STATE">What is the USCIS service center state? (Use 2-letter abbreviation)</label>
+                        <input type="text" id="USCIS_STATE" name="USCIS_STATE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="USCIS_ZIP">What is the USCIS service center ZIP code?</label>
+                        <input type="text" id="USCIS_ZIP" name="USCIS_ZIP" required>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== Section 3: Educational Background ===== -->
+            <div class="form-section" data-section="3">
+                <div class="section-header">
+                    <h2></i> Educational Background</h2>
+                    <p>Academic qualifications and education history</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="EDU_DEGREE_1">What was your first degree? (B.A., B.S., etc.)</label>
+                        <input type="text" id="EDU_DEGREE_1" name="EDU_DEGREE_1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_MAJOR_1">What was your major for your first degree?</label>
+                        <input type="text" id="EDU_MAJOR_1" name="EDU_MAJOR_1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_UNIVERSITY_1">What university did you attend for your first degree?</label>
+                        <input type="text" id="EDU_UNIVERSITY_1" name="EDU_UNIVERSITY_1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_GOVERNING_BODY">What governing body accredits your first university? (e.g., Ministry of Education)</label>
+                        <input type="text" id="EDU_GOVERNING_BODY" name="EDU_GOVERNING_BODY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_FIELD">What field is your first university ranked in?</label>
+                        <input type="text" id="EDU_FIELD" name="EDU_FIELD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_DEGREE_2">What was your second degree? (M.S., M.A., etc.)</label>
+                        <input type="text" id="EDU_DEGREE_2" name="EDU_DEGREE_2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_MAJOR_2">What was your major for your second degree?</label>
+                        <input type="text" id="EDU_MAJOR_2" name="EDU_MAJOR_2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_UNIVERSITY_2">What university did you attend for your second degree?</label>
+                        <input type="text" id="EDU_UNIVERSITY_2" name="EDU_UNIVERSITY_2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_TYPE_2">What type of institution is your second university? (e.g., comprehensive public research university)</label>
+                        <input type="text" id="EDU_TYPE_2" name="EDU_TYPE_2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_SUBFIELD_2">What was your subfield of study for your second degree?</label>
+                        <input type="text" id="EDU_SUBFIELD_2" name="EDU_SUBFIELD_2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_KEY_AREA_2">What were the key areas you studied in your second degree? (comma-separated list)</label>
+                        <textarea id="EDU_KEY_AREA_2" name="EDU_KEY_AREA_2" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_DEGREE_3">What was your third degree? (Ph.D., M.D., etc.)</label>
+                        <input type="text" id="EDU_DEGREE_3" name="EDU_DEGREE_3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_MAJOR_3">What was your major for your third degree?</label>
+                        <input type="text" id="EDU_MAJOR_3" name="EDU_MAJOR_3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="EDU_UNIVERSITY_3">What university did you attend for your third degree?</label>
+                        <input type="text" id="EDU_UNIVERSITY_3" name="EDU_UNIVERSITY_3" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="PHD_RESEARCH_TOPIC">What was the main topic of your PhD research?</label>
+                        <textarea id="PHD_RESEARCH_TOPIC" name="PHD_RESEARCH_TOPIC" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== Section 4: Professional Information ===== -->
+            <div class="form-section" data-section="4">
+                <div class="section-header">
+                    <h2></i> Professional Information</h2>
+                    <p>Current employment and professional background</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="JOB_TITLE">What is your current job title?</label>
+                        <input type="text" id="JOB_TITLE" name="JOB_TITLE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_LOCATION">Where is your current employer located? (City, State/Country)</label>
+                        <input type="text" id="COMPANY_LOCATION" name="COMPANY_LOCATION" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_YEAR">What year was your current employer founded?</label>
+                        <input type="number" id="COMPANY_YEAR" name="COMPANY_YEAR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_INDUSTRY">What industry does your current employer operate in?</label>
+                        <input type="text" id="COMPANY_INDUSTRY" name="COMPANY_INDUSTRY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_SOLUTIONS">What solutions or services does your current employer provide? (comma-separated list)</label>
+                        <textarea id="COMPANY_SOLUTIONS" name="COMPANY_SOLUTIONS" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_EMPLOYEE_COUNT">How many employees does your current employer have?</label>
+                        <input type="number" id="COMPANY_EMPLOYEE_COUNT" name="COMPANY_EMPLOYEE_COUNT" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="COMPANY_REVENUE">What is your current employer's annual revenue?</label>
+                        <input type="text" id="COMPANY_REVENUE" name="COMPANY_REVENUE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="YEARS_OF_EXPERIENCE">How many years of research experience do you have?</label>
+                        <input type="number" id="YEARS_OF_EXPERIENCE" name="YEARS_OF_EXPERIENCE" required>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== Section 5: Publications ===== -->
+            <div class="form-section" data-section="5">
+                <div class="section-header">
+                    <h2></i> Publications</h2>
+                    <p>Research publications and journal details</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="PUBLICATIONS_TOTAL_COUNT">How many publications do you have in total?</label>
+                        <input type="number" id="PUBLICATIONS_TOTAL_COUNT" name="PUBLICATIONS_TOTAL_COUNT" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_1_NAME">What is the name of the first journal where you published?</label>
+                        <input type="text" id="JOURNAL_1_NAME" name="JOURNAL_1_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_1_FIELD">What field does the first journal cover?</label>
+                        <input type="text" id="JOURNAL_1_FIELD" name="JOURNAL_1_FIELD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_1_SCOPE">What is the scope of the first journal?</label>
+                        <input type="text" id="JOURNAL_1_SCOPE" name="JOURNAL_1_SCOPE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_1_YEAR">What year is the impact factor data for the first journal?</label>
+                        <input type="number" id="JOURNAL_1_YEAR" name="JOURNAL_1_YEAR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_1_IMPACT_FACTOR">What is the impact factor of the first journal?</label>
+                        <input type="number" id="JOURNAL_1_IMPACT_FACTOR" name="JOURNAL_1_IMPACT_FACTOR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_2_NAME">What is the name of the second journal where you published?</label>
+                        <input type="text" id="JOURNAL_2_NAME" name="JOURNAL_2_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_2_FIELD">What field does the second journal cover?</label>
+                        <input type="text" id="JOURNAL_2_FIELD" name="JOURNAL_2_FIELD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_2_SCOPE">What is the scope of the second journal?</label>
+                        <input type="text" id="JOURNAL_2_SCOPE" name="JOURNAL_2_SCOPE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_2_YEAR">What year is the impact factor data for the second journal?</label>
+                        <input type="number" id="JOURNAL_2_YEAR" name="JOURNAL_2_YEAR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_2_IMPACT_FACTOR">What is the impact factor of the second journal?</label>
+                        <input type="number" id="JOURNAL_2_IMPACT_FACTOR" name="JOURNAL_2_IMPACT_FACTOR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_3_NAME">What is the name of the third journal where you published?</label>
+                        <input type="text" id="JOURNAL_3_NAME" name="JOURNAL_3_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_3_FIELD">What field does the third journal cover?</label>
+                        <input type="text" id="JOURNAL_3_FIELD" name="JOURNAL_3_FIELD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_3_SCOPE">What is the scope of the third journal?</label>
+                        <input type="text" id="JOURNAL_3_SCOPE" name="JOURNAL_3_SCOPE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_3_YEAR">What year is the impact factor data for the third journal?</label>
+                        <input type="number" id="JOURNAL_3_YEAR" name="JOURNAL_3_YEAR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_3_IMPACT_FACTOR">What is the impact factor of the third journal?</label>
+                        <input type="number" id="JOURNAL_3_IMPACT_FACTOR" name="JOURNAL_3_IMPACT_FACTOR" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_4_NAME">What is the name of the fourth journal where you published?</label>
+                        <input type="text" id="JOURNAL_4_NAME" name="JOURNAL_4_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_4_FIELD">What field does the fourth journal cover?</label>
+                        <input type="text" id="JOURNAL_4_FIELD" name="JOURNAL_4_FIELD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_4_SCOPE">What is the scope of the fourth journal?</label>
+                        <input type="text" id="JOURNAL_4_SCOPE" name="JOURNAL_4_SCOPE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_4_FOCUS">What is the focus of the fourth journal?</label>
+                        <input type="text" id="JOURNAL_4_FOCUS" name="JOURNAL_4_FOCUS" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_5_NAME">What is the name of the fifth journal where you published?</label>
+                        <input type="text" id="JOURNAL_5_NAME" name="JOURNAL_5_NAME" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_5_FIELD">What field does the fifth journal cover?</label>
+                        <input type="text" id="JOURNAL_5_FIELD" name="JOURNAL_5_FIELD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="JOURNAL_5_SCOPE">What is the scope of the fifth journal?</label>
+                        <input type="text" id="JOURNAL_5_SCOPE" name="JOURNAL_5_SCOPE" required>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== Section 6: Citations & Impact ===== -->
+            <div class="form-section" data-section="6">
+                <div class="section-header">
+                    <h2></i> Citations & Impact</h2>
+                    <p>Citation metrics and research impact</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="CITATIONS_TOTAL">How many total citations do you have?</label>
+                        <input type="number" id="CITATIONS_TOTAL" name="CITATIONS_TOTAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITATION_GEOGRAPHY">What geographic regions do your citations come from? (comma-separated list)</label>
+                        <textarea id="CITATION_GEOGRAPHY" name="CITATION_GEOGRAPHY" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITATION_INSTITUTIONS">What institutions have cited your work? (comma-separated list)</label>
+                        <textarea id="CITATION_INSTITUTIONS" name="CITATION_INSTITUTIONS" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITATION_PRESTIGE_INSTITUTIONS">What prestigious institutions have cited your work? (comma-separated list)</label>
+                        <textarea id="CITATION_PRESTIGE_INSTITUTIONS" name="CITATION_PRESTIGE_INSTITUTIONS" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITATION_INDUSTRY_ADOPTION">What industry companies have adopted your work? (comma-separated list)</label>
+                        <textarea id="CITATION_INDUSTRY_ADOPTION" name="CITATION_INDUSTRY_ADOPTION" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_TITLE">What is the title of the first paper that cited your work?</label>
+                        <input type="text" id="CITE1_TITLE" name="CITE1_TITLE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_JOURNAL">What journal published the first citing paper?</label>
+                        <input type="text" id="CITE1_JOURNAL" name="CITE1_JOURNAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_INSTITUTION">What institutions are the authors of the first citing paper from?</label>
+                        <input type="text" id="CITE1_INSTITUTION" name="CITE1_INSTITUTION" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE1_QUOTE">What quote from the first citing paper mentions your work?</label>
+                        <textarea id="CITE1_QUOTE" name="CITE1_QUOTE" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_TITLE">What is the title of the second paper that cited your work?</label>
+                        <input type="text" id="CITE2_TITLE" name="CITE2_TITLE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_JOURNAL">What journal published the second citing paper?</label>
+                        <input type="text" id="CITE2_JOURNAL" name="CITE2_JOURNAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_INSTITUTION">What institutions are the authors of the second citing paper from?</label>
+                        <input type="text" id="CITE2_INSTITUTION" name="CITE2_INSTITUTION" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE2_QUOTE">What quote from the second citing paper mentions your work?</label>
+                        <textarea id="CITE2_QUOTE" name="CITE2_QUOTE" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_TITLE">What is the title of the third paper that cited your work?</label>
+                        <input type="text" id="CITE3_TITLE" name="CITE3_TITLE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_JOURNAL">What journal published the third citing paper?</label>
+                        <input type="text" id="CITE3_JOURNAL" name="CITE3_JOURNAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_INSTITUTION">What institutions are the authors of the third citing paper from?</label>
+                        <input type="text" id="CITE3_INSTITUTION" name="CITE3_INSTITUTION" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE3_QUOTE">What quote from the third citing paper mentions your work?</label>
+                        <textarea id="CITE3_QUOTE" name="CITE3_QUOTE" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_TITLE">What is the title of the fourth paper that cited your work?</label>
+                        <input type="text" id="CITE4_TITLE" name="CITE4_TITLE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_JOURNAL">What journal published the fourth citing paper?</label>
+                        <input type="text" id="CITE4_JOURNAL" name="CITE4_JOURNAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_INSTITUTION">What institutions are the authors of the fourth citing paper from?</label>
+                        <input type="text" id="CITE4_INSTITUTION" name="CITE4_INSTITUTION" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE4_QUOTE">What quote from the fourth citing paper mentions your work?</label>
+                        <textarea id="CITE4_QUOTE" name="CITE4_QUOTE" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_TITLE">What is the title of the fifth paper that cited your work?</label>
+                        <input type="text" id="CITE5_TITLE" name="CITE5_TITLE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_JOURNAL">What journal published the fifth citing paper?</label>
+                        <input type="text" id="CITE5_JOURNAL" name="CITE5_JOURNAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_INSTITUTION">What institutions are the authors of the fifth citing paper from?</label>
+                        <input type="text" id="CITE5_INSTITUTION" name="CITE5_INSTITUTION" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="CITE5_QUOTE">What quote from the fifth citing paper mentions your work?</label>
+                        <textarea id="CITE5_QUOTE" name="CITE5_QUOTE" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="GOOGLE_SCHOLAR_LINK">What is your Google Scholar profile URL?</label>
+                        <input type="text" id="GOOGLE_SCHOLAR_LINK" name="GOOGLE_SCHOLAR_LINK" required>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== End Section 6: Citations & Impact ===== -->
+
+<div class="form-navigation">
+                <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button type="button" id="nextBtn" class="btn btn-primary">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">
+                    <i class="fas fa-check"></i> Submit Application
+                </button>
+            </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <h2>Application Submitted Successfully!</h2>
+                <p>Thank you for completing the NIW application survey. Your information has been saved and will be processed by our team.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+    <script>
+        // Check configuration and login status
+        async function checkConfiguration() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const evaluationBtn = document.getElementById('evaluationBtn');
+                if (evaluationBtn) {
+                    evaluationBtn.style.display = config.showEvaluation ? 'inline-block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error checking configuration:', error);
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const token = localStorage.getItem('niw_jwt_token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                const response = await fetch('/api/me', { headers });
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    document.getElementById('logoutBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('logoutBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        function logout() {
+            // Clear all stored data
+            localStorage.removeItem('niw_account');
+            localStorage.removeItem('selectedPackage');
+            localStorage.removeItem('niw_jwt_token');
+            
+            // Redirect to home page
+            window.location.href = '/';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkConfiguration();
+            checkLoginStatus();
+            
+            // Add logout button event listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+        });
+    </script>
+</body>
+</html>

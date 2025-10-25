@@ -132,13 +132,13 @@
                         <div class="step-status">
                             <!-- Form Filling Package - Only First Survey -->
                             <div id="formFillingButtons" class="survey-buttons" style="display: none;">
-                                <a id="firstSurveyLinkForm" class="btn" href="/first-survey">First Survey</a>
+                                <a id="firstSurveyLinkForm" class="btn" href="/survey/first">First Survey</a>
                             </div>
                             
                             <!-- Full Package - Both Surveys -->
                             <div id="fullPackageButtons" class="survey-buttons" style="display: none;">
-                                <a id="firstSurveyLinkFull" class="btn" href="/first-survey">First Survey</a>
-                                <a id="secondSurveyLinkFull" class="btn" href="/survey">Second Survey</a>
+                                <a id="firstSurveyLinkFull" class="btn" href="/survey/first">First Survey</a>
+                                <a id="secondSurveyLinkFull" class="btn" href="/survey/second">Second Survey</a>
                             </div>
                         </div>
                     </div>
@@ -291,8 +291,8 @@
                 const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
                 const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
                 
-                const surveyUrl = `/first-survey?email=${encodeURIComponent(user.email)}`;
-                const secondSurveyUrl = `/survey?email=${encodeURIComponent(user.email)}`;
+                const surveyUrl = `/survey/first?email=${encodeURIComponent(user.email)}`;
+                const secondSurveyUrl = `/survey/second?email=${encodeURIComponent(user.email)}`;
                 
                 console.log('Updating survey links with email:', user.email);
                 console.log('First survey URL:', surveyUrl);
@@ -334,8 +334,8 @@
               const firstSurveyLinkFull = document.getElementById('firstSurveyLinkFull');
               const secondSurveyLinkFull = document.getElementById('secondSurveyLinkFull');
               
-              const surveyUrl = `/first-survey?email=${encodeURIComponent(user.email)}`;
-              const secondSurveyUrl = `/survey?email=${encodeURIComponent(user.email)}`;
+              const surveyUrl = `/survey/first?email=${encodeURIComponent(user.email)}`;
+              const secondSurveyUrl = `/survey/second?email=${encodeURIComponent(user.email)}`;
               
               if (firstSurveyLinkForm) {
                 firstSurveyLinkForm.href = surveyUrl;
