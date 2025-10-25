@@ -1083,7 +1083,7 @@ app.get('/survey', async (req, res) => {
 // Public survey routes (for team access via API docs) - Password protected
 app.get('/first-survey', (req, res) => {
     const password = req.query.password || req.headers['x-password'];
-    const expectedPassword = process.env.TEAM_PASSWORD || 'niw2025team';
+    const expectedPassword = process.env.TEAM_PASSWORD || 'sanqi2025niw';
     
     if (password !== expectedPassword) {
         return res.status(401).send(`
@@ -1123,7 +1123,7 @@ app.get('/first-survey', (req, res) => {
 
 app.get('/second-survey', (req, res) => {
     const password = req.query.password || req.headers['x-password'];
-    const expectedPassword = process.env.TEAM_PASSWORD || 'niw2025team';
+    const expectedPassword = process.env.TEAM_PASSWORD || 'sanqi2025niw';
     
     if (password !== expectedPassword) {
         return res.status(401).send(`
@@ -1523,7 +1523,7 @@ function convertBulkToCSV(userDataArray) {
 // API Documentation page (password protected)
 app.get('/api-docs', (req, res) => {
     const password = req.query.password || req.headers['x-password'];
-    const expectedPassword = process.env.TEAM_PASSWORD || 'niw2025team';
+    const expectedPassword = process.env.TEAM_PASSWORD || 'sanqi2025niw';
     
     if (password !== expectedPassword) {
         return res.status(401).send(`

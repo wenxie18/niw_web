@@ -1388,6 +1388,18 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     border-radius: 8px;
 }
 
+/* Ensure consistent button sizes in form navigation */
+.form-navigation .btn {
+    min-width: 120px;
+    padding: 14px 28px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
 .btn {
     padding: 14px 28px;
     border: none;
