@@ -260,7 +260,19 @@
         // Logout functionality
         document.getElementById('logoutBtn').addEventListener('click', async function() {
             try {
-                const response = await fetch('/api/logout', { method: 'POST' });
+                // Get JWT token for server-side blacklisting
+                const token = localStorage.getItem('niw_jwt_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                const response = await fetch('/api/logout', { 
+                    method: 'POST',
+                    headers: headers
+                });
                 const data = await response.json();
                 
                 if (data.success) {

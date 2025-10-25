@@ -741,10 +741,19 @@
 
             // Auto-save functionality
             function saveFormData() {
+                // Get user email for data isolation
+                let userEmail = 'anonymous';
+                try {
+                    const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+                    userEmail = accountData.email || 'anonymous';
+                } catch (e) {
+                    console.error('Error loading account data for storage key:', e);
+                }
+                
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 data.currentSection = currentSection;
-                localStorage.setItem('firstSurveyData', JSON.stringify(data));
+                localStorage.setItem(`firstSurveyData_${userEmail}`, JSON.stringify(data));
                 showAutoSaveIndicator();
             }
 
@@ -802,7 +811,16 @@
                     console.error('Error loading account data:', e);
                 }
                 
-                const savedData = localStorage.getItem('firstSurveyData');
+                // Get user-specific saved data
+                let userEmail = 'anonymous';
+                try {
+                    const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+                    userEmail = accountData.email || 'anonymous';
+                } catch (e) {
+                    console.error('Error loading account data for load:', e);
+                }
+                
+                const savedData = localStorage.getItem(`firstSurveyData_${userEmail}`);
                 if (savedData) {
                     try {
                         const data = JSON.parse(savedData);
@@ -837,7 +855,15 @@
             }
 
             function clearSavedData() {
-                localStorage.removeItem('firstSurveyData');
+                // Get user email for data isolation
+                let userEmail = 'anonymous';
+                try {
+                    const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+                    userEmail = accountData.email || 'anonymous';
+                } catch (e) {
+                    console.error('Error loading account data for clearing:', e);
+                }
+                localStorage.removeItem(`firstSurveyData_${userEmail}`);
             }
 
             function updateProgress() {
@@ -1010,12 +1036,39 @@
             loadFormData();
             
             // Add logout functionality
-            function logout() {
-                // Clear all stored data
+            async function logout() {
+                try {
+                    // Get JWT token for server-side blacklisting
+                    const token = localStorage.getItem('niw_jwt_token');
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
+                    // Call server logout to blacklist token
+                    await fetch('/api/logout', { 
+                        method: 'POST',
+                        headers: headers
+                    });
+                } catch (error) {
+                    console.error('Server logout failed:', error);
+                }
+                
+                // Clear all stored data - including user-specific survey data
                 localStorage.removeItem('niw_account');
                 localStorage.removeItem('selectedPackage');
                 localStorage.removeItem('niw_jwt_token');
                 localStorage.removeItem('firstSurveyData');
+                localStorage.removeItem('secondSurveyData');
+                localStorage.removeItem('niwSurveyData');
+                // Clear user-specific survey data (fallback for any remaining data)
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('firstSurveyData_') || key.startsWith('secondSurveyData_') || key.startsWith('niwSurveyData_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
                 
                 // Redirect to home page
                 window.location.href = '/';
@@ -1065,18 +1118,26 @@
             }
             
             // Clear any corrupted localStorage data
-            const savedData = localStorage.getItem('firstSurveyData');
+            let userEmail = 'anonymous';
+            try {
+                const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+                userEmail = accountData.email || 'anonymous';
+            } catch (e) {
+                console.error('Error loading account data for cleanup:', e);
+            }
+            
+            const savedData = localStorage.getItem(`firstSurveyData_${userEmail}`);
             if (savedData) {
                 try {
                     const data = JSON.parse(savedData);
                     if (data.currentSection < 0 || data.currentSection >= totalSections) {
                         console.log('Clearing corrupted localStorage data - currentSection was:', data.currentSection);
-                        localStorage.removeItem('firstSurveyData');
+                        localStorage.removeItem(`firstSurveyData_${userEmail}`);
                         currentSection = 0;
                     }
                 } catch (e) {
                     console.log('Clearing corrupted localStorage data due to parse error');
-                    localStorage.removeItem('firstSurveyData');
+                    localStorage.removeItem(`firstSurveyData_${userEmail}`);
                     currentSection = 0;
                 }
             }

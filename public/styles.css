@@ -1483,6 +1483,17 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
 /* Success Message */
 .success-message {
     background: #ffffff;

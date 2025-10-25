@@ -14,6 +14,17 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const Stripe = require('stripe');
 
+// JWT token blacklist to track invalidated tokens
+const tokenBlacklist = new Set();
+
+// Cleanup old tokens from blacklist periodically (every hour)
+setInterval(() => {
+    // For now, we'll keep all tokens in blacklist
+    // In production, you might want to implement a more sophisticated cleanup
+    // based on token expiration times or a maximum blacklist size
+    console.log(`Token blacklist size: ${tokenBlacklist.size}`);
+}, 60 * 60 * 1000); // 1 hour
+
 // Load configuration
 let config;
 if (process.env.NODE_ENV === 'production') {
@@ -137,6 +148,12 @@ function verifyJWT(req, res, next) {
     const token = req.headers.authorization?.replace('Bearer ', '') || req.query.token;
     
     if (!token) {
+        return next();
+    }
+    
+    // Check if token is blacklisted (invalidated)
+    if (tokenBlacklist.has(token)) {
+        console.log('JWT token is blacklisted (user logged out)');
         return next();
     }
     
@@ -266,7 +283,19 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-    req.session.destroy(() => res.json({ success: true }));
+    // Get JWT token from request headers
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    // Add token to blacklist if it exists
+    if (token) {
+        tokenBlacklist.add(token);
+        console.log('JWT token added to blacklist on logout');
+    }
+    
+    // Destroy session
+    req.session.destroy(() => {
+        res.json({ success: true });
+    });
 });
 
 app.get('/api/me', verifyJWT, async (req, res) => {
@@ -1247,7 +1276,8 @@ app.get('/api/admin/users', checkAdminAccess, async (req, res) => {
                 u.paid,
                 u.package_type,
                 CASE WHEN EXISTS(SELECT 1 FROM first_survey_responses WHERE user_email = u.email) THEN true ELSE false END as first_survey_completed,
-                CASE WHEN EXISTS(SELECT 1 FROM second_survey_responses WHERE user_email = u.email) THEN true ELSE false END as second_survey_completed
+                CASE WHEN EXISTS(SELECT 1 FROM second_survey_responses WHERE user_email = u.email) THEN true ELSE false END as second_survey_completed,
+                CASE WHEN EXISTS(SELECT 1 FROM evaluation_responses WHERE email = u.email) THEN true ELSE false END as evaluation_completed
             FROM users u
             ORDER BY u.email
         `);
@@ -1605,6 +1635,161 @@ app.get('/script.js', (req, res) => {
     } catch (error) {
         console.error('Error serving script.js:', error);
         res.status(404).send('JavaScript file not found');
+    }
+});
+
+// Clear user survey data endpoint
+app.post('/api/admin/clear-user-data', checkAdminAccess, async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+        
+        // Verify user exists
+        const user = await db.get('SELECT * FROM users WHERE email = $1', [email]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Clear first survey data
+        await db.query('DELETE FROM first_survey_responses WHERE user_email = $1', [email]);
+        
+        // Clear second survey data
+        await db.query('DELETE FROM second_survey_responses WHERE user_email = $1', [email]);
+        
+        // Clear evaluation data
+        await db.query('DELETE FROM evaluation_responses WHERE user_email = $1', [email]);
+        
+        // Note: We don't delete the user account or payment records
+        // as those are important for business records
+        
+        console.log(`Cleared survey data for user: ${email}`);
+        res.json({ 
+            success: true, 
+            message: `Survey data cleared for ${email}`,
+            cleared: {
+                first_survey: true,
+                second_survey: true,
+                evaluation: true
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error clearing user data:', error);
+        res.status(500).json({ error: 'Failed to clear user data' });
+    }
+});
+
+// Clear specific survey data for a user (admin endpoint)
+app.post('/api/admin/clear-user-survey', checkAdminAccess, async (req, res) => {
+    try {
+        const { email, survey_type } = req.body;
+        
+        if (!email || !survey_type) {
+            return res.status(400).json({ error: 'Email and survey_type are required' });
+        }
+        
+        // Validate survey type
+        const validSurveyTypes = ['first', 'second', 'evaluation'];
+        if (!validSurveyTypes.includes(survey_type)) {
+            return res.status(400).json({ error: 'Invalid survey_type. Must be: first, second, or evaluation' });
+        }
+        
+        // Verify user exists
+        const user = await db.get('SELECT * FROM users WHERE email = $1', [email]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        let deletedCount = 0;
+        let tableName = '';
+        
+        // Clear specific survey data based on type
+        switch (survey_type) {
+            case 'first':
+                tableName = 'first_survey_responses';
+                const firstResult = await db.query('DELETE FROM first_survey_responses WHERE user_email = $1', [email]);
+                deletedCount = firstResult.rowCount || 0;
+                break;
+                
+            case 'second':
+                tableName = 'second_survey_responses';
+                const secondResult = await db.query('DELETE FROM second_survey_responses WHERE user_email = $1', [email]);
+                deletedCount = secondResult.rowCount || 0;
+                break;
+                
+            case 'evaluation':
+                tableName = 'evaluation_responses';
+                const evalResult = await db.query('DELETE FROM evaluation_responses WHERE user_email = $1', [email]);
+                deletedCount = evalResult.rowCount || 0;
+                break;
+        }
+        
+        console.log(`Cleared ${survey_type} survey data for user: ${email} (${deletedCount} records deleted)`);
+        res.json({ 
+            success: true, 
+            message: `${survey_type} survey data cleared for ${email}`,
+            survey_type: survey_type,
+            deleted_count: deletedCount,
+            table: tableName
+        });
+        
+    } catch (error) {
+        console.error('Error clearing specific survey data:', error);
+        res.status(500).json({ error: 'Failed to clear survey data' });
+    }
+});
+
+// Clear user's own survey data endpoint (for users to clear their own data)
+app.post('/api/clear-my-data', verifyJWT, async (req, res) => {
+    try {
+        let userEmail = null;
+        
+        // Get user email from JWT or session
+        if (req.user) {
+            userEmail = req.user.email;
+        } else if (req.session.user) {
+            userEmail = req.session.user.email;
+        } else if (req.body.email) {
+            // Fallback for email in request body
+            userEmail = req.body.email;
+        }
+        
+        if (!userEmail) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+        
+        // Verify user exists
+        const user = await db.get('SELECT * FROM users WHERE email = $1', [userEmail]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Clear first survey data
+        await db.query('DELETE FROM first_survey_responses WHERE user_email = $1', [userEmail]);
+        
+        // Clear second survey data
+        await db.query('DELETE FROM second_survey_responses WHERE user_email = $1', [userEmail]);
+        
+        // Clear evaluation data
+        await db.query('DELETE FROM evaluation_responses WHERE user_email = $1', [userEmail]);
+        
+        console.log(`User cleared their own survey data: ${userEmail}`);
+        res.json({ 
+            success: true, 
+            message: `Your survey data has been cleared successfully`,
+            cleared: {
+                first_survey: true,
+                second_survey: true,
+                evaluation: true
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error clearing user data:', error);
+        res.status(500).json({ error: 'Failed to clear your data' });
     }
 });
 

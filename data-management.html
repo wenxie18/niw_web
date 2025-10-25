@@ -195,6 +195,25 @@
             gap: 8px;
         }
         
+        .survey-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .btn-tiny {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            min-width: auto;
+            height: 24px;
+            line-height: 1;
+        }
+        
         .btn-small {
             padding: 6px 12px;
             font-size: 14px;
@@ -335,7 +354,7 @@
             <div class="bulk-actions" id="bulkActions">
                 <button class="btn btn-success btn-small" id="downloadSelectedCsvBtn">📥 Download Selected (CSV)</button>
                 <button class="btn btn-warning btn-small" id="downloadSelectedJsonBtn">📥 Download Selected (JSON)</button>
-                <button class="btn btn-secondary btn-small" id="clearSelectionBtn">Clear Selection</button>
+                <button class="btn btn-danger btn-small" id="clearSelectionBtn">🗑️ Clear User Data</button>
             </div>
         </div>
 
@@ -353,12 +372,13 @@
                             <th>Package</th>
                             <th>First Survey</th>
                             <th>Second Survey</th>
+                            <th>Evaluation</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody">
                         <tr>
-                            <td colspan="7" class="loading">Loading users...</td>
+                            <td colspan="8" class="loading">Loading users...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -469,8 +489,36 @@
                             <td>${user.email}</td>
                             <td>${user.paid ? '✅ Paid' : '❌ Unpaid'}</td>
                             <td>${user.package_type || 'N/A'}</td>
-                            <td>${user.first_survey_completed ? '✅ Complete' : '❌ Not Started'}</td>
-                            <td>${user.second_survey_completed ? '✅ Complete' : '❌ Not Started'}</td>
+                            <td>
+                                <div class="survey-status">
+                                    <span class="status-text">${user.first_survey_completed ? '✅ Complete' : '❌ Not Started'}</span>
+                                    ${user.first_survey_completed ? `
+                                        <button class="btn btn-danger btn-tiny" onclick="dataManager.clearSurvey('${user.email}', 'first')" title="Delete First Survey">
+                                            🗑️
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="survey-status">
+                                    <span class="status-text">${user.second_survey_completed ? '✅ Complete' : '❌ Not Started'}</span>
+                                    ${user.second_survey_completed ? `
+                                        <button class="btn btn-danger btn-tiny" onclick="dataManager.clearSurvey('${user.email}', 'second')" title="Delete Second Survey">
+                                            🗑️
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="survey-status">
+                                    <span class="status-text">${user.evaluation_completed ? '✅ Complete' : '❌ Not Started'}</span>
+                                    ${user.evaluation_completed ? `
+                                        <button class="btn btn-danger btn-tiny" onclick="dataManager.clearSurvey('${user.email}', 'evaluation')" title="Delete Evaluation">
+                                            🗑️
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
                             <td>
                                 <div class="user-actions">
                                     <button class="btn btn-primary btn-small" onclick="dataManager.downloadUser('${user.email}', 'csv')">
@@ -519,11 +567,112 @@
                 bulkActions.classList.toggle('visible', hasSelection);
             }
 
-            clearSelection() {
-                this.selectedUsers.clear();
-                document.getElementById('selectAllCheckbox').checked = false;
-                this.renderUsers();
-                this.updateBulkActions();
+            async clearSelection() {
+                if (this.selectedUsers.size === 0) {
+                    alert('No users selected to clear data for.');
+                    return;
+                }
+                
+                // Show confirmation dialog
+                const userEmails = Array.from(this.selectedUsers);
+                const confirmMessage = `Are you sure you want to clear survey data for ${userEmails.length} user(s)?\n\nThis will permanently delete:\n- First survey responses\n- Second survey responses\n- Evaluation responses\n\nUser accounts and payment records will be preserved.\n\nThis action cannot be undone!`;
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                
+                try {
+                    this.showLoading();
+                    
+                    // Clear data for each selected user
+                    const clearPromises = userEmails.map(async (email) => {
+                        const response = await fetch('/api/admin/clear-user-data', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-admin-key': this.adminKey
+                            },
+                            body: JSON.stringify({ email })
+                        });
+                        
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(`Failed to clear data for ${email}: ${error.error}`);
+                        }
+                        
+                        return response.json();
+                    });
+                    
+                    const results = await Promise.all(clearPromises);
+                    
+                    // Show success message
+                    alert(`Successfully cleared survey data for ${results.length} user(s).`);
+                    
+                    // Clear selection and refresh data
+                    this.selectedUsers.clear();
+                    document.getElementById('selectAllCheckbox').checked = false;
+                    await this.loadUsers(); // Reload to show updated status
+                    this.updateBulkActions();
+                    
+                } catch (error) {
+                    console.error('Error clearing user data:', error);
+                    alert(`Error clearing user data: ${error.message}`);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async clearSurvey(email, surveyType) {
+                const surveyNames = {
+                    'first': 'First Survey',
+                    'second': 'Second Survey', 
+                    'evaluation': 'Evaluation'
+                };
+                
+                const surveyName = surveyNames[surveyType];
+                if (!surveyName) {
+                    alert('Invalid survey type');
+                    return;
+                }
+                
+                const confirmMessage = `Are you sure you want to delete the ${surveyName} data for ${email}?\n\nThis action cannot be undone!`;
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                
+                try {
+                    this.showLoading();
+                    
+                    const response = await fetch('/api/admin/clear-user-survey', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-admin-key': this.adminKey
+                        },
+                        body: JSON.stringify({ 
+                            email: email,
+                            survey_type: surveyType
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Failed to clear survey data');
+                    }
+                    
+                    const result = await response.json();
+                    alert(`Successfully cleared ${surveyName} data for ${email}`);
+                    
+                    // Refresh the data to show updated status
+                    await this.loadUsers();
+                    
+                } catch (error) {
+                    console.error('Error clearing survey data:', error);
+                    alert(`Error clearing survey data: ${error.message}`);
+                } finally {
+                    this.hideLoading();
+                }
             }
 
             updateStats() {

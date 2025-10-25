@@ -523,11 +523,32 @@
             }
         }
 
-        function logout() {
+        async function logout() {
+            try {
+                // Get JWT token for server-side blacklisting
+                const token = localStorage.getItem('niw_jwt_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                // Call server logout to blacklist token
+                await fetch('/api/logout', { 
+                    method: 'POST',
+                    headers: headers
+                });
+            } catch (error) {
+                console.error('Server logout failed:', error);
+            }
+            
             // Clear all stored data
             localStorage.removeItem('niw_account');
             localStorage.removeItem('selectedPackage');
             localStorage.removeItem('niw_jwt_token');
+            localStorage.removeItem('secondSurveyData');
+            localStorage.removeItem('niwSurveyData');
             
             // Redirect to home page
             window.location.href = '/';

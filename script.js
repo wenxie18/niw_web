@@ -238,9 +238,18 @@ class SurveyForm {
             this.formData[key] = value;
         }
 
-        // Determine which survey this is and use appropriate key
+        // Get user email for data isolation
+        let userEmail = 'anonymous';
+        try {
+            const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+            userEmail = accountData.email || 'anonymous';
+        } catch (e) {
+            console.error('Error loading account data for storage key:', e);
+        }
+        
+        // Determine which survey this is and use appropriate key with user email
         const isSecondSurvey = window.location.pathname.includes('second-survey');
-        const storageKey = isSecondSurvey ? 'secondSurveyData' : 'niwSurveyData';
+        const storageKey = isSecondSurvey ? `secondSurveyData_${userEmail}` : `niwSurveyData_${userEmail}`;
         
         // Add current section to saved data
         this.formData.currentSection = this.currentStep;
@@ -253,9 +262,18 @@ class SurveyForm {
     }
 
     loadSavedData() {
-        // Determine which survey this is and use appropriate key
+        // Get user email for data isolation
+        let userEmail = 'anonymous';
+        try {
+            const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+            userEmail = accountData.email || 'anonymous';
+        } catch (e) {
+            console.error('Error loading account data for storage key:', e);
+        }
+        
+        // Determine which survey this is and use appropriate key with user email
         const isSecondSurvey = window.location.pathname.includes('second-survey');
-        const storageKey = isSecondSurvey ? 'secondSurveyData' : 'niwSurveyData';
+        const storageKey = isSecondSurvey ? `secondSurveyData_${userEmail}` : `niwSurveyData_${userEmail}`;
         
         const savedData = localStorage.getItem(storageKey);
         if (savedData) {
@@ -307,9 +325,17 @@ class SurveyForm {
             // Simulate API call (replace with actual API endpoint)
             await this.submitToAPI();
             
-            // Clear saved data
+            // Clear saved data - get user-specific key
+            let userEmail = 'anonymous';
+            try {
+                const accountData = JSON.parse(localStorage.getItem('niw_account') || '{}');
+                userEmail = accountData.email || 'anonymous';
+            } catch (e) {
+                console.error('Error loading account data for clearing:', e);
+            }
+            
             const isSecondSurvey = window.location.pathname.includes('second-survey');
-            const storageKey = isSecondSurvey ? 'secondSurveyData' : 'niwSurveyData';
+            const storageKey = isSecondSurvey ? `secondSurveyData_${userEmail}` : `niwSurveyData_${userEmail}`;
             localStorage.removeItem(storageKey);
             
             // Show success message

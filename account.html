@@ -140,6 +140,11 @@
                                 <a id="firstSurveyLinkFull" class="btn" href="/survey/first">First Survey</a>
                                 <a id="secondSurveyLinkFull" class="btn" href="/survey/second">Second Survey</a>
                             </div>
+                            
+                            <!-- Clear Data Button (shown when user has survey data) -->
+                            <div id="clearDataSection" class="survey-buttons" style="display: none;">
+                                <button id="clearMyDataBtn" class="btn btn-outline btn-small">🗑️ Clear My Survey Data</button>
+                            </div>
                         </div>
                     </div>
 
@@ -166,6 +171,39 @@
         // Global refreshUI function
         // Global variable to store current package type
         let currentPackageType = 'full';
+
+        // Function to check if user has survey data and show clear data button
+        async function checkAndShowClearDataButton(userEmail) {
+          try {
+            // Check if user has any survey data
+            const response = await fetch(`/api/admin/user-data/${encodeURIComponent(userEmail)}?key=${localStorage.getItem('adminKey') || 'xie123'}`);
+            if (!response.ok) {
+              // If admin key fails, try without it (for user's own data)
+              const userResponse = await fetch(`/api/admin/user-data/${encodeURIComponent(userEmail)}`);
+              if (!userResponse.ok) {
+                console.log('No survey data found for user');
+                return;
+              }
+            }
+            
+            const userData = await response.json();
+            const hasSurveyData = userData.first_survey || userData.second_survey || userData.evaluation;
+            
+            // Show or hide clear data button
+            const clearDataSection = document.getElementById('clearDataSection');
+            if (clearDataSection) {
+              clearDataSection.style.display = hasSurveyData ? 'block' : 'none';
+            }
+            
+          } catch (error) {
+            console.error('Error checking survey data:', error);
+            // Hide clear data button on error
+            const clearDataSection = document.getElementById('clearDataSection');
+            if (clearDataSection) {
+              clearDataSection.style.display = 'none';
+            }
+          }
+        }
 
         // Function to show package selection interface
         function showPackageSelection() {
@@ -205,6 +243,13 @@
             const user = data.user;
             console.log('refreshUI - user data received:', user);
             if (user) {
+              // Clear any old survey data from previous users
+              Object.keys(localStorage).forEach(key => {
+                  if (key.startsWith('firstSurveyData_') || key.startsWith('secondSurveyData_') || key.startsWith('niwSurveyData_')) {
+                      localStorage.removeItem(key);
+                  }
+              });
+              
               // Store user data in localStorage for survey pages
               localStorage.setItem('niw_account', JSON.stringify({
                   email: user.email,
@@ -310,6 +355,9 @@
                   secondSurveyLinkFull.href = secondSurveyUrl;
                   console.log('Updated secondSurveyLinkFull href:', secondSurveyLinkFull.href);
                 }
+                
+                // Check if user has survey data and show clear data button
+                await checkAndShowClearDataButton(user.email);
               } else {
                 if (planName) planName.textContent = 'Complete NIW Preparation';
                 if (planPrice) planPrice.textContent = '$1,599';
@@ -346,6 +394,9 @@
               if (secondSurveyLinkFull) {
                 secondSurveyLinkFull.href = secondSurveyUrl;
               }
+              
+              // Check if user has survey data and show clear data button
+              await checkAndShowClearDataButton(user.email);
               }
               
               // Update payment button text based on package type
@@ -1199,17 +1250,82 @@
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             try {
-              await fetch('/api/logout', { method: 'POST' });
-              // Clear localStorage
+              // Get JWT token for server-side blacklisting
+              const token = localStorage.getItem('niw_jwt_token');
+              const headers = {
+                'Content-Type': 'application/json'
+              };
+              if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+              }
+              
+              await fetch('/api/logout', { 
+                method: 'POST',
+                headers: headers
+              });
+              // Clear localStorage - including all survey data
               localStorage.removeItem('niw_account');
               localStorage.removeItem('selectedPackage');
               localStorage.removeItem('niw_jwt_token');
+              localStorage.removeItem('firstSurveyData');
+              localStorage.removeItem('secondSurveyData');
+              localStorage.removeItem('niwSurveyData');
               // Clear URL parameters and redirect to clean account page
               window.history.replaceState({}, document.title, '/account');
               await refreshUI();
             } catch (error) {
               console.error('Logout failed:', error);
             }
+        });
+      }
+
+      // Clear my data button
+      const clearMyDataBtn = document.getElementById('clearMyDataBtn');
+      if (clearMyDataBtn) {
+        clearMyDataBtn.addEventListener('click', async () => {
+          const confirmMessage = `Are you sure you want to clear all your survey data?\n\nThis will permanently delete:\n- First survey responses\n- Second survey responses\n- Evaluation responses\n\nYour account and payment information will be preserved.\n\nThis action cannot be undone!`;
+          
+          if (!confirm(confirmMessage)) {
+            return;
+          }
+          
+          try {
+            // Get JWT token for authentication
+            const token = localStorage.getItem('niw_jwt_token');
+            const headers = {
+              'Content-Type': 'application/json'
+            };
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch('/api/clear-my-data', {
+              method: 'POST',
+              headers: headers
+            });
+            
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || 'Failed to clear data');
+            }
+            
+            const result = await response.json();
+            alert(result.message);
+            
+            // Clear local storage survey data
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('firstSurveyData_') || key.startsWith('secondSurveyData_') || key.startsWith('niwSurveyData_')) {
+                localStorage.removeItem(key);
+              }
+            });
+            
+            // Refresh the UI to update survey status
+            await refreshUI();
+            
+          } catch (error) {
+            console.error('Error clearing data:', error);
+            alert(`Error clearing data: ${error.message}`);
+          }
         });
       }
 
