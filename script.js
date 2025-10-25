@@ -89,14 +89,29 @@ class SurveyForm {
 
         // Show/hide previous button
         prevBtn.style.display = this.currentStep > 1 ? 'inline-flex' : 'none';
+        
+        // Add/remove CSS classes for better control
+        if (this.currentStep > 1) {
+            prevBtn.classList.remove('hidden');
+        } else {
+            prevBtn.classList.add('hidden');
+        }
 
         // Show/hide next/submit buttons
         if (this.currentStep === this.totalSteps) {
             nextBtn.style.display = 'none';
             submitBtn.style.display = 'inline-flex';
+            
+            // Add/remove CSS classes
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
         } else {
             nextBtn.style.display = 'inline-flex';
             submitBtn.style.display = 'none';
+            
+            // Add/remove CSS classes
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
         }
     }
 

@@ -537,25 +537,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     transform: translateY(-2px);
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #ffffff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-block;
-    width: 100%;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
-    background: linear-gradient(135deg, #1d4ed8, #1e40af);
-}
+/* Removed duplicate .btn-primary definition - using consolidated version below */
 
 .services-guarantee {
     background: #f8fafc;
@@ -1388,16 +1370,48 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     border-radius: 8px;
 }
 
-/* Ensure consistent button sizes in form navigation */
+/* Form Navigation - Specific styling for survey buttons */
 .form-navigation .btn {
-    min-width: 120px;
-    padding: 14px 28px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    min-width: 120px !important;
+    padding: 14px 28px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+/* Force submit button to be hidden by default */
+#submitBtn {
+    display: none !important;
+}
+
+/* Only show submit button when explicitly set to inline-block */
+#submitBtn[style*="inline-block"] {
+    display: inline-block !important;
+}
+
+/* Force next button to be hidden when set to none */
+#nextBtn[style*="none"] {
+    display: none !important;
+}
+
+/* Force next button to be hidden on last section */
+#nextBtn.hidden {
+    display: none !important;
+}
+
+/* Force previous button to be hidden when set to none */
+#prevBtn[style*="none"] {
+    display: none !important;
+}
+
+/* Force previous button to be hidden on first section */
+#prevBtn.hidden {
+    display: none !important;
 }
 
 .btn {
@@ -1415,7 +1429,7 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     font-family: inherit;
     letter-spacing: 0.025em;
     text-transform: uppercase;
-    min-width: 140px;
+    min-width: auto;
     justify-content: center;
 }
 

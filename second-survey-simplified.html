@@ -550,6 +550,11 @@
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', logout);
             }
+            
+            // Initialize the survey form
+            if (typeof SurveyForm !== 'undefined') {
+                new SurveyForm();
+            }
         });
     </script>
 </body>

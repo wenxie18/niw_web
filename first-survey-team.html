@@ -735,6 +735,9 @@
             let currentSection = 0;
             const totalSections = sections.length;
             totalStepsSpan.textContent = totalSections;
+            
+            console.log('Initial setup - totalSections:', totalSections, 'sections found:', sections.length);
+            console.log('Sections:', sections);
 
             // Auto-save functionality
             function saveFormData() {
@@ -818,9 +821,11 @@
                             }
                         });
                         
-                        // Restore current section
+                        // Restore current section with validation
                         if (data.currentSection !== undefined) {
-                            currentSection = data.currentSection;
+                            // Ensure currentSection is within valid range
+                            currentSection = Math.max(0, Math.min(data.currentSection, totalSections - 1));
+                            console.log('Restored currentSection:', data.currentSection, '-> validated to:', currentSection);
                             showSection(currentSection);
                         }
                         
@@ -842,13 +847,33 @@
             }
 
             function showSection(index) {
+                console.log('showSection called with index:', index, 'totalSections:', totalSections);
                 sections.forEach((section, i) => {
                     section.style.display = i === index ? 'block' : 'none';
                 });
                 
+                const isLastSection = index === totalSections - 1;
+                console.log('isLastSection:', isLastSection, 'index === totalSections - 1:', index, '===', totalSections - 1);
+                
                 prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
-                nextBtn.style.display = index === totalSections - 1 ? 'none' : 'inline-block';
-                submitBtn.style.display = index === totalSections - 1 ? 'inline-block' : 'none';
+                nextBtn.style.display = isLastSection ? 'none' : 'inline-block';
+                submitBtn.style.display = isLastSection ? 'inline-block' : 'none';
+                
+                // Add/remove CSS classes for better control
+                if (isLastSection) {
+                    nextBtn.classList.add('hidden');
+                } else {
+                    nextBtn.classList.remove('hidden');
+                }
+                
+                // Hide Previous button on first section
+                if (index === 0) {
+                    prevBtn.classList.add('hidden');
+                } else {
+                    prevBtn.classList.remove('hidden');
+                }
+                
+                console.log('Button states - prev:', prevBtn.style.display, 'next:', nextBtn.style.display, 'submit:', submitBtn.style.display);
                 
                 updateProgress();
                 saveFormData(); // Save when section changes
@@ -926,8 +951,13 @@
 
             nextBtn.addEventListener('click', function() {
                 if (validateCurrentSection()) {
-                    currentSection++;
-                    showSection(currentSection);
+                    // Only increment if not already on the last section
+                    if (currentSection < totalSections - 1) {
+                        currentSection++;
+                        showSection(currentSection);
+                    } else {
+                        console.log('Already on last section, cannot go further');
+                    }
                 }
                 // If validation fails, don't proceed to next section
             });
@@ -1031,6 +1061,23 @@
                     }
                 } catch (error) {
                     console.error('Error checking configuration:', error);
+                }
+            }
+            
+            // Clear any corrupted localStorage data
+            const savedData = localStorage.getItem('firstSurveyData');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    if (data.currentSection < 0 || data.currentSection >= totalSections) {
+                        console.log('Clearing corrupted localStorage data - currentSection was:', data.currentSection);
+                        localStorage.removeItem('firstSurveyData');
+                        currentSection = 0;
+                    }
+                } catch (e) {
+                    console.log('Clearing corrupted localStorage data due to parse error');
+                    localStorage.removeItem('firstSurveyData');
+                    currentSection = 0;
                 }
             }
             
