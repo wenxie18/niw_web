@@ -2594,3 +2594,35 @@ textarea:focus {
     }
 }
 
+/* Checkbox styling for survey forms */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.checkbox-label:hover {
+    background-color: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Group checkbox options together visually */
+.form-group .checkbox-label:first-of-type {
+    margin-top: 8px;
+}
+
+/* Add spacing between checkbox groups */
+.form-group:has(.checkbox-label) {
+    margin-bottom: 20px;
+}
+
