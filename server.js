@@ -1552,43 +1552,63 @@ function convertBulkToCSV(userDataArray) {
 
 // API Documentation page (password protected)
 app.get('/api-docs', (req, res) => {
-    const password = req.query.password || req.headers['x-password'];
-    const expectedPassword = process.env.TEAM_PASSWORD || 'sanqi2025niw';
-    
-    if (password !== expectedPassword) {
-        return res.status(401).send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Access Required - TurboNIW</title>
-                <style>
-                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
-                    .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
-                    h1 { color: #e74c3c; margin-bottom: 20px; }
-                    p { color: #666; margin-bottom: 30px; }
-                    .password-form { margin: 20px 0; }
-                    input[type="password"] { padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
-                    button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
-                    button:hover { background: #2980b9; }
-                    .error { color: #e74c3c; margin-top: 10px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>🔒 Access Required</h1>
-                    <p>This page is restricted to team members only.</p>
-                    <form class="password-form" method="get">
-                        <input type="password" name="password" placeholder="Enter team password" required>
-                        <button type="submit">Access</button>
-                    </form>
-                    <div class="error">Invalid password. Please contact your administrator.</div>
-                </div>
-            </body>
-            </html>
-        `);
+    // Check if user is authenticated via session
+    if (req.session.apiDocsAuthenticated) {
+        return res.sendFile(path.join(__dirname, 'api-docs.html'));
     }
     
-    res.sendFile(path.join(__dirname, 'api-docs.html'));
+    // Show login form
+    return res.status(401).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Access Required - TurboNIW</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+                .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                h1 { color: #e74c3c; margin-bottom: 20px; }
+                p { color: #666; margin-bottom: 30px; }
+                .password-form { margin: 20px 0; }
+                input[type="password"] { padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
+                button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+                button:hover { background: #2980b9; }
+                .error { color: #e74c3c; margin-top: 10px; display: none; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🔒 Access Required</h1>
+                <p>This page is restricted to team members only.</p>
+                <form class="password-form" method="post" action="/api-docs/auth">
+                    <input type="password" name="password" placeholder="Enter team password" required>
+                    <button type="submit">Access</button>
+                </form>
+                <div class="error" id="error">Invalid password. Please contact your administrator.</div>
+            </div>
+            <script>
+                // Show error if redirected with error parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('error') === '1') {
+                    document.getElementById('error').style.display = 'block';
+                }
+            </script>
+        </body>
+        </html>
+    `);
+});
+
+// API Documentation authentication endpoint
+app.post('/api-docs/auth', (req, res) => {
+    const password = req.body.password;
+    const expectedPassword = process.env.TEAM_PASSWORD || 'sanqi2025niw';
+    
+    if (password === expectedPassword) {
+        // Set authentication flag in session
+        req.session.apiDocsAuthenticated = true;
+        res.redirect('/api-docs');
+    } else {
+        res.redirect('/api-docs?error=1');
+    }
 });
 
 // Data management page route - Basic admin protection
