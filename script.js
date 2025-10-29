@@ -6,13 +6,6 @@ class SurveyForm {
         const sections = document.querySelectorAll('.form-section');
         this.totalSteps = sections && sections.length ? sections.length : 1;
         this.formData = {};
-        
-        console.log('SurveyForm constructor:', {
-            sectionsFound: sections.length,
-            totalSteps: this.totalSteps,
-            sections: Array.from(sections).map(s => s.getAttribute('data-section'))
-        });
-        
         this.init();
     }
 
@@ -94,14 +87,6 @@ class SurveyForm {
         const nextBtn = document.getElementById('nextBtn');
         const submitBtn = document.getElementById('submitBtn');
 
-        console.log('updateNavigationButtons called:', {
-            currentStep: this.currentStep,
-            totalSteps: this.totalSteps,
-            prevBtn: !!prevBtn,
-            nextBtn: !!nextBtn,
-            submitBtn: !!submitBtn
-        });
-
         // Show/hide previous button
         prevBtn.style.display = this.currentStep > 1 ? 'inline-flex' : 'none';
         
@@ -114,7 +99,6 @@ class SurveyForm {
 
         // Show/hide next/submit buttons
         if (this.currentStep === this.totalSteps) {
-            console.log('On last step - showing submit button');
             nextBtn.style.display = 'none';
             submitBtn.style.display = 'inline-flex';
             
@@ -122,7 +106,6 @@ class SurveyForm {
             nextBtn.classList.add('hidden');
             submitBtn.classList.remove('hidden');
         } else {
-            console.log('Not on last step - showing next button');
             nextBtn.style.display = 'inline-flex';
             submitBtn.style.display = 'none';
             

@@ -1389,9 +1389,9 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     display: none !important;
 }
 
-/* Only show submit button when explicitly set to inline-block */
-#submitBtn[style*="inline-block"] {
-    display: inline-block !important;
+/* Only show submit button when explicitly set to inline-block or inline-flex */
+#submitBtn[style*="inline-block"], #submitBtn[style*="inline-flex"] {
+    display: inline-flex !important;
 }
 
 /* Force next button to be hidden when set to none */
