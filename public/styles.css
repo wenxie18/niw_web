@@ -192,6 +192,12 @@ body.home .survey-form .section-header { margin-bottom: 12px; }
     margin-top: -20px; /* Increased from -64px to move text lower */
 }
 
+/* Hero CTA Container - just for spacing */
+.hero-cta-container {
+    margin-top: 32px;
+    text-align: center;
+}
+
 .btn-large {
     padding: 16px 32px;
     font-size: 1.125rem;
@@ -1783,6 +1789,10 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
         margin-top: -40px; /* Move closer to cards on mobile */
     }
     
+    .hero-cta-container {
+        margin-top: 24px;
+    }
+    
     /* About Section */
     .about-container {
         padding: 30px 12px;
@@ -1988,6 +1998,10 @@ body.home .home-section.centered .section-header p { margin: 0 auto; }
     
     .cta-text-spaced {
         margin-top: -30px; /* Move closer to cards on small mobile */
+    }
+    
+    .hero-cta-container {
+        margin-top: 20px;
     }
     
     .about-container,
